@@ -3,3 +3,4 @@ venv/
 terraform/secrets.sh
 secrets.sh
 *.sqlite
+*.tfstate

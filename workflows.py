@@ -76,10 +76,12 @@ class ProvisionInfraWorkflow:
 	@workflow.signal
 	async def signal_approve_apply(self) -> None:
 		workflow.logger.info("Approve signal received.")
+		# TODO: take a "reason" field
 		self._apply_approved = True
 
 	@workflow.signal
 	async def signal_deny_apply(self) -> None:
+		# TODO: take a "reason" field
 		workflow.logger.info("Deny signal received.")
 		self._apply_approved = False
 
