@@ -31,14 +31,13 @@ class ProvisioningActivities:
 	async def terraform_init(self, data: TerraformRunDetails) -> int:
 		"""Initialize the Terraform configuration."""
 		# TODO: get the directory from the details
-		print("init")
 		activity.logger.info("Terraform init")
 		returncode, stdout, stderr = self._run_terraform_command(["terraform", "init"], data.directory)
-		print(stdout)
+		activity.logger.info(stdout)
 		if returncode == 0:
-			print("Terraform init succeeded.")
+			activity.logger.info("Terraform init succeeded.")
 		else:
-			print(f"Terraform init failed: {stderr}")
+			activity.logger.info(f"Terraform init failed: {stderr}")
 			# TODO: raise init err
 		return returncode
 
@@ -46,14 +45,14 @@ class ProvisioningActivities:
 	async def terraform_plan(self, data: TerraformRunDetails) -> int:
 		"""Initialize the Terraform configuration."""
 		# TODO: get the directory from the details
-		print("plan")
+		activity.logger.info("plan")
 		activity.logger.info("Terraform plan")
 		returncode, stdout, stderr = self._run_terraform_command(["terraform", "init"], data.directory)
-		print(stdout)
+		activity.logger.info(stdout)
 		if returncode == 0:
-			print("Terraform plan succeeded.")
+			activity.logger.info("Terraform plan succeeded.")
 		else:
-			print(f"Terraform plan failed: {stderr}")
+			activity.logger.info(f"Terraform plan failed: {stderr}")
 			# TODO: raise plan err
 		# TODO: return the plan output as Json
 		return returncode
@@ -62,43 +61,57 @@ class ProvisioningActivities:
 	async def terraform_apply(self, data: TerraformRunDetails) -> int:
 		"""Apply the Terraform configuration."""
 		# TODO: get the directory from the details
-		print("apply")
+		activity.logger.info("apply")
 		activity.logger.info("Terraform apply")
 		returncode, stdout, stderr = self._run_terraform_command(["terraform", "apply", "-auto-approve"], data.directory)
 		# TODO: can I do heartbeating here?
-		print(stdout)
+		activity.logger.info(stdout)
 		if returncode == 0:
-			print("Terraform apply succeeded.")
+			activity.logger.info("Terraform apply succeeded.")
 		else:
-			print(f"Terraform apply failed: {stderr}")
+			activity.logger.info(f"Terraform apply failed: {stderr}")
 			# TODO: raise apply err
 		# return the apply output as JSON
 		return returncode
 
 	@activity.defn
-	async def policy_check(self) -> bool:
+	async def terraform_destroy(self, data: TerraformRunDetails) -> int:
+		"""Apply the Terraform configuration."""
+		# TODO: get the directory from the details
+		activity.logger.info("destroy")
+		activity.logger.info("Terraform destroy")
+		returncode, stdout, stderr = self._run_terraform_command(["terraform", "destroy", "-auto-approve"], data.directory)
+		# TODO: can I do heartbeating here?
+		activity.logger.info(stdout)
+		if returncode == 0:
+			activity.logger.info("Terraform destroy succeeded.")
+		else:
+			activity.logger.info(f"Terraform destroy failed: {stderr}")
+			# TODO: raise destroy err
+		# return the destroy output as JSON
+		return returncode
+
+	@activity.defn
+	async def policy_check(self, data: TerraformRunDetails) -> bool:
 		# TODO: check to see if an admin user is being added or a namespace is being delete
-		print("Policy check (could be external but isn't for now)")
+		activity.logger.info("Policy check (could be external but isn't for now)")
 		return False
 
 	"""
 	def terraform_show(self) -> str:
 		# TODO: make this a signal
-		print("Terraform show")
-
-	def terraform_destroy(self) -> str:
-		print("Terraform destroy")
+		activity.logger.info("Terraform show")
 
 	def update_progress(self) -> str:
 		# TODO: make this a query
-		print("Cost estimation")
+		activity.logger.info("Cost estimation")
 
 	def load_state(self) -> str:
 		# TODO: make this a query
-		print("load state")
+		activity.logger.info("load state")
 
 	def archive_state(self) -> str:
 		# TODO: make this a query
-		print("archive state")
+		activity.logger.info("archive state")
 	"""
 

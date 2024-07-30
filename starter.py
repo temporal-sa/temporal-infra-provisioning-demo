@@ -1,6 +1,6 @@
 import asyncio
-import sys
 import uuid
+import logging
 
 from workflows import ProvisionInfraWorkflow
 from shared import TerraformRunDetails, PROVISION_INFRA_QUEUE_NAME
@@ -8,6 +8,8 @@ from temporalio.client import Client
 
 
 async def main():
+	logging.basicConfig(level=logging.INFO)
+
 	# Create client connected to server at the given address
 	# TODO: take host as an arg / config item
 	client = await Client.connect("localhost:7233")
