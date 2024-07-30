@@ -9,7 +9,7 @@ tcld apikey create -n "terraform-test" --desc "Testing the API Key for the TF Pr
 
 ```bash
 # replace <yoursecretkey> with the "secretKey": output from tcld apikey create command
-export TEMPORAL_CLOUD_API_KEY="tmprl_EuInTzfBKYGI6xZQ9DHY2B9aVENaeOa7_R7uVJf0mQE7yfvLoYwQsx0TXiD4b9DnscOlewoS6BSIB0yS4OhZdXxf6vLJuuyfX"
+export TEMPORAL_CLOUD_API_KEY=""
 ```
 
 ```bash
