@@ -19,7 +19,24 @@ class ProvisioningActivities:
 		return process.returncode, stdout, stderr
 
 	@activity.defn
-	def terraform_init(self, data: TerraformRunDetails) -> str:
+	async def terraform_plan(self, data: TerraformRunDetails) -> str:
+		"""Initialize the Terraform configuration."""
+		"""
+		returncode, stdout, stderr = self._run_terraform_command(["terraform", "init"])
+		print(stdout)
+		if returncode == 0:
+			print("Terraform plan succeeded.")
+		else:
+			print(f"Terraform plan failed: {stderr}")
+			# TODO: raise plan err
+		return returncode
+		"""
+		# TODO: get the directory from the details
+		print("plan")
+		activity.logger.info("Terraform plan")
+
+	@activity.defn
+	async def terraform_init(self, data: TerraformRunDetails) -> str:
 		"""Initialize the Terraform configuration."""
 		"""
 		returncode, stdout, stderr = self._run_terraform_command(["terraform", "init"])
@@ -32,10 +49,11 @@ class ProvisioningActivities:
 		return returncode
 		"""
 		# TODO: get the directory from the details
+		print("init")
 		activity.logger.info("Terraform init")
 
 	@activity.defn
-	def terraform_apply(self, data: TerraformRunDetails) -> str:
+	async def terraform_apply(self, data: TerraformRunDetails) -> str:
 		"""Apply the Terraform configuration."""
 		"""
 		returncode, stdout, stderr = self._run_terraform_command(["terraform", "apply", "-auto-approve"])
@@ -48,6 +66,7 @@ class ProvisioningActivities:
 		return returncode
 		"""
 		# TODO: get the directory from the details
+		print("apply")
 		activity.logger.info("Terraform apply")
 
 	"""

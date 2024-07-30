@@ -13,17 +13,33 @@ class ProvisionInfraWorkflow:
 	@workflow.run
 
 	async def run(self, terraform_run_details: TerraformRunDetails) -> str:
-		init_retry_policy = RetryPolicy(
+		# TODO: add non-retryable errors
+		terraform_retry_policy = RetryPolicy(
 			maximum_attempts=3,
 			maximum_interval=timedelta(seconds=2),
 			non_retryable_error_types=[],
 		)
 
-		# Check all of the items are available in inventory
 		init_output = await workflow.execute_activity_method(
 			ProvisioningActivities.terraform_init,
 			terraform_run_details,
 			start_to_close_timeout=timedelta(seconds=10),
-			retry_policy=init_retry_policy,
+			retry_policy=terraform_retry_policy,
 		)
 		workflow.logger.info("Workflow init output", init_output)
+
+		plan_output = await workflow.execute_activity_method(
+			ProvisioningActivities.terraform_plan,
+			terraform_run_details,
+			start_to_close_timeout=timedelta(seconds=10),
+			retry_policy=terraform_retry_policy,
+		)
+		workflow.logger.info("Workflow plan output", plan_output)
+
+		apply_output = await workflow.execute_activity_method(
+			ProvisioningActivities.terraform_apply,
+			terraform_run_details,
+			start_to_close_timeout=timedelta(seconds=10),
+			retry_policy=terraform_retry_policy,
+		)
+		workflow.logger.info("Workflow apply output", apply_output)

@@ -2,7 +2,7 @@ import asyncio
 import sys
 
 from workflows import ProvisionInfraWorkflow
-from shared import TerraformRunDetails
+from shared import TerraformRunDetails, PROVISION_INFRA_QUEUE_NAME
 from temporalio.client import Client
 
 
@@ -21,7 +21,7 @@ async def main():
 		ProvisionInfraWorkflow.run,
 		run_1,
 		id="infra-provisioning-run-1",
-		task_queue="infra-provisioning",
+		task_queue=PROVISION_INFRA_QUEUE_NAME,
 	)
 
 	print(f"Started workflow. Workflow ID: {handle.id}, RunID {handle.result_run_id}")
