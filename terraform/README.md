@@ -1,5 +1,7 @@
 # Temporal Cloud Onboarding Module
 
+# TODO: clean up these notes
+
 ```bash
 # authenticate your session
 tcld login

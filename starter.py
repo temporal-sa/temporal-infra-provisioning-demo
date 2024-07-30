@@ -13,7 +13,7 @@ async def main():
 
 	run_1 = TerraformRunDetails(
 		# TODO: take a module name?
-		directory="terraform/"
+		directory="./terraform"
 	)
 
 	# Execute a workflow

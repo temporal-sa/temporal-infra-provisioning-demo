@@ -16,7 +16,8 @@ Terraform destroy on failure
 ## TODO
 
 - Instructions for generating a token
-- Switch to Temporal logging
+- Default arguments / config
+- Switch to Temporal logging, use more useful messages
 - Implement in GH actions
 - Ensure I use all of the different primitives like the money transfer demo
 - Rename the module
@@ -25,6 +26,9 @@ Terraform destroy on failure
 - Use local activities for terraform stuff and normal activities for API checks?
 - Add venv instructions or use poetry
 - Change from Provisioning to Terraform or vice a versa
+- Rename workflow to onboarding workflow that calls Terraform
+- remove all TODOs
+- Have a separate workflow for destroy, do a signal check or multiple when destroying
 
 ## Notes
 
