@@ -7,23 +7,19 @@ terraform {
 }
 
 provider "temporalcloud" {
-	# TODO:
-	# Also can be set by environment variable `TEMPORAL_CLOUD_API_KEY`
-	# api_key = "my-temporalcloud-api-key"
-
 	# Also can be set by environment variable `TEMPORAL_CLOUD_ENDPOINT`
-	endpoint = "saas-api.tmprl.cloud:443"
-
+	endpoint = var.endpoint
 	# Also can be set by environment variable `TEMPORAL_CLOUD_ALLOW_INSECURE`
-	allow_insecure = false
+	allow_insecure = var.allow_insecure
 }
 
-resource "temporalcloud_namespace" "namespace" {
-	# TODO: take as an arg
+// TODO: do we want to take arguments for each namespace or be declarative?
+// whatever we decide, note it here in a comment. Generate certs? Put this in a
+// module and have the the users call the module, the module creates the key
+// for the namespace.
+resource "temporalcloud_namespace" "terraform_test" {
 	name               = "neil-dahlke-terraform-test"
-	# TODO: take as an arg
 	regions            = ["aws-us-west-2"]
-	# accepted_client_ca = base64encode(file("ca.pem"))
 	accepted_client_ca = base64encode(file("/Users/neildahlke/.temporal_certs/ca.pem"))
 	retention_days     = 14
 }

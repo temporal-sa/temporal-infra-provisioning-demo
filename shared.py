@@ -1,11 +1,12 @@
 from dataclasses import dataclass
 
 PROVISION_INFRA_QUEUE_NAME = "PROVISION_INFRA_QUEUE"
+TERRAFORM_TIMEOUT_SECS = 300
 
 @dataclass
 class TerraformRunDetails:
+	# module_name: str = None
 	directory: str
-	# module_name
 
 @dataclass
 class TerraformInitError(Exception):

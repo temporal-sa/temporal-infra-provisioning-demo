@@ -21,7 +21,8 @@ async def main() -> None:
         activities=[
             activities.terraform_init,
             activities.terraform_plan,
-            activities.terraform_apply
+            activities.terraform_apply,
+            activities.policy_check,
         ]
     )
     await worker.run()

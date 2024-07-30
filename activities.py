@@ -21,7 +21,6 @@ class ProvisioningActivities:
 		secret_env_vars = {
 			"TEMPORAL_CLOUD_API_KEY": os.environ.get("TEMPORAL_CLOUD_API_KEY")
 		}
-		print(secret_env_vars)
 		env.update(secret_env_vars)
 
 		process = subprocess.Popen(command, env=env, cwd=tf_directory, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
@@ -56,8 +55,8 @@ class ProvisioningActivities:
 		else:
 			print(f"Terraform plan failed: {stderr}")
 			# TODO: raise plan err
+		# TODO: return the plan output as Json
 		return returncode
-
 
 	@activity.defn
 	async def terraform_apply(self, data: TerraformRunDetails) -> int:
@@ -66,34 +65,40 @@ class ProvisioningActivities:
 		print("apply")
 		activity.logger.info("Terraform apply")
 		returncode, stdout, stderr = self._run_terraform_command(["terraform", "apply", "-auto-approve"], data.directory)
+		# TODO: can I do heartbeating here?
 		print(stdout)
 		if returncode == 0:
 			print("Terraform apply succeeded.")
 		else:
 			print(f"Terraform apply failed: {stderr}")
 			# TODO: raise apply err
+		# return the apply output as JSON
 		return returncode
 
-	"""
-	def terraform_plan(self) -> str:
-		print("terraform plan")
+	@activity.defn
+	async def policy_check(self) -> bool:
+		# TODO: check to see if an admin user is being added or a namespace is being delete
+		print("Policy check (could be external but isn't for now)")
+		return False
 
-	def terraform_output(self) -> str:
-		print("Terraform output")
+	"""
+	def terraform_show(self) -> str:
+		# TODO: make this a signal
+		print("Terraform show")
 
 	def terraform_destroy(self) -> str:
 		print("Terraform destroy")
 
-	def policy_check(self) -> str:
-		print("Policy check")
-
-	def cost_estimation(self) -> str:
-		print("Cost estimation")
-
-	def approve_plan(self) -> str:
-		print("Cost estimation")
-
 	def update_progress(self) -> str:
+		# TODO: make this a query
 		print("Cost estimation")
+
+	def load_state(self) -> str:
+		# TODO: make this a query
+		print("load state")
+
+	def archive_state(self) -> str:
+		# TODO: make this a query
+		print("archive state")
 	"""
 
