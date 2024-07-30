@@ -7,6 +7,8 @@ TERRAFORM_TIMEOUT_SECS = 300
 class TerraformRunDetails:
 	# module_name: str = None
 	directory: str
+	# TODO: use a dict?
+	plan: str = ""
 
 # TODO: do I need all of these inits?
 @dataclass

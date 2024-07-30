@@ -35,7 +35,7 @@ async def main():
 		ProvisionInfraWorkflow.run,
 		run_1,
 		id=f"infra-provisioning-run-{uuid.uuid4()}",
-		task_queue=PROVISION_INFRA_QUEUE_NAME,
+		task_queue=TEMPORAL_INFRA_PROVISION_TASK_QUEUE,
 		# TODO: add the directory as a custom attribute
 	)
 

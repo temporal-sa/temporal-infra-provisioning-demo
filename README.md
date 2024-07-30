@@ -6,8 +6,8 @@
 |                    |   | Local Activity | ✅ | Long-Running        | ✅ |
 | Python 3.12        | ✅ | Timer         |    | Fanout              |   |
 | Poetry 1.8.3       | ✅ | Signal        | ✅ | Continue As New     |   |
-|                    |   | Query          | ✅ | Manual Intervention | ✅ |
-|                    |   | Heartbeat      |    | Long-polling        |   |
+| Terraform          |   | Query          | ✅ | Manual Intervention | ✅ |
+| Open Policy Agent  |   | Heartbeat      |    | Long-polling        |   |
 |                    |   | Retry          | ✅ |                     |   |
 |                    |   | Data Converter |    |                     |   |
 |                    |   | Codec Server   |    |                     |   |
@@ -75,6 +75,7 @@ export TEMPORAL_INFRA_PROVISION_TASK_QUEUE=""
 ## TODO
 
 - CLEAR TODOs
+- More comments
 - Use Poetry or document `venv`
 - Default arguments / config
 - Switch to Temporal logging, use more useful messages
@@ -85,6 +86,8 @@ export TEMPORAL_INFRA_PROVISION_TASK_QUEUE=""
 - Terraform apply is synchronous for the most part?
 - Get certs for the runs from a local Vault instance? Generate with TF?
 - Save planfile between plan / apply and load it up into the policy check?
+- Test queries
+- SDK metrics / Grafana integration
 
 ## Ideas
 

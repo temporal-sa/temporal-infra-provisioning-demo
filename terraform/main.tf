@@ -25,12 +25,12 @@ resource "temporalcloud_namespace" "terraform_test" {
 }
 
 /*
-// TODO
-
 resource "temporalcloud_user" "global_admin" {
-  email          = "neil.dahlke@temporal.io"
+  email          = "neil@dahlke.io"
   account_access = "admin"
 }
+
+// TODO
 
 resource "temporalcloud_user" "namespace_admin" {
   email          = "developer@yourdomain.com"

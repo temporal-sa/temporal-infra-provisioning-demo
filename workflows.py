@@ -15,7 +15,7 @@ class ProvisionInfraWorkflow:
 
 	def __init__(self) -> None:
 		self._apply_approved = None
-		self._current_state = "initializing"
+		self._current_state = "uninitialized"
 
 	@workflow.run
 	async def run(self, terraform_run_details: TerraformRunDetails) -> str:
@@ -26,7 +26,8 @@ class ProvisionInfraWorkflow:
 			non_retryable_error_types=[],
 		)
 
-		init_output = await workflow.execute_activity_method(
+		self._current_state = "initializing..."
+		await workflow.execute_activity_method(
 			ProvisioningActivities.terraform_init,
 			terraform_run_details,
 			start_to_close_timeout=timedelta(seconds=TERRAFORM_TIMEOUT_SECS),
@@ -40,6 +41,8 @@ class ProvisionInfraWorkflow:
 			start_to_close_timeout=timedelta(seconds=TERRAFORM_TIMEOUT_SECS),
 			retry_policy=terraform_retry_policy,
 		)
+
+		terraform_run_details.plan = plan_output
 
 		self._current_state = "checking policy..."
 		policy_check_output = await workflow.execute_activity_method(
@@ -71,7 +74,6 @@ class ProvisionInfraWorkflow:
 			self._current_state = "apply denied."
 			workflow.logger.info("Workflow apply denied.")
 			# TODO: get a handle to the workflow and then cancel it
-			# TODO: raise a custom exception here
 
 	@workflow.signal
 	async def signal_approve_apply(self) -> None:

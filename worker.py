@@ -1,13 +1,14 @@
 import asyncio
 import logging
+import os
 
 from temporalio.client import Client
 from temporalio.worker import Worker
 
 from activities import ProvisioningActivities
-from shared import PROVISION_INFRA_QUEUE_NAME
 from workflows import ProvisionInfraWorkflow
 
+TEMPORAL_INFRA_PROVISION_TASK_QUEUE=os.environ.get("TEMPORAL_INFRA_PROVISION_TASK_QUEUE", "infra-provisioning-queue")
 
 async def main() -> None:
 	logging.basicConfig(level=logging.INFO)
@@ -18,7 +19,7 @@ async def main() -> None:
 
 	worker: Worker = Worker(
 		client,
-		task_queue=PROVISION_INFRA_QUEUE_NAME,
+		task_queue=TEMPORAL_INFRA_PROVISION_TASK_QUEUE,
 		workflows=[ProvisionInfraWorkflow],
 		activities=[
 			activities.terraform_init,
