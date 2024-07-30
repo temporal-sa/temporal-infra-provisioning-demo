@@ -8,6 +8,7 @@ class TerraformRunDetails:
 	# module_name: str = None
 	directory: str
 
+# TODO: do I need all of these inits?
 @dataclass
 class TerraformInitError(Exception):
 	def __init__(self, message) -> None:
@@ -22,6 +23,12 @@ class TerraformPlanError(Exception):
 
 @dataclass
 class TerraformApplyError(Exception):
+	def __init__(self, message) -> None:
+		self.message: str = message
+		super().__init__(self.message)
+
+@dataclass
+class PolicyCheckError(Exception):
 	def __init__(self, message) -> None:
 		self.message: str = message
 		super().__init__(self.message)

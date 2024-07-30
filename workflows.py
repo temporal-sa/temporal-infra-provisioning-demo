@@ -75,12 +75,15 @@ class ProvisionInfraWorkflow:
 
 	@workflow.signal
 	async def signal_approve_apply(self) -> None:
+		workflow.logger.info("Approve signal received.")
 		self._apply_approved = True
 
 	@workflow.signal
 	async def signal_deny_apply(self) -> None:
+		workflow.logger.info("Deny signal received.")
 		self._apply_approved = False
 
 	@workflow.query
 	def current_state_query(self) -> str:
+		workflow.logger.info("State query received.")
 		return self._current_state

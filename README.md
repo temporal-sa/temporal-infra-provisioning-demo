@@ -54,17 +54,19 @@ export TEMPORAL_CLOUD_API_KEY=""
 - Switch to Temporal logging, use more useful messages
 - Implement in GH actions, use persistence across runs (are there versions of state?)
 - Ensure I use all of the different primitives like the money transfer demo
-- If admin is being generated, then require approval from a human
-- Create failure conditios
-- Add a step to archive state
+- Create failure conditions
 - Use local activities for terraform stuff and normal activities for API checks?
 - Add venv instructions or use poetry
-- remove all TODOs
 - Have a separate workflow for destroy, do a signal check or multiple when destroying
-- Put a module on the Public Module Registry?
-- Terraform destroy on failure
-- Review all the types that I'm using
+- Compensations?
+- Review all the types that I'm using w/ modern Python
 - Terraform apply is synchronous for the most part?
+- Get certs for the runs from a local Vault instance? Generate with TF?
+
+## Ideas
+
+- Public Module Registry
+- Ephemeral Infrastructure (teardown after set period of time unless signaled to keep alive from)
 
 ## Notes
 
