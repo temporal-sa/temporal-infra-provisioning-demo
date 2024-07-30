@@ -5,10 +5,11 @@ import os
 from temporalio.client import Client
 from temporalio.worker import Worker
 
+from shared import PROVISION_INFRA_QUEUE_NAME
 from activities import ProvisioningActivities
 from workflows import ProvisionInfraWorkflow
 
-TEMPORAL_INFRA_PROVISION_TASK_QUEUE=os.environ.get("TEMPORAL_INFRA_PROVISION_TASK_QUEUE", "infra-provisioning-queue")
+TEMPORAL_INFRA_PROVISION_TASK_QUEUE = os.environ.get("TEMPORAL_INFRA_PROVISION_TASK_QUEUE", PROVISION_INFRA_QUEUE_NAME)
 
 async def main() -> None:
 	logging.basicConfig(level=logging.INFO)

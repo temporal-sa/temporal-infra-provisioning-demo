@@ -68,8 +68,7 @@ class ProvisionInfraWorkflow:
 				start_to_close_timeout=timedelta(seconds=TERRAFORM_TIMEOUT_SECS),
 				retry_policy=terraform_retry_policy,
 			)
-
-			workflow.logger.info("Workflow apply output", apply_output)
+			workflow.logger.info(f"Workflow apply output {apply_output}")
 		else:
 			self._current_state = "apply denied."
 			workflow.logger.info("Workflow apply denied.")

@@ -8,7 +8,7 @@
 | Poetry 1.8.3       | ✅ | Signal        | ✅ | Continue As New     |   |
 | Terraform          |   | Query          | ✅ | Manual Intervention | ✅ |
 | Open Policy Agent  |   | Heartbeat      |    | Long-polling        |   |
-|                    |   | Retry          | ✅ |                     |   |
+| GitHub Access      |   | Retry          | ✅ |                     |   |
 |                    |   | Data Converter |    |                     |   |
 |                    |   | Codec Server   |    |                     |   |
 |                    |   | Polyglot       |    |                     |   |
@@ -33,6 +33,15 @@ export TEMPORAL_MTLS_TLS_KEY=""
 export TEMPORAL_NAMESPACE=""
 export TEMPORAL_WORKER_METRICS_PORT=9090
 export TEMPORAL_INFRA_PROVISION_TASK_QUEUE=""
+```
+
+```bash
+export TEMPORAL_CLOUD_API_KEY=""
+export TEMPORAL_INFRA_PROVISION_TASK_QUEUE=""
+
+poetry install
+poetry run python worker.py
+poetry run python stater.py
 ```
 
 ## Provision Workflow
@@ -74,20 +83,16 @@ export TEMPORAL_INFRA_PROVISION_TASK_QUEUE=""
 
 ## TODO
 
-- CLEAR TODOs
-- More comments
-- Use Poetry or document `venv`
-- Default arguments / config
-- Switch to Temporal logging, use more useful messages
+- CLEAR TODOs, more comments, no prints
 - Implement in GH actions, use persistence across runs (are there versions of state?)
 - Failure conditions
-- Destroy workflow
 - Review all the types that I'm using w/ modern Python
 - Terraform apply is synchronous for the most part?
 - Get certs for the runs from a local Vault instance? Generate with TF?
 - Save planfile between plan / apply and load it up into the policy check?
 - Test queries
 - SDK metrics / Grafana integration
+- Formatting / linting
 
 ## Ideas
 
@@ -96,6 +101,7 @@ export TEMPORAL_INFRA_PROVISION_TASK_QUEUE=""
 - CDK TF Python?
 - Use local activities for terraform stuff and normal activities for API checks?
 - Compensations?
+- Destroy workflow
 
 ## Notes
 

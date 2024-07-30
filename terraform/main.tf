@@ -31,7 +31,6 @@ resource "temporalcloud_user" "global_admin" {
 }
 
 // TODO
-
 resource "temporalcloud_user" "namespace_admin" {
   email          = "developer@yourdomain.com"
   account_access = "developer"

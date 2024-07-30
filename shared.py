@@ -1,14 +1,16 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from typing import Dict
 
 PROVISION_INFRA_QUEUE_NAME = "PROVISION_INFRA_QUEUE"
 TERRAFORM_TIMEOUT_SECS = 300
 
 @dataclass
 class TerraformRunDetails:
-	# module_name: str = None
 	directory: str
 	# TODO: use a dict?
 	plan: str = ""
+	env_vars: Dict[str, str] = field(default_factory=dict)
+
 
 # TODO: do I need all of these inits?
 @dataclass

@@ -15,18 +15,12 @@ class ProvisioningActivities:
 	def __init__(self) -> None:
 		pass
 
-	def _run_terraform_command(self, command, tf_directory) -> tuple:
+	def _run_terraform_command(self, command: list[str], data: TerraformRunDetails) -> tuple:
 		"""Run a Terraform command and capture the output."""
 
 		env = os.environ.copy()
-		# TODO: take this as an argument in the run details,
-		# TODO: needs to be exported on the worker currently
-		secret_env_vars = {
-			"TEMPORAL_CLOUD_API_KEY": os.environ.get("TEMPORAL_CLOUD_API_KEY")
-		}
-		env.update(secret_env_vars)
-
-		process = subprocess.Popen(command, env=env, cwd=tf_directory, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+		env.update(data.env_vars)
+		process = subprocess.Popen(command, env=env, cwd=data.directory, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
 		stdout, stderr = process.communicate()
 		return process.returncode, stdout, stderr
 
@@ -35,7 +29,7 @@ class ProvisioningActivities:
 		"""Initialize the Terraform configuration."""
 
 		activity.logger.info("Terraform init")
-		returncode, stdout, stderr = self._run_terraform_command(["terraform", "init", "-json"], data.directory)
+		returncode, stdout, stderr = self._run_terraform_command(["terraform", "init", "-json"], data)
 		if returncode == 0:
 			activity.logger.debug(f"Terraform init succeeded: {stdout}")
 		else:
@@ -51,7 +45,7 @@ class ProvisioningActivities:
 		tfplan_binary_filename = "tfplan.binary"
 
 		# TODO: change the file name of the plan since this can be shared?
-		plan_returncode, plan_stdout, plan_stderr = self._run_terraform_command(["terraform", "plan", "-out", tfplan_binary_filename], data.directory)
+		plan_returncode, plan_stdout, plan_stderr = self._run_terraform_command(["terraform", "plan", "-out", tfplan_binary_filename], data)
 
 		if plan_returncode == 0:
 			activity.logger.debug(f"Terraform plan succeeded: {plan_stdout}")
@@ -59,7 +53,7 @@ class ProvisioningActivities:
 			activity.logger.error(f"Terraform plan failed: {plan_stderr}")
 			raise(TerraformPlanError(f"Terraform plan failed: {plan_stderr}"))
 
-		show_returncode, show_stdout, show_stderr = self._run_terraform_command(["terraform", "show", "-json", tfplan_binary_filename], data.directory)
+		show_returncode, show_stdout, show_stderr = self._run_terraform_command(["terraform", "show", "-json", tfplan_binary_filename], data)
 		if show_returncode == 0:
 			activity.logger.debug(f"Terraform plan succeeded: {show_stdout}")
 		else:
@@ -75,13 +69,14 @@ class ProvisioningActivities:
 		"""Apply the Terraform configuration."""
 
 		activity.logger.info("Terraform apply")
-		returncode, stdout, stderr = self._run_terraform_command(["terraform", "apply", "-json", "-auto-approve"], data.directory)
+		returncode, stdout, stderr = self._run_terraform_command(["terraform", "apply", "-json", "-auto-approve"], data)
 		# TODO: can I do heartbeating here?
 		if returncode == 0:
 			activity.logger.debug(f"Terraform apply succeeded: {stdout}")
 		else:
 			activity.logger.error(f"Terraform apply failed: {stderr}")
 			raise(TerraformApplyError(f"Terraform apply failed: {stderr}"))
+
 		return stdout
 
 	@activity.defn
@@ -89,7 +84,7 @@ class ProvisioningActivities:
 		"""Destroy the Terraform configuration."""
 
 		activity.logger.info("Terraform destroy")
-		returncode, stdout, stderr = self._run_terraform_command(["terraform", "destroy", "-json", "-auto-approve"], data.directory)
+		returncode, stdout, stderr = self._run_terraform_command(["terraform", "destroy", "-json", "-auto-approve"], data)
 		# TODO: can I do heartbeating here?
 		if returncode == 0:
 			activity.logger.debug(stdout)
@@ -104,7 +99,7 @@ class ProvisioningActivities:
 		"""Show the output of the Terraform run."""
 
 		activity.logger.info("Terraform destroy")
-		returncode, stdout, stderr = self._run_terraform_command(["terraform", "output"], data.directory)
+		returncode, stdout, stderr = self._run_terraform_command(["terraform", "output"], data)
 		if returncode == 0:
 			activity.logger.debug(stdout)
 			activity.logger.info(f"Terraform destroy succeeded: {stdout}")
@@ -116,15 +111,25 @@ class ProvisioningActivities:
 
 	@activity.defn
 	async def policy_check(self, data: TerraformRunDetails) -> bool:
-		"""Evaluate the Terraform plan against a policy."""
-		# TODO: check to see if an admin user is being added or a namespace is being delete
-		# TODO: use OPA
-		policy_passed = False
+		"""Evaluate the Terraform plan against a policy. In this case, we're
+		checking for admin users being added at the account level."""
+
+		# TODO: check namespace is being deleted, use OPA
+		policy_passed = True
 
 		activity.logger.info("Policy check (could be external but isn't for now)")
 		try:
-			plan_json = json.loads(data.plan)
-			print(plan_json)
+			planned_changes = json.loads(data.plan)["resource_changes"]
+			for planned_change in planned_changes:
+				resource_type = planned_change["type"]
+				if resource_type == "temporalcloud_user":
+					actions = planned_change["change"]["actions"]
+					if "create" in actions:
+						expected_after_access = planned_change["change"]["after"]["account_access"]
+						if expected_after_access == "admin":
+							activity.logger.info("Admin user being created, policy check failed, must be approved manually")
+							policy_passed = False
+							continue
 		except Exception as e:
 			# TODO: activity error or just a raw exception?
 			raise PolicyCheckError(f"Policy check failed: {e}")
