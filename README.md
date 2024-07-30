@@ -1,16 +1,18 @@
 # temporal-infra-provisioning-demo
 
-| Prerequisites      |   | Features       |   | Patterns            |   |
-|:-------------------|---|----------------|---|---------------------|---|
-| Network Connection |   | Schedule       |   | Entity              |   |
-|                    |   | Local Activity | ✅ | Long-Running       | ✅ |
+| Prerequisites      |   | Features       |    | Patterns             |   |
+|:-------------------|---|----------------|----|----------------------|---|
+| Network Connection |   | Schedule       |    | Entity               |   |
+|                    |   | Local Activity | ✅ | Long-Running        | ✅ |
 | Python 3.12        | ✅ | Timer         |    | Fanout              |   |
 | Poetry 1.8.3       | ✅ | Signal        | ✅ | Continue As New     |   |
 |                    |   | Query          | ✅ | Manual Intervention | ✅ |
 |                    |   | Heartbeat      |    | Long-polling        |   |
 |                    |   | Retry          | ✅ |                     |   |
 |                    |   | Data Converter |    |                     |   |
+|                    |   | Codec Server   |    |                     |   |
 |                    |   | Polyglot       |    |                     |   |
+|                    |   | Worker Metrics |    |                     |   |
 
 ```bash
 # authenticate your session
@@ -25,11 +27,12 @@ export TEMPORAL_CLOUD_API_KEY=""
 ```
 
 ```bash
-export TEMPORAL_HOST_URL=""
+export TEMPORAL_HOST_URL="<namespace>.<accountId>.tmprl.cloud:7233"
 export TEMPORAL_MTLS_TLS_CERT=""
 export TEMPORAL_MTLS_TLS_KEY=""
 export TEMPORAL_NAMESPACE=""
-export TEMPORAL_TASK_QUEUE=""
+export TEMPORAL_WORKER_METRICS_PORT=9090
+export TEMPORAL_INFRA_PROVISION_TASK_QUEUE=""
 ```
 
 ## Provision Workflow
@@ -81,6 +84,7 @@ export TEMPORAL_TASK_QUEUE=""
 - Review all the types that I'm using w/ modern Python
 - Terraform apply is synchronous for the most part?
 - Get certs for the runs from a local Vault instance? Generate with TF?
+- Save planfile between plan / apply and load it up into the policy check?
 
 ## Ideas
 

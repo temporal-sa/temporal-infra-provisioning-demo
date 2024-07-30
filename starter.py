@@ -1,10 +1,18 @@
 import asyncio
 import uuid
 import logging
+import os
 
 from workflows import ProvisionInfraWorkflow
 from shared import TerraformRunDetails, PROVISION_INFRA_QUEUE_NAME
 from temporalio.client import Client
+
+# TODO: use these
+TEMPORAL_HOST_URL=os.environ.get("TEMPORAL_HOST_URL", "localhost:7233")
+TEMPORAL_MTLS_TLS_CERT=os.environ.get("TEMPORAL_MTLS_TLS_CERT", None)
+TEMPORAL_MTLS_TLS_KEY=os.environ.get("TEMPORAL_MTLS_TLS_KEY", None)
+TEMPORAL_NAMESPACE=os.environ.get("TEMPORAL_NAMESPACE", "infra-provisioning-queue")
+TEMPORAL_INFRA_PROVISION_TASK_QUEUE=os.environ.get("TEMPORAL_INFRA_PROVISION_TASK_QUEUE", "infra-provisioning-queue")
 
 
 async def main():
@@ -12,7 +20,7 @@ async def main():
 
 	# Create client connected to server at the given address
 	# TODO: take host as an arg / config item
-	client = await Client.connect("localhost:7233")
+	client = await Client.connect(TEMPORAL_HOST_URL)
 
 	tf_directory = "./terraform"
 

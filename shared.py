@@ -38,3 +38,21 @@ class TerraformDestroyError(Exception):
 	def __init__(self, message) -> None:
 		self.message: str = message
 		super().__init__(self.message)
+
+@dataclass
+class TerraformOutputError(Exception):
+	def __init__(self, message) -> None:
+		self.message: str = message
+		super().__init__(self.message)
+
+@dataclass
+class LoadStatefileError(Exception):
+	def __init__(self, message) -> None:
+		self.message: str = message
+		super().__init__(self.message)
+
+@dataclass
+class ArchiveStatefileError(Exception):
+	def __init__(self, message) -> None:
+		self.message: str = message
+		super().__init__(self.message)

@@ -42,7 +42,7 @@ class ProvisioningActivities:
 
 	@activity.defn
 	async def terraform_plan(self, data: TerraformRunDetails) -> int:
-		"""Initialize the Terraform configuration."""
+		"""Plan the Terraform configuration."""
 		# TODO: get the directory from the details
 		activity.logger.info("Terraform plan")
 		returncode, stdout, stderr = self._run_terraform_command(["terraform", "init"], data.directory)
@@ -71,7 +71,23 @@ class ProvisioningActivities:
 
 	@activity.defn
 	async def terraform_destroy(self, data: TerraformRunDetails) -> int:
-		"""Apply the Terraform configuration."""
+		"""Destroy the Terraform configuration."""
+		# TODO: get the directory from the details
+		activity.logger.info("Terraform destroy")
+		returncode, stdout, stderr = self._run_terraform_command(["terraform", "destroy", "-auto-approve"], data.directory)
+		# TODO: can I do heartbeating here?
+		if returncode == 0:
+			activity.logger.info(stdout)
+			activity.logger.info(f"Terraform destroy succeeded: {stdout}")
+		else:
+			activity.logger.info(f"Terraform destroy failed: {stderr}")
+			# TODO: raise destroy err
+		# return the destroy output as JSON
+		return returncode
+
+	@activity.defn
+	async def terraform_output(self, data: TerraformRunDetails) -> int:
+		"""Show the output of the Terraform run."""
 		# TODO: get the directory from the details
 		activity.logger.info("Terraform destroy")
 		returncode, stdout, stderr = self._run_terraform_command(["terraform", "destroy", "-auto-approve"], data.directory)
@@ -87,22 +103,17 @@ class ProvisioningActivities:
 
 	@activity.defn
 	async def policy_check(self, data: TerraformRunDetails, plan: str) -> bool:
+		"""Evaluate the Terraform plan against a policy."""
 		# TODO: check to see if an admin user is being added or a namespace is being delete
 		activity.logger.info("Policy check (could be external but isn't for now)")
 		print("CHECK THE PLAN AND FAIL THE POLICY")
 		return False
 
 	"""
-	def terraform_show(self) -> str:
-		# TODO: make this a signal
-		activity.logger.info("Terraform show")
-
 	def load_state(self) -> str:
-		# TODO: make this a query
 		activity.logger.info("load state")
 
 	def archive_state(self) -> str:
-		# TODO: make this a query
 		activity.logger.info("archive state")
 	"""
 
