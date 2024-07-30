@@ -1,3 +1,0 @@
-#!/bin/sh
-
-export TEMPORAL_CLOUD_API_KEY="tmprl_EuInTzfBKYGI6xZQ9DHY2B9aVENaeOa7_R7uVJf0mQE7yfvLoYwQsx0TXiD4b9DnscOlewoS6BSIB0yS4OhZdXxf6vLJuuyfX"

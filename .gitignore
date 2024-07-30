@@ -1,1 +1,3 @@
 venv/
+terraform/secrets.sh
+secrets.sh
