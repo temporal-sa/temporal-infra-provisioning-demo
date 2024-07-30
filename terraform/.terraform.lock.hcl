@@ -1,0 +1,24 @@
+# This file is maintained automatically by "terraform init".
+# Manual edits may be lost in future updates.
+
+provider "registry.terraform.io/temporalio/temporalcloud" {
+  version = "0.0.9"
+  hashes = [
+    "h1:d4s87HpDT8EkFWdkhzAqQvTslc30kY5g9fC8AdgiQKA=",
+    "zh:0568c44826fccefa034466dbc40725906c30c1ba69e824dba6312c98331f93a0",
+    "zh:057723ef8e6e3cb53d7a5c05ada132701c8aff450a3a5a034ddf8264571ec427",
+    "zh:1a92b93a166816b60c86f3160a5ec72520adde39567ca158bbedde0e32b56553",
+    "zh:34a09c13dd867f72a15f735c40d7b7526344d7692cefaf8852f4f523dd5306cc",
+    "zh:41fe343a26c8cb8360d2830117223ac8b6b615fcd077d944ba7f01275f747294",
+    "zh:47aa4cbc45946a4c9f1d519c7287b9255728e09b1b3678515cfb8189c8f24786",
+    "zh:53efe8b18fa22df1dccf286cc5ed15d99795889ec2e96501a9a70c45370d01b7",
+    "zh:5667d76ab684113a8d66175b90e33f0425e017f94673f1bc68744e9e6f95a230",
+    "zh:59d94e6dc7b7958cdd54de7cb82ca565a648e92bed3a398367666cb298f2f244",
+    "zh:601b56afd11dda88a5651db556b9e7daae2657fcfccfa4eafa29b1cd160807e5",
+    "zh:6d2a3c9e270f0252b800df90e382d0bf912241ca403bc1bc9b368ac817d2ce88",
+    "zh:890df766e9b839623b1f0437355032a3c006226a6c200cd911e15ee1a9014e9f",
+    "zh:9d6fe09719e5b1670e9b8d385407a5522bf3fbc2c52d67643a4dae962af9f4a4",
+    "zh:acf20ade068493e65557fb2e00702118cc40fd5f6157a49c48a5579f211f3807",
+    "zh:b3d1b247f3fd964d1788b33e959e473af330f51fc6f4ed5bf553ff54469e45dd",
+  ]
+}
