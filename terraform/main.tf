@@ -7,22 +7,25 @@ terraform {
 }
 
 provider "temporalcloud" {
-	# Also can be set by environment variable `TEMPORAL_CLOUD_ENDPOINT`
-	endpoint = var.endpoint
-	# Also can be set by environment variable `TEMPORAL_CLOUD_ALLOW_INSECURE`
-	allow_insecure = var.allow_insecure
+	endpoint = var.endpoint # or env var `TEMPORAL_CLOUD_ENDPOINT`
+	allow_insecure = var.allow_insecure # or env var `TEMPORAL_CLOUD_ALLOW_INSECURE`
 }
 
-// TODO: do we want to take arguments for each namespace or be declarative?
-// whatever we decide, note it here in a comment. Generate certs? Put this in a
-// module and have the the users call the module, the module creates the key
-// for the namespace.
 resource "temporalcloud_namespace" "terraform_test" {
 	name               = "neil-dahlke-terraform-test"
 	regions            = ["aws-us-west-2"]
 	accepted_client_ca = base64encode(file("/Users/neildahlke/.temporal_certs/ca.pem"))
 	retention_days     = 14
 }
+
+/*
+resource "temporalcloud_namespace" "terraform_test2" {
+	name               = "neil-dahlke-terraform-test2"
+	regions            = ["aws-us-west-2"]
+	accepted_client_ca = base64encode(file("/Users/neildahlke/.temporal_certs/ca.pem"))
+	retention_days     = 14
+}
+*/
 
 /*
 resource "temporalcloud_user" "global_admin" {

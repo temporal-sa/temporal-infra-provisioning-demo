@@ -1,4 +1,4 @@
-# temporal-infra-provisioning-demo
+# temporal_infra_provisioning_demo
 
 | Prerequisites      |   | Features       |    | Patterns             |   |
 |:-------------------|---|----------------|----|----------------------|---|
@@ -28,17 +28,14 @@ export TEMPORAL_CLOUD_API_KEY=""
 
 ```bash
 export TEMPORAL_HOST_URL="<namespace>.<accountId>.tmprl.cloud:7233"
-export TEMPORAL_MTLS_TLS_CERT=""
-export TEMPORAL_MTLS_TLS_KEY=""
-export TEMPORAL_NAMESPACE=""
+export TEMPORAL_MTLS_TLS_CERT="/path/to/ca.pem"
+export TEMPORAL_MTLS_TLS_KEY="/path/to/ca.key"
+export TEMPORAL_NAMESPACE="default"
 export TEMPORAL_WORKER_METRICS_PORT=9090
-export TEMPORAL_INFRA_PROVISION_TASK_QUEUE=""
+export TEMPORAL_INFRA_PROVISION_TASK_QUEUE="infra-provisioning-python"
 ```
 
 ```bash
-export TEMPORAL_CLOUD_API_KEY=""
-export TEMPORAL_INFRA_PROVISION_TASK_QUEUE=""
-
 poetry install
 poetry run python worker.py
 poetry run python stater.py
@@ -50,9 +47,9 @@ poetry run python stater.py
 
 - Load State for Account
 - Terraform Init
-- Terraform Plan (tail logs)
+- Terraform Plan
 - Evaluate Policy
-- Terraform Apply (only after approval, tail logs)
+- Terraform Apply
 - Archive State for Account
 
 ### Provision Signals
@@ -64,44 +61,36 @@ poetry run python stater.py
 
 - Get Progress
 
-## Destroy Workflow
-
-### Destroy Activities
-
-- Load State for Account
-- Terraform Init
-- Terraform Destroy (only after approval, tail logs)
-- Archive State for Account
-
-### Destroy Signals
-
-- Human Approval
-
-### Destroy Queries
-
-- Get Progress
-
 ## TODO
 
-- CLEAR TODOs, more comments, no prints
-- Implement in GH actions, use persistence across runs (are there versions of state?)
+- CLEAR TODOs, more comments all over, no prints, linting
 - Failure conditions
-- Review all the types that I'm using w/ modern Python
-- Terraform apply is synchronous for the most part?
-- Get certs for the runs from a local Vault instance? Generate with TF?
 - Save planfile between plan / apply and load it up into the policy check?
 - Test queries
 - SDK metrics / Grafana integration
-- Formatting / linting
+- UI
+- Workflow diagram
+- Final README
+- Document the TF code
 
 ## Ideas
 
 - Public Module Registry
 - Ephemeral Infrastructure (teardown after set period of time unless signaled to keep alive from)
+- Get certs for the runs from a local Vault instance? Generate with TF?
 - CDK TF Python?
 - Use local activities for terraform stuff and normal activities for API checks?
 - Compensations?
 - Destroy workflow
+- GH actions
+- OPA
+
+## Questions
+
+- Do we want to block admins in namespaces as well? Any other valuable policy?
+- Do we want to take arguments for each namespace in the .tf files or keep them declarative?
+- Do we want to generate certs with Vault? Or generate here in the TF?
+- Is this something we want to use for ephermeral scale testing environments?
 
 ## Notes
 

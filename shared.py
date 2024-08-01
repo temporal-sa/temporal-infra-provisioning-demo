@@ -1,18 +1,18 @@
 from dataclasses import dataclass, field
 from typing import Dict
 
+# NOTE: for init, policy_check, plan and outputs, they shouldn't take longer
+# than 30 seconds.
+TERRAFORM_COMMON_TIMEOUT_SECS = 30
 PROVISION_INFRA_QUEUE_NAME = "PROVISION_INFRA_QUEUE"
-TERRAFORM_TIMEOUT_SECS = 300
 
 @dataclass
 class TerraformRunDetails:
 	directory: str
-	# TODO: use a dict?
 	plan: str = ""
 	env_vars: Dict[str, str] = field(default_factory=dict)
+	apply_timeout_secs: int = 300
 
-
-# TODO: do I need all of these inits?
 @dataclass
 class TerraformInitError(Exception):
 	def __init__(self, message) -> None:
@@ -32,7 +32,7 @@ class TerraformApplyError(Exception):
 		super().__init__(self.message)
 
 @dataclass
-class PolicyCheckError(Exception):
+class TerraformOutputError(Exception):
 	def __init__(self, message) -> None:
 		self.message: str = message
 		super().__init__(self.message)
@@ -43,12 +43,15 @@ class TerraformDestroyError(Exception):
 		self.message: str = message
 		super().__init__(self.message)
 
+# TODO: make this OPA and use it in the policy check activity
 @dataclass
-class TerraformOutputError(Exception):
+class PolicyCheckError(Exception):
 	def __init__(self, message) -> None:
 		self.message: str = message
 		super().__init__(self.message)
 
+"""
+TODO: use these or remove them
 @dataclass
 class LoadStatefileError(Exception):
 	def __init__(self, message) -> None:
@@ -60,3 +63,4 @@ class ArchiveStatefileError(Exception):
 	def __init__(self, message) -> None:
 		self.message: str = message
 		super().__init__(self.message)
+"""

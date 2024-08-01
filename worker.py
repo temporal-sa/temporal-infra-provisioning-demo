@@ -9,12 +9,17 @@ from shared import PROVISION_INFRA_QUEUE_NAME
 from activities import ProvisioningActivities
 from workflows import ProvisionInfraWorkflow
 
+TEMPORAL_HOST_URL = os.environ.get("TEMPORAL_HOST_URL", "localhost:7233")
+TEMPORAL_MTLS_TLS_CERT = os.environ.get("TEMPORAL_MTLS_TLS_CERT", None)
+TEMPORAL_MTLS_TLS_KEY = os.environ.get("TEMPORAL_MTLS_TLS_KEY", None)
+TEMPORAL_NAMESPACE = os.environ.get("TEMPORAL_NAMESPACE", "default")
 TEMPORAL_INFRA_PROVISION_TASK_QUEUE = os.environ.get("TEMPORAL_INFRA_PROVISION_TASK_QUEUE", PROVISION_INFRA_QUEUE_NAME)
+TEMPORAL_CLOUD_API_KEY = os.environ.get("TEMPORAL_CLOUD_API_KEY", "")
 
 async def main() -> None:
 	logging.basicConfig(level=logging.INFO)
-	# TODO: take arguments in at runtime
-	client: Client = await Client.connect("localhost:7233", namespace="default")
+	# TODO: use the TLS stuff here.
+	client: Client = await Client.connect(TEMPORAL_HOST_URL, namespace=TEMPORAL_NAMESPACE)
 	# Run the worker
 	activities = ProvisioningActivities()
 

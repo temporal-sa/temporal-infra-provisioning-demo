@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "temporal-infra-provisioning-demo"
+name = "temporal_infra_provisioning_demo"
 version = "0.1.0"
 description = ""
 authors = ["Neil Dahlke <neil.dahlke@temporal.io>"]

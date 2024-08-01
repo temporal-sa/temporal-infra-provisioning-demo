@@ -3,12 +3,12 @@ import os
 import json
 
 from temporalio import activity
-# TODO
+# TODO: use these?
 # from temporalio.exceptions import ActivityError
 
 from shared import TerraformRunDetails, TerraformApplyError, \
-	TerraformDestroyError, TerraformInitError, TerraformPlanError, \
-	TerraformOutputError, PolicyCheckError
+	TerraformInitError, TerraformPlanError, TerraformOutputError, \
+		TerraformDestroyError, PolicyCheckError
 
 class ProvisioningActivities:
 
