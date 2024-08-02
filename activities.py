@@ -94,8 +94,7 @@ class ProvisioningActivities:
 		returncode, stdout, stderr = self._run_cmd_in_tf_dir(["terraform", "destroy", "-json", "-auto-approve"], data)
 		# TODO: heartbeating, note in the docs that this can take a while
 		if returncode == 0:
-			activity.logger.debug(stdout)
-			activity.logger.info(f"Terraform destroy succeeded: {stdout}")
+			activity.logger.debug(f"Terraform destroy succeeded: {stdout}")
 		else:
 			activity.logger.info(f"Terraform destroy failed: {stderr}")
 			raise(TerraformDestroyError(f"Terraform destroy failed: {stderr}"))
@@ -105,13 +104,12 @@ class ProvisioningActivities:
 	async def terraform_output(self, data: TerraformRunDetails) -> int:
 		"""Show the output of the Terraform run."""
 
-		activity.logger.info("Terraform destroy")
+		activity.logger.info("Terraform output")
 		returncode, stdout, stderr = self._run_cmd_in_tf_dir(["terraform", "output"], data)
 		if returncode == 0:
-			activity.logger.debug(stdout)
-			activity.logger.info(f"Terraform destroy succeeded: {stdout}")
+			activity.logger.debug(f"Terraform output succeeded: {stdout}")
 		else:
-			activity.logger.info(f"Terraform destroy failed: {stderr}")
+			activity.logger.info(f"Terraform output failed: {stderr}")
 			raise TerraformOutputError(f"Terraform output failed: {stderr}")
 		# return the destroy output as JSON
 		return returncode

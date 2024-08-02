@@ -35,15 +35,37 @@ export TEMPORAL_WORKER_METRICS_PORT=9090
 export TEMPORAL_INFRA_PROVISION_TASK_QUEUE="infra-provisioning-python"
 ```
 
+Before kicking off the starter, make sure the custom search attributes have been created.
+
+```bash
+temporal operator search-attribute create --namespace $TEMPORAL_NAMESPACE --name provisionStatus --type text
+temporal operator search-attribute create --namespace $TEMPORAL_NAMESPACE --name tfDirectory --type text
+```
+
+Make sure the dependencies for Python have been installed via Poetry.
+
 ```bash
 poetry install
+```
+
+Then run the worker (be sure you have the environment variable set).
+
+```bash
 poetry run python worker.py
+```
+
+Once you start the worker, submit a workflow using the starter (also needs the environment varialbes set).
+
+```bash
 poetry run python starter.py
 ```
 
+To query a workflow for it's current status, you can use the below command with the relevant in place of the current workflow ID.
+
 ```bash
-temporal operator search-attribute create --namespace default --name provisionStatus --type text
-temporal operator search-attribute create --namespace default --name tfDirectory --type text
+temporal workflow query \
+    --workflow-id="infra-provisioning-run-064501da-df61-494c-a5f6-d9a1412e23d2" \
+    --type="current_state_query"
 ```
 
 ## Provision Workflow
@@ -69,9 +91,7 @@ temporal operator search-attribute create --namespace default --name tfDirectory
 ## TODO
 
 - Clear TODOs, more comments all over, no prints, linting, final README
-- Use custom search attributes to publish the status
 - Failure conditions
-- Test queries
 - SDK metrics / Grafana integration
 - UI
 - Workflow diagram
