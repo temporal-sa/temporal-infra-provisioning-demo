@@ -3,10 +3,13 @@ import uuid
 import logging
 import os
 
-from workflows import ProvisionInfraWorkflow
-from shared import TerraformRunDetails, PROVISION_INFRA_QUEUE_NAME
+from temporalio.common import TypedSearchAttributes, SearchAttributeKey, SearchAttributePair
 from temporalio.client import Client
 from temporalio.service import TLSConfig
+
+from workflows import ProvisionInfraWorkflow
+from shared import TerraformRunDetails, PROVISION_STATUS_KEY, \
+	PROVISION_INFRA_QUEUE_NAME, TF_DIRECTORY_KEY
 
 TEMPORAL_HOST_URL = os.environ.get("TEMPORAL_HOST_URL", "localhost:7233")
 TEMPORAL_MTLS_TLS_CERT = os.environ.get("TEMPORAL_MTLS_TLS_CERT", "")
@@ -36,7 +39,7 @@ async def main():
 	client: Client = await Client.connect(
 		TEMPORAL_HOST_URL,
 		namespace=TEMPORAL_NAMESPACE,
-		tls=tls_config if tls_config else False
+		tls=tls_config if tls_config else False,
 	)
 
 
@@ -51,15 +54,20 @@ async def main():
 	)
 
 	# Execute a workflow
+	# TODO: make unititialized a constant?
+	provision_status_key = SearchAttributeKey.for_text("provisionStatus")
+	tf_directory_key = SearchAttributeKey.for_text("tfDirectory")
+
 	handle = await client.start_workflow(
 		ProvisionInfraWorkflow.run,
 		run_1,
 		id=f"infra-provisioning-run-{uuid.uuid4()}",
 		task_queue=TEMPORAL_INFRA_PROVISION_TASK_QUEUE,
-		# TODO: add the directory as a custom attribute
+		search_attributes=TypedSearchAttributes([
+			SearchAttributePair(provision_status_key, "uninitialized"),
+			SearchAttributePair(tf_directory_key, tcloud_tf_dir)
+		]),
 	)
-
-	print(f"Started workflow. Workflow ID: {handle.id}, RunID {handle.result_run_id}")
 
 	result = await handle.result()
 

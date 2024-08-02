@@ -2,7 +2,8 @@ import subprocess
 import os
 import json
 import asyncio
-from temporalio import activity # TODO: use these?
+from temporalio import activity
+# TODO: use activity errors
 # from temporalio.exceptions import ActivityError
 
 from shared import TerraformRunDetails, TerraformApplyError, \
@@ -45,6 +46,9 @@ class ProvisioningActivities:
 		# TODO: change the file name of the plan since this can be shared?
 		plan_returncode, plan_stdout, plan_stderr = self._run_cmd_in_tf_dir(["terraform", "plan", "-out", tfplan_binary_filename], data)
 
+		await asyncio.sleep(3)
+		# TODO: heartbeating, note in the docs that this can take a while
+
 		if plan_returncode == 0:
 			activity.logger.debug(f"Terraform plan succeeded: {plan_stdout}")
 		else:
@@ -71,8 +75,8 @@ class ProvisioningActivities:
 
 		returncode, stdout, stderr = self._run_cmd_in_tf_dir(["terraform", "apply", "-json", "-auto-approve"], data)
 
-		# TODO: heartbeating
-		# await asyncio.sleep(30)
+		await asyncio.sleep(3)
+		# TODO: heartbeating, note in the docs that this can take a while
 
 		if returncode == 0:
 			activity.logger.debug(f"Terraform apply succeeded: {stdout}")

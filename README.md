@@ -38,7 +38,12 @@ export TEMPORAL_INFRA_PROVISION_TASK_QUEUE="infra-provisioning-python"
 ```bash
 poetry install
 poetry run python worker.py
-poetry run python stater.py
+poetry run python starter.py
+```
+
+```bash
+temporal operator search-attribute create --namespace default --name provisionStatus --type text
+temporal operator search-attribute create --namespace default --name tfDirectory --type text
 ```
 
 ## Provision Workflow

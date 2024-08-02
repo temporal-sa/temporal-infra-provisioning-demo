@@ -1,10 +1,15 @@
 from dataclasses import dataclass, field
 from typing import Dict
+from enum import Enum
+from temporalio.common import SearchAttributeKey
 
 # NOTE: for init, policy_check, plan and outputs, they shouldn't take longer
 # than 30 seconds.
 TERRAFORM_COMMON_TIMEOUT_SECS = 30
 PROVISION_INFRA_QUEUE_NAME = "PROVISION_INFRA_QUEUE"
+
+PROVISION_STATUS_KEY = SearchAttributeKey.for_bool("provision_status")
+TF_DIRECTORY_KEY = SearchAttributeKey.for_bool("terraform_directory")
 
 @dataclass
 class TerraformRunDetails:
@@ -52,6 +57,18 @@ class PolicyCheckError(Exception):
 
 """
 TODO: use these or remove them
+
+class ProvisionStatus(Enum):
+    UNINITIALIZED = "uninitialized"
+    INITIALIZING = "initializing"
+    INITIALIZED = "initialized"
+    PLANNING = "planning"
+    PLANNED = "planned"
+    POLICY_CHECK = "policy_check"
+    APPLYING = "applying"
+    APPLIED = "applying"
+    REJECTED = "rejected"
+
 @dataclass
 class LoadStatefileError(Exception):
 	def __init__(self, message) -> None:
