@@ -45,16 +45,19 @@ resource "tls_self_signed_cert" "terraform_test" {
 resource "temporalcloud_namespace" "terraform_test" {
 	name               = "neil-dahlke-terraform-test"
 	regions            = ["aws-us-west-2"]
-	# accepted_client_ca = base64encode(file("/Users/neildahlke/.temporal_certs/ca.pem"))
-	accepted_client_ca = base64encode(tls_self_signed_cert.terraform_test.cert_pem)
+	accepted_client_ca = base64encode(file("/Users/neildahlke/.temporal_certs/ca.pem"))
+	# accepted_client_ca = base64encode(tls_self_signed_cert.terraform_test.cert_pem)
 	retention_days     = 14
 }
 
 /*
+// NOTE: we can make the apply fail by adding so many namespaces that the account
+// limit is exceeded. This is a good way to test the error handling in the provider.
 resource "temporalcloud_namespace" "terraform_test2" {
 	name               = "neil-dahlke-terraform-test2"
-	regions            = ["aws-us-west-2"]
-	accepted_client_ca = base64encode(file("/Users/neildahlke/.temporal_certs/ca.pem"))
+    regions            = ["aws-us-west-2"]
+	# accepted_client_ca = base64encode(file("/Users/neildahlke/.temporal_certs/ca.pem"))
+	accepted_client_ca = base64encode(tls_self_signed_cert.terraform_test.cert_pem)
 	retention_days     = 14
 }
 */

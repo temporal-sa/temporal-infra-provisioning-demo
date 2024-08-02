@@ -63,16 +63,15 @@ poetry run python stater.py
 
 ## TODO
 
-- CLEAR TODOs, more comments all over, no prints, linting
+- Clear TODOs, more comments all over, no prints, linting, final README
 - Use custom search attributes to publish the status
 - Failure conditions
 - Test queries
 - SDK metrics / Grafana integration
 - UI
 - Workflow diagram
-- Final README
-- Document the TF code
 - Ephemeral Infrastructure w/ keepalives on the TTL
+- Codec Server (sharing a TCLD api key)
 
 ## Ideas
 

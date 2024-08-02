@@ -5,3 +5,4 @@ secrets.sh
 *.sqlite
 *.tfstate*
 *.binary
+.terraform/

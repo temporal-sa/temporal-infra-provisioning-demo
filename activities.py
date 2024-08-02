@@ -1,9 +1,8 @@
 import subprocess
 import os
 import json
-
-from temporalio import activity
-# TODO: use these?
+import asyncio
+from temporalio import activity # TODO: use these?
 # from temporalio.exceptions import ActivityError
 
 from shared import TerraformRunDetails, TerraformApplyError, \
@@ -69,8 +68,12 @@ class ProvisioningActivities:
 		"""Apply the Terraform configuration."""
 
 		activity.logger.info("Terraform apply")
+
 		returncode, stdout, stderr = self._run_cmd_in_tf_dir(["terraform", "apply", "-json", "-auto-approve"], data)
-		# TODO: heartbeating, note in the docs that this can take a while
+
+		# TODO: heartbeating
+		# await asyncio.sleep(30)
+
 		if returncode == 0:
 			activity.logger.debug(f"Terraform apply succeeded: {stdout}")
 		else:
