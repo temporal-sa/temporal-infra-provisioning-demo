@@ -64,19 +64,19 @@ poetry run python stater.py
 ## TODO
 
 - CLEAR TODOs, more comments all over, no prints, linting
+- Use custom search attributes to publish the status
 - Failure conditions
-- Save planfile between plan / apply and load it up into the policy check?
 - Test queries
 - SDK metrics / Grafana integration
 - UI
 - Workflow diagram
 - Final README
 - Document the TF code
+- Ephemeral Infrastructure w/ keepalives on the TTL
 
 ## Ideas
 
 - Public Module Registry
-- Ephemeral Infrastructure (teardown after set period of time unless signaled to keep alive from)
 - Get certs for the runs from a local Vault instance? Generate with TF?
 - CDK TF Python?
 - Use local activities for terraform stuff and normal activities for API checks?
@@ -91,6 +91,7 @@ poetry run python stater.py
 - Do we want to take arguments for each namespace in the .tf files or keep them declarative?
 - Do we want to generate certs with Vault? Or generate here in the TF?
 - Is this something we want to use for ephermeral scale testing environments?
+- Do we want to make this save statefiles / planfiles across runs? Is this valuable enough?
 
 ## Notes
 

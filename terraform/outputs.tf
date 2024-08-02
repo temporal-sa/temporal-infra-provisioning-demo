@@ -11,10 +11,10 @@ output "terraform_test_namespace_id" {
 }
 
 output "terraform_test_client_certificate" {
-  value = tls_self_signed_cert.example.cert_pem
+  value = tls_self_signed_cert.terraform_test.cert_pem
 }
 
 output "terraform_test_private_key" {
-  value     = tls_private_key.example.private_key_pem
+  value     = tls_private_key.terraform_test.private_key_pem
   sensitive = true
 }

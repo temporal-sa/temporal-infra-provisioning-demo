@@ -15,9 +15,8 @@ class ProvisioningActivities:
 	def __init__(self) -> None:
 		pass
 
-	def _run_terraform_command(self, command: list[str], data: TerraformRunDetails) -> tuple:
+	def _run_cmd_in_tf_dir(self, command: list[str], data: TerraformRunDetails) -> tuple:
 		"""Run a Terraform command and capture the output."""
-
 		env = os.environ.copy()
 		env.update(data.env_vars)
 		process = subprocess.Popen(command, env=env, cwd=data.directory, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
@@ -29,7 +28,7 @@ class ProvisioningActivities:
 		"""Initialize the Terraform configuration."""
 
 		activity.logger.info("Terraform init")
-		returncode, stdout, stderr = self._run_terraform_command(["terraform", "init", "-json"], data)
+		returncode, stdout, stderr = self._run_cmd_in_tf_dir(["terraform", "init", "-json"], data)
 		if returncode == 0:
 			activity.logger.debug(f"Terraform init succeeded: {stdout}")
 		else:
@@ -45,7 +44,7 @@ class ProvisioningActivities:
 		tfplan_binary_filename = "tfplan.binary"
 
 		# TODO: change the file name of the plan since this can be shared?
-		plan_returncode, plan_stdout, plan_stderr = self._run_terraform_command(["terraform", "plan", "-out", tfplan_binary_filename], data)
+		plan_returncode, plan_stdout, plan_stderr = self._run_cmd_in_tf_dir(["terraform", "plan", "-out", tfplan_binary_filename], data)
 
 		if plan_returncode == 0:
 			activity.logger.debug(f"Terraform plan succeeded: {plan_stdout}")
@@ -53,14 +52,15 @@ class ProvisioningActivities:
 			activity.logger.error(f"Terraform plan failed: {plan_stderr}")
 			raise(TerraformPlanError(f"Terraform plan failed: {plan_stderr}"))
 
-		show_returncode, show_stdout, show_stderr = self._run_terraform_command(["terraform", "show", "-json", tfplan_binary_filename], data)
+		show_returncode, show_stdout, show_stderr = self._run_cmd_in_tf_dir(["terraform", "show", "-json", tfplan_binary_filename], data)
 		if show_returncode == 0:
 			activity.logger.debug(f"Terraform plan succeeded: {show_stdout}")
 		else:
 			activity.logger.error(f"Terraform plan failed: {show_stderr}")
 			raise(TerraformPlanError(f"Terraform plan failed: {show_stderr}"))
 
-		# TODO: delete the plan file once we get the JSON
+		# NOTE: no need to handle any errors, the file is removed or nonexistent
+		self._run_cmd_in_tf_dir(["rm", tfplan_binary_filename], data)
 
 		return show_stdout
 
@@ -69,8 +69,8 @@ class ProvisioningActivities:
 		"""Apply the Terraform configuration."""
 
 		activity.logger.info("Terraform apply")
-		returncode, stdout, stderr = self._run_terraform_command(["terraform", "apply", "-json", "-auto-approve"], data)
-		# TODO: can I do heartbeating here?
+		returncode, stdout, stderr = self._run_cmd_in_tf_dir(["terraform", "apply", "-json", "-auto-approve"], data)
+		# TODO: heartbeating, note in the docs that this can take a while
 		if returncode == 0:
 			activity.logger.debug(f"Terraform apply succeeded: {stdout}")
 		else:
@@ -84,8 +84,8 @@ class ProvisioningActivities:
 		"""Destroy the Terraform configuration."""
 
 		activity.logger.info("Terraform destroy")
-		returncode, stdout, stderr = self._run_terraform_command(["terraform", "destroy", "-json", "-auto-approve"], data)
-		# TODO: can I do heartbeating here?
+		returncode, stdout, stderr = self._run_cmd_in_tf_dir(["terraform", "destroy", "-json", "-auto-approve"], data)
+		# TODO: heartbeating, note in the docs that this can take a while
 		if returncode == 0:
 			activity.logger.debug(stdout)
 			activity.logger.info(f"Terraform destroy succeeded: {stdout}")
@@ -99,7 +99,7 @@ class ProvisioningActivities:
 		"""Show the output of the Terraform run."""
 
 		activity.logger.info("Terraform destroy")
-		returncode, stdout, stderr = self._run_terraform_command(["terraform", "output"], data)
+		returncode, stdout, stderr = self._run_cmd_in_tf_dir(["terraform", "output"], data)
 		if returncode == 0:
 			activity.logger.debug(stdout)
 			activity.logger.info(f"Terraform destroy succeeded: {stdout}")
