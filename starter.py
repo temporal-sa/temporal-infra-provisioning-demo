@@ -1,12 +1,15 @@
 import asyncio
+import dataclasses
 import uuid
 import logging
 import os
 
+from temporalio import converter
 from temporalio.common import TypedSearchAttributes, SearchAttributeKey, SearchAttributePair
 from temporalio.client import Client
 from temporalio.service import TLSConfig
 
+from codec import CompressionCodec
 from workflows import ProvisionInfraWorkflow
 from shared import TerraformRunDetails, PROVISION_STATUS_KEY, \
 	PROVISION_INFRA_QUEUE_NAME, TF_DIRECTORY_KEY
@@ -40,6 +43,11 @@ async def main():
 		TEMPORAL_HOST_URL,
 		namespace=TEMPORAL_NAMESPACE,
 		tls=tls_config if tls_config else False,
+        data_converter=dataclasses.replace(
+		   converter.default(),
+           payload_codec=CompressionCodec(),
+           failure_converter_class=converter.DefaultFailureConverterWithEncodedAttributes
+	    ),
 	)
 
 

@@ -9,10 +9,11 @@
 | Terraform          |   | Query          | ✅ | Manual Intervention | ✅ |
 | Open Policy Agent  |   | Heartbeat      |    | Long-polling        |   |
 | GitHub Access      |   | Retry          | ✅ |                     |   |
-|                    |   | Data Converter |    |                     |   |
+|                    |   | Data Converter | ✅  |                     |   |
 |                    |   | Codec Server   |    |                     |   |
 |                    |   | Polyglot       |    |                     |   |
 |                    |   | Worker Metrics |    |                     |   |
+|                    |   | Custom Attrs   |    |                     |   |
 
 ```bash
 # authenticate your session
@@ -48,6 +49,13 @@ Make sure the dependencies for Python have been installed via Poetry.
 poetry install
 ```
 
+Start the Codec server locally.
+
+```bash
+poetry run python codec_server.py --web http://localhost:8080
+```
+
+
 Then run the worker (be sure you have the environment variable set).
 
 ```bash
@@ -81,8 +89,8 @@ temporal workflow query \
 
 ### Provision Signals
 
-- Human Approval
-- Human Denial
+- Human Approval of Policy Failure
+- Human Denial of Policy Failure
 
 ### Provision Queries
 
@@ -91,16 +99,19 @@ temporal workflow query \
 ## TODO
 
 - Clear TODOs, more comments all over, no prints, linting, final README
-- Failure conditions
+- Failure conditions on apply? Rollback? Retries?
 - SDK metrics / Grafana integration
 - UI
-- Workflow diagram
 - Ephemeral Infrastructure w/ keepalives on the TTL
-- Codec Server (sharing a TCLD api key)
+- Data converter and Codec Server (sharing a TCLD api key)
+- Clean out unused imports (use keys for custom attributes)
+- Bubble up stack traces
+- Fail w/ no T Cloud API key
 
 ## Ideas
 
 - Public Module Registry
+- Have a flag that requires approval of any plan?
 - Get certs for the runs from a local Vault instance? Generate with TF?
 - CDK TF Python?
 - Use local activities for terraform stuff and normal activities for API checks?
@@ -108,6 +119,7 @@ temporal workflow query \
 - Destroy workflow
 - GH actions
 - OPA
+- Get a cert from Vault and use that in TF
 
 ## Questions
 
@@ -116,6 +128,7 @@ temporal workflow query \
 - Do we want to generate certs with Vault? Or generate here in the TF?
 - Is this something we want to use for ephermeral scale testing environments?
 - Do we want to make this save statefiles / planfiles across runs? Is this valuable enough?
+- Do we have a standard UI language for modeling out workflows?
 
 ## Notes
 

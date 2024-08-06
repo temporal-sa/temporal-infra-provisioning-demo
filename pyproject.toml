@@ -8,6 +8,9 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.12"
 temporalio = "^1.6.0"
+cramjam = "^2.8.3"
+docopt = "^0.6.2"
+aiohttp = "^3.8.1"
 
 [build-system]
 requires = ["poetry-core"]

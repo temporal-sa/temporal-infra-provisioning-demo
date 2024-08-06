@@ -1,11 +1,14 @@
 import asyncio
+import dataclasses
 import logging
 import os
 
+from temporalio import converter
 from temporalio.client import Client
 from temporalio.worker import Worker
 from temporalio.service import TLSConfig
 
+from codec import CompressionCodec
 from shared import PROVISION_INFRA_QUEUE_NAME
 from activities import ProvisioningActivities
 from workflows import ProvisionInfraWorkflow
@@ -36,7 +39,12 @@ async def main() -> None:
 	client: Client = await Client.connect(
 		TEMPORAL_HOST_URL,
 		namespace=TEMPORAL_NAMESPACE,
-		tls=tls_config if tls_config else False
+		tls=tls_config if tls_config else False,
+		data_converter=dataclasses.replace(
+		   converter.default(),
+           payload_codec=CompressionCodec(),
+           failure_converter_class=converter.DefaultFailureConverterWithEncodedAttributes
+	    ),
 	)
 
 	# Run the worker

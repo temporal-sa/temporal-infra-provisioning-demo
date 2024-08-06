@@ -100,9 +100,8 @@ class ProvisionInfraWorkflow:
 			workflow.upsert_search_attributes({"provisionStatus": ["rejected"]})
 			self._current_state = "rejected"
 			workflow.logger.info("Workflow apply denied, no work to do.")
-			# TODO: get a handle to the workflow and then cancel it
 
-		# TODO; return the show outputs unless it the workflow is cancelled?
+		# TODO; return the show outputs unless the workflow is cancelled?
 
 	@workflow.signal
 	async def signal_approve_apply(self) -> None:
