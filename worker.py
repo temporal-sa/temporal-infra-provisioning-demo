@@ -58,7 +58,8 @@ async def main() -> None:
 			activities.terraform_init,
 			activities.terraform_plan,
 			activities.terraform_apply,
-			activities.terraform_destroy,
+			activities.terraform_output,
+			# activities.terraform_destroy,
 			activities.policy_check,
 		]
 	)

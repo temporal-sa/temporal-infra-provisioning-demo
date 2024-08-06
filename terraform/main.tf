@@ -67,8 +67,9 @@ resource "temporalcloud_user" "global_admin" {
   email          = "neil@dahlke.io"
   account_access = "admin"
 }
+*/
 
-// TODO
+/*
 resource "temporalcloud_user" "namespace_admin" {
   email          = "developer@yourdomain.com"
   account_access = "developer"

@@ -57,18 +57,6 @@ class PolicyCheckError(Exception):
 
 """
 TODO: use these or remove them
-
-class ProvisionStatus(Enum):
-    UNINITIALIZED = "uninitialized"
-    INITIALIZING = "initializing"
-    INITIALIZED = "initialized"
-    PLANNING = "planning"
-    PLANNED = "planned"
-    POLICY_CHECK = "policy_check"
-    APPLYING = "applying"
-    APPLIED = "applying"
-    REJECTED = "rejected"
-
 @dataclass
 class LoadStatefileError(Exception):
 	def __init__(self, message) -> None:

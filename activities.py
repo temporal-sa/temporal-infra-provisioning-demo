@@ -41,14 +41,16 @@ class ProvisioningActivities:
 		"""Plan the Terraform configuration."""
 
 		activity.logger.info("Terraform plan")
-		tfplan_binary_filename = "tfplan.binary"
 
-		# TODO: change the file name of the plan since this can be shared?
+		tfplan_binary_filename = f"{activity.info().activity_id}.binary"
+
 		plan_returncode, plan_stdout, plan_stderr = self._run_cmd_in_tf_dir(["terraform", "plan", "-out", tfplan_binary_filename], data)
 
+		# No need to handle any errors for removing the binary file
 		if plan_returncode == 0:
 			activity.logger.debug(f"Terraform plan succeeded: {plan_stdout}")
 		else:
+			self._run_cmd_in_tf_dir(["rm", tfplan_binary_filename], data)
 			activity.logger.error(f"Terraform plan failed: {plan_stderr}")
 			raise(TerraformPlanError(f"Terraform plan failed: {plan_stderr}"))
 
@@ -56,10 +58,10 @@ class ProvisioningActivities:
 		if show_returncode == 0:
 			activity.logger.debug(f"Terraform plan succeeded: {show_stdout}")
 		else:
+			self._run_cmd_in_tf_dir(["rm", tfplan_binary_filename], data)
 			activity.logger.error(f"Terraform plan failed: {show_stderr}")
 			raise(TerraformPlanError(f"Terraform plan failed: {show_stderr}"))
 
-		# No need to handle any errors, the file is removed or nonexistent
 		self._run_cmd_in_tf_dir(["rm", tfplan_binary_filename], data)
 
 		return show_stdout
@@ -72,7 +74,7 @@ class ProvisioningActivities:
 
 		returncode, stdout, stderr = self._run_cmd_in_tf_dir(["terraform", "apply", "-json", "-auto-approve"], data)
 
-		# NOTE: We want to heartbeat every second to imitate a long running terraform plan
+		# NOTE: We want to heartbeat every second to imitate a long running terraform apply
 		counter = 0
 		while counter < 10:
 			activity.logger.info("Sleeping for 10 seconds, heartbeating every 1 second")
@@ -88,22 +90,32 @@ class ProvisioningActivities:
 
 		return stdout
 
+	"""
 	@activity.defn
 	async def terraform_destroy(self, data: TerraformRunDetails) -> str:
-		"""Destroy the Terraform configuration."""
+		\"""Destroy the Terraform configuration.\"""
 
 		activity.logger.info("Terraform destroy")
 		returncode, stdout, stderr = self._run_cmd_in_tf_dir(["terraform", "destroy", "-json", "-auto-approve"], data)
-		# TODO: heartbeating, note in the docs that this can take a while
+
+		# NOTE: We want to heartbeat every second to imitate a long running terraform destroy
+		counter = 0
+		while counter < 10:
+			activity.logger.info("Sleeping for 10 seconds, heartbeating every 1 second")
+			activity.heartbeat()
+			await asyncio.sleep(1)
+			counter += 1
+
 		if returncode == 0:
 			activity.logger.debug(f"Terraform destroy succeeded: {stdout}")
 		else:
 			activity.logger.info(f"Terraform destroy failed: {stderr}")
 			raise(TerraformDestroyError(f"Terraform destroy failed: {stderr}"))
 		return stdout
+	"""
 
 	@activity.defn
-	async def terraform_output(self, data: TerraformRunDetails) -> int:
+	async def terraform_output(self, data: TerraformRunDetails) -> str:
 		"""Show the output of the Terraform run."""
 
 		activity.logger.info("Terraform output")
@@ -114,7 +126,8 @@ class ProvisioningActivities:
 			activity.logger.info(f"Terraform output failed: {stderr}")
 			raise TerraformOutputError(f"Terraform output failed: {stderr}")
 		# return the destroy output as JSON
-		return returncode
+
+		return stdout
 
 	@activity.defn
 	async def policy_check(self, data: TerraformRunDetails) -> bool:

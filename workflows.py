@@ -4,7 +4,7 @@ from temporalio import workflow
 from temporalio.common import RetryPolicy, SearchAttributes, SearchAttributeKey
 # TODO: use activity errors?
 from temporalio.exceptions import ActivityError
-from shared import TERRAFORM_COMMON_TIMEOUT_SECS, PROVISION_STATUS_KEY
+from shared import TERRAFORM_COMMON_TIMEOUT_SECS
 
 with workflow.unsafe.imports_passed_through():
 	from activities import ProvisioningActivities
@@ -16,26 +16,26 @@ class ProvisionInfraWorkflow:
 
 	def __init__(self) -> None:
 		self._apply_approved = None
+		self._signal_reason = ""
 		self._current_state = "uninitialized"
 		self._provision_status_key = SearchAttributeKey.for_text("provisionStatus")
 
 	@workflow.run
 	async def run(self, terraform_run_details: TerraformRunDetails) -> str:
-		# TODO: use an enum for provision statuses
-
-		tf_init_plan_retry_policy = RetryPolicy(
+		# This is
+		tf_fast_op_retry_policy = RetryPolicy(
 			maximum_attempts=1,
 			non_retryable_error_types=["TerraformInitError", "TerraformPlanError"],
 		)
 
-		# TODO: there has to be a better way to handle these search attributes?
+		# TODO: there has to be a better way to handle these search attributes? dict w/ key?
 		workflow.upsert_search_attributes({"provisionStatus": ["initializing"]})
 		self._current_state = "initializing"
 		await workflow.execute_activity_method(
 			ProvisioningActivities.terraform_init,
 			terraform_run_details,
 			start_to_close_timeout=timedelta(seconds=TERRAFORM_COMMON_TIMEOUT_SECS),
-			retry_policy=tf_init_plan_retry_policy,
+			retry_policy=tf_fast_op_retry_policy,
 		)
 		workflow.upsert_search_attributes({"provisionStatus": ["initialized"]})
 		self._current_state = "initialized"
@@ -46,7 +46,7 @@ class ProvisionInfraWorkflow:
 			ProvisioningActivities.terraform_plan,
 			terraform_run_details,
 			start_to_close_timeout=timedelta(seconds=TERRAFORM_COMMON_TIMEOUT_SECS),
-			retry_policy=tf_init_plan_retry_policy,
+			retry_policy=tf_fast_op_retry_policy,
 		)
 		workflow.upsert_search_attributes({"provisionStatus": ["planned"]})
 		self._current_state = "planned"
@@ -78,6 +78,7 @@ class ProvisionInfraWorkflow:
 			)
 
 		# If the policy check passed or the apply was approved, apply the changes
+		show_output = ""
 		if policy_check_output or self._apply_approved:
 			workflow.upsert_search_attributes({"provisionStatus": ["applying"]})
 			self._current_state = "applying"
@@ -97,26 +98,40 @@ class ProvisionInfraWorkflow:
 			self._current_state = "applied"
 
 			workflow.logger.info(f"Workflow apply output {apply_output}")
+
+			show_output = await workflow.execute_activity_method(
+				ProvisioningActivities.terraform_output,
+				terraform_run_details,
+				start_to_close_timeout=timedelta(seconds=TERRAFORM_COMMON_TIMEOUT_SECS),
+				heartbeat_timeout=timedelta(seconds=3),
+				retry_policy=tf_apply_retry_policy,
+			)
+
 		else:
 			workflow.upsert_search_attributes({"provisionStatus": ["rejected"]})
 			self._current_state = "rejected"
 			workflow.logger.info("Workflow apply denied, no work to do.")
 
-		# TODO; return the show outputs unless the workflow is cancelled?
+		return show_output
 
 	@workflow.signal
-	async def signal_approve_apply(self) -> None:
-		workflow.logger.info("Approve signal received.")
-		# TODO: take a "reason" field
+	async def signal_approve_apply(self, reason: str="") -> None:
+		workflow.logger.info(f"Approval signal received for: {reason}.")
 		self._apply_approved = True
+		self._signal_reason = reason
 
 	@workflow.signal
-	async def signal_deny_apply(self) -> None:
-		# TODO: take a "reason" field
-		workflow.logger.info("Deny signal received.")
+	async def signal_deny_apply(self, reason: str="") -> None:
+		workflow.logger.info(f"Deny signal received for: {reason}.")
 		self._apply_approved = False
+		self._signal_reason = reason
 
 	@workflow.query
-	def current_state_query(self) -> str:
+	def query_signal_reason(self) -> str:
+		workflow.logger.info("State query received.")
+		return self._current_state
+
+	@workflow.query
+	def query_current_state(self) -> str:
 		workflow.logger.info("State query received.")
 		return self._current_state

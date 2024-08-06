@@ -62,7 +62,6 @@ async def main():
 	)
 
 	# Execute a workflow
-	# TODO: make unititialized a constant?
 	provision_status_key = SearchAttributeKey.for_text("provisionStatus")
 	tf_directory_key = SearchAttributeKey.for_text("tfDirectory")
 

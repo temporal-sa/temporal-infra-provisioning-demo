@@ -71,7 +71,11 @@ To query a workflow for it's current status, you can use the below command with 
 ```bash
 temporal workflow query \
     --workflow-id="infra-provisioning-run-064501da-df61-494c-a5f6-d9a1412e23d2" \
-    --type="current_state_query"
+    --type="query_current_state"
+
+temporal workflow query \
+    --workflow-id="infra-provisioning-run-064501da-df61-494c-a5f6-d9a1412e23d2" \
+    --type="query_signal_reason"
 ```
 
 ## Provision Workflow
@@ -102,19 +106,19 @@ temporal workflow query \
 - Ephemeral Infrastructure w/ keepalives on the TTL
 - Clean out unused imports (use keys for custom attributes)
 - Bubble up stack traces
+- OPA
 
 ## Ideas
 
 - Public Module Registry
 - Have a flag that requires approval of any plan?
 - Get certs for the runs from a local Vault instance? Generate with TF?
-- CDK TF Python?
 - Use local activities for terraform stuff and normal activities for API checks?
+- Use an enum for provision statuses?
+- CDK TF Python?
 - Compensations?
 - Destroy workflow
 - GH actions
-- OPA
-- Get a cert from Vault and use that in TF
 
 ## Questions
 
