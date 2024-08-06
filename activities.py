@@ -46,9 +46,6 @@ class ProvisioningActivities:
 		# TODO: change the file name of the plan since this can be shared?
 		plan_returncode, plan_stdout, plan_stderr = self._run_cmd_in_tf_dir(["terraform", "plan", "-out", tfplan_binary_filename], data)
 
-		await asyncio.sleep(3)
-		# TODO: heartbeating, note in the docs that this can take a while
-
 		if plan_returncode == 0:
 			activity.logger.debug(f"Terraform plan succeeded: {plan_stdout}")
 		else:
@@ -62,7 +59,7 @@ class ProvisioningActivities:
 			activity.logger.error(f"Terraform plan failed: {show_stderr}")
 			raise(TerraformPlanError(f"Terraform plan failed: {show_stderr}"))
 
-		# NOTE: no need to handle any errors, the file is removed or nonexistent
+		# No need to handle any errors, the file is removed or nonexistent
 		self._run_cmd_in_tf_dir(["rm", tfplan_binary_filename], data)
 
 		return show_stdout
@@ -75,8 +72,13 @@ class ProvisioningActivities:
 
 		returncode, stdout, stderr = self._run_cmd_in_tf_dir(["terraform", "apply", "-json", "-auto-approve"], data)
 
-		await asyncio.sleep(3)
-		# TODO: heartbeating, note in the docs that this can take a while
+		# NOTE: We want to heartbeat every second to imitate a long running terraform plan
+		counter = 0
+		while counter < 10:
+			activity.logger.info("Sleeping for 10 seconds, heartbeating every 1 second")
+			activity.heartbeat()
+			await asyncio.sleep(1)
+			counter += 1
 
 		if returncode == 0:
 			activity.logger.debug(f"Terraform apply succeeded: {stdout}")

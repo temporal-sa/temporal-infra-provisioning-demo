@@ -1,19 +1,18 @@
 # temporal_infra_provisioning_demo
 
-| Prerequisites      |   | Features       |    | Patterns             |   |
-|:-------------------|---|----------------|----|----------------------|---|
-| Network Connection |   | Schedule       |    | Entity               |   |
-|                    |   | Local Activity | ✅ | Long-Running        | ✅ |
-| Python 3.12        | ✅ | Timer         |    | Fanout              |   |
-| Poetry 1.8.3       | ✅ | Signal        | ✅ | Continue As New     |   |
-| Terraform          |   | Query          | ✅ | Manual Intervention | ✅ |
-| Open Policy Agent  |   | Heartbeat      |    | Long-polling        |   |
-| GitHub Access      |   | Retry          | ✅ |                     |   |
-|                    |   | Data Converter | ✅  |                     |   |
-|                    |   | Codec Server   |    |                     |   |
-|                    |   | Polyglot       |    |                     |   |
-|                    |   | Worker Metrics |    |                     |   |
-|                    |   | Custom Attrs   |    |                     |   |
+| Prerequisites      |    | Features       |    | Patterns            |    |
+|:-------------------|----|----------------|----|---------------------|----|
+| Network Connection | ✅ | Schedule       |    | Entity              |    |
+| GitHub Access      |    | Local Activity | ✅ | Long-Running        | ✅ |
+| Python 3.12        | ✅ | Timer          |    | Fanout              |    |
+| Poetry 1.8.3       | ✅ | Signal         | ✅ | Continue As New     |    |
+| Terraform 1.9.0    | ✅ | Query          | ✅ | Manual Intervention | ✅ |
+| Open Policy Agent  |    | Heartbeat      | ✅ | Long-polling        |    |
+|                    |    | Retry          | ✅ | Polyglot            |    |
+|                    |    | Data Converter | ✅ |                     |    |
+|                    |    | Codec Server   | ✅ |                     |    |
+|                    |    | Custom Attrs   | ✅ |                     |    |
+|                    |    | Worker Metrics |    |                     |    |
 
 ```bash
 # authenticate your session
@@ -55,7 +54,6 @@ Start the Codec server locally.
 poetry run python codec_server.py --web http://localhost:8080
 ```
 
-
 Then run the worker (be sure you have the environment variable set).
 
 ```bash
@@ -80,12 +78,11 @@ temporal workflow query \
 
 ### Provision Activities
 
-- Load State for Account
 - Terraform Init
 - Terraform Plan
 - Evaluate Policy
 - Terraform Apply
-- Archive State for Account
+- Terraform Show
 
 ### Provision Signals
 
@@ -99,14 +96,12 @@ temporal workflow query \
 ## TODO
 
 - Clear TODOs, more comments all over, no prints, linting, final README
-- Failure conditions on apply? Rollback? Retries?
+- Failure conditions on apply? Rollback? Retries? Ex: no API key
 - SDK metrics / Grafana integration
 - UI
 - Ephemeral Infrastructure w/ keepalives on the TTL
-- Data converter and Codec Server (sharing a TCLD api key)
 - Clean out unused imports (use keys for custom attributes)
 - Bubble up stack traces
-- Fail w/ no T Cloud API key
 
 ## Ideas
 
@@ -127,7 +122,7 @@ temporal workflow query \
 - Do we want to take arguments for each namespace in the .tf files or keep them declarative?
 - Do we want to generate certs with Vault? Or generate here in the TF?
 - Is this something we want to use for ephermeral scale testing environments?
-- Do we want to make this save statefiles / planfiles across runs? Is this valuable enough?
+- Do we want to make this save statefiles / planfiles across runs? Load them up? Is this valuable enough?
 - Do we have a standard UI language for modeling out workflows?
 
 ## Notes

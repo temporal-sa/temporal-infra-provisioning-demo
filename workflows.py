@@ -90,6 +90,7 @@ class ProvisionInfraWorkflow:
 				ProvisioningActivities.terraform_apply,
 				terraform_run_details,
 				start_to_close_timeout=timedelta(seconds=terraform_run_details.apply_timeout_secs),
+				heartbeat_timeout=timedelta(seconds=3),
 				retry_policy=tf_apply_retry_policy,
 			)
 			workflow.upsert_search_attributes({"provisionStatus": ["applied"]})
