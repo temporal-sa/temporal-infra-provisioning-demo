@@ -26,8 +26,8 @@ class ProvisionInfraWorkflow:
 
 		# A simple retry policy to be used across some common, fast, TF
 		tf_fast_op_retry_policy = RetryPolicy(
-			maximum_attempts=1,
-			non_retryable_error_types=["TerraformInitError", "TerraformPlanError"],
+			maximum_attempts=5,
+			non_retryable_error_types=["TerraformInitError"],
 		)
 
 		workflow.upsert_search_attributes({"provisionStatus": ["initializing"]})
@@ -55,7 +55,7 @@ class ProvisionInfraWorkflow:
 		terraform_run_details.plan = plan_output
 
 		policy_retry_policy = RetryPolicy(
-			maximum_attempts=3,
+			maximum_attempts=5,
 			maximum_interval=timedelta(seconds=5),
 			non_retryable_error_types=["PolicyCheckError"],
 		)
@@ -84,7 +84,7 @@ class ProvisionInfraWorkflow:
 			workflow.upsert_search_attributes({"provisionStatus": ["applying"]})
 			self._current_state = "applying"
 			tf_apply_retry_policy = RetryPolicy(
-				maximum_attempts=3,
+				maximum_attempts=5,
 				maximum_interval=timedelta(seconds=5),
 				non_retryable_error_types=[],
 			)

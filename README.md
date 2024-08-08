@@ -1,4 +1,6 @@
-# temporal_infra_provisioning_demo
+# Temporal Infrastructure Provisioning
+
+_Leveraging the Temporal Python SDK and Terraform_
 
 | Prerequisites      |    | Features       |    | Patterns            |    |
 |:-------------------|----|----------------|----|---------------------|----|
@@ -14,24 +16,53 @@
 |                    |    | Custom Attrs   | ✅ |                     |    |
 |                    |    | Worker Metrics |    |                     |    |
 
+This demo has the building blocks for you to execute any terraform code to completion, but is focused on
+provisioning namespaces and users in Temporal Cloud. Because of that, you will need to generate a
+Temporal Cloud API key for usage with the Terraform plan. This is also a sensitive value and will
+be published to whatever Temporal server you connect to, so it is recommended to leverage the
+`ENCRYPT_PAYLOADS` variable, or that you retire the credential you use in the demo immediately.
+
+## Provision Workflow
+
+### Provision Activities
+
+- Terraform Init
+- Terraform Plan
+- Evaluate Policy
+- Terraform Apply
+- Terraform Show
+
+### Provision Signals
+
+- Human Approval of Policy Failure
+- Human Denial of Policy Failure
+
+### Provision Queries
+
+- Get Status
+
+## Running the Demo
+
+To generate an API key, use `tcld`:
+
 ```bash
 # authenticate your session
 tcld login
+
 # generate an API Key
 tcld apikey create -n "terraform-test" --desc "Testing the API Key for the TF Provider" -d 90d
 ```
 
-```bash
-# replace <yoursecretkey> with the "secretKey": output from tcld apikey create command
-export TEMPORAL_CLOUD_API_KEY=""
-```
+Then update your environment variables.
 
 ```bash
+export TEMPORAL_CLOUD_API_KEY="<secretKey>"
 export TEMPORAL_HOST_URL="<namespace>.<accountId>.tmprl.cloud:7233"
 export TEMPORAL_MTLS_TLS_CERT="/path/to/ca.pem"
 export TEMPORAL_MTLS_TLS_KEY="/path/to/ca.key"
 export TEMPORAL_NAMESPACE="default"
 export TEMPORAL_INFRA_PROVISION_TASK_QUEUE="infra-provisioning"
+export ENCRYPT_PAYLOADS="true"
 ```
 
 Before kicking off the starter, make sure the custom search attributes have been created.
@@ -53,16 +84,31 @@ Start the Codec server locally.
 poetry run python codec_server.py --web http://localhost:8080
 ```
 
-Then run the worker (be sure you have the environment variable set).
+Then run the worker (be sure you have the environment variables set).
 
 ```bash
 poetry run python worker.py
 ```
 
-Once you start the worker, submit a workflow using the starter (also needs the environment varialbes set).
+Once you start the worker, submit a workflow using the starter (also needs the environment variables set).
 
 ```bash
 poetry run python starter.py
+```
+
+If you introduce a Terraform stanza that provisions a user with admin permissions, this workflow will pause and wait
+for a signal to approve or deny the execution of the plan.
+
+```bash
+temporal workflow signal \
+    --workflow-id="<WORKFLOW-ID>" \
+    --name signal_approve_apply \
+    --reason "approving apply"
+
+temporal workflow signal \
+    --workflow-id="<WORKFLOW-ID>" \
+    --name signal_deny_apply \
+    --reason "approving apply"
 ```
 
 To query a workflow for it's current status, you can use the below command with the relevant in place of the current workflow ID.
@@ -77,33 +123,12 @@ temporal workflow query \
     --type="query_signal_reason"
 ```
 
-## Provision Workflow
-
-### Provision Activities
-
-- Terraform Init
-- Terraform Plan
-- Evaluate Policy
-- Terraform Apply
-- Terraform Show
-
-### Provision Signals
-
-- Human Approval of Policy Failure
-- Human Denial of Policy Failure
-
-### Provision Queries
-
-- Get Progress
-
 ## TODO
 
 - Clear TODOs, more comments all over, no prints, linting, final README
-- ENCRYPT_PAYLOADS=true
 - Slides on how to structure the demo.
 - UI (Take from Order Management)
 - For each scenario we created a different workflow so it’s easy to follow.
-- Retry plans
 
 ## Ideas
 
@@ -122,7 +147,3 @@ temporal workflow query \
 - Terraform Cloud / OPA Server vs what I am doing
 - Is this something we want to use for ephermeral scale testing environments?
 - Do we want to make this save statefiles / planfiles across runs? Load them up? Is this valuable enough?
-
-## Notes
-
-- Setting the insecure flag in the TF config led to an irrecoverable HTTP/2 error.
