@@ -1,158 +1,124 @@
-import subprocess
-import os
 import json
 import asyncio
 from temporalio import activity
-# TODO: use activity errors
-# from temporalio.exceptions import ActivityError
+from temporalio.exceptions import ActivityError
 
+from runner import TerraformRunner
 from shared import TerraformRunDetails, TerraformApplyError, \
 	TerraformInitError, TerraformPlanError, TerraformOutputError, \
-		TerraformDestroyError, PolicyCheckError
+		PolicyCheckError
+
 
 class ProvisioningActivities:
 
 	def __init__(self) -> None:
-		pass
-
-	def _run_cmd_in_tf_dir(self, command: list[str], data: TerraformRunDetails) -> tuple:
-		"""Run a Terraform command and capture the output."""
-		env = os.environ.copy()
-		env.update(data.env_vars)
-		process = subprocess.Popen(command, env=env, cwd=data.directory, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-		stdout, stderr = process.communicate()
-		return process.returncode, stdout, stderr
+		self._runner = TerraformRunner()
 
 	@activity.defn
-	async def terraform_init(self, data: TerraformRunDetails) -> str:
+	async def terraform_init(self, data: TerraformRunDetails) -> tuple:
 		"""Initialize the Terraform configuration."""
 
 		activity.logger.info("Terraform init")
-		returncode, stdout, stderr = self._run_cmd_in_tf_dir(["terraform", "init", "-json"], data)
-		if returncode == 0:
-			activity.logger.debug(f"Terraform init succeeded: {stdout}")
-		else:
-			activity.logger.error(f"Terraform init failed: {stderr}")
-			raise(TerraformInitError(f"Terraform init failed: {stderr}"))
-		return stdout
+		init_stdout = ""
+		init_stderr = ""
+
+		try:
+			init_stdout, init_stderr = await self._runner.init(data)
+			activity.logger.debug(f"Terraform init succeeded: {init_stdout}")
+		except TerraformInitError as tfie:
+			activity.logger.error(f"Terraform init errored: {init_stderr}")
+			raise tfie
+		except ActivityError as ae:
+			activity.logger.error(f"Terraform init errored: {init_stderr}")
+			raise ae
+
+		return init_stdout, init_stderr
 
 	@activity.defn
 	async def terraform_plan(self, data: TerraformRunDetails) -> str:
 		"""Plan the Terraform configuration."""
 
 		activity.logger.info("Terraform plan")
+		show_json_stdout, show_json_stderr, show_plan_stderr = "", "", ""
+		activity_id = activity.info().activity_id
 
-		tfplan_binary_filename = f"{activity.info().activity_id}.binary"
+		try:
+			show_json_stdout, show_json_stderr, show_plan_stderr = await self._runner.plan(data, activity_id)
+			self._runner.set_plan(json.loads(show_json_stdout))
+			activity.logger.debug(f"Terraform plan succeeded: {show_json_stdout}")
+		except TerraformPlanError as tfpe:
+			activity.logger.error(f"Terraform plan errored: {show_plan_stderr}, {show_json_stderr}")
+			raise tfpe
+		except ActivityError as ae:
+			activity.logger.error(f"Terraform plan errored: {show_plan_stderr}, {show_json_stderr}")
+			raise ae
 
-		plan_returncode, plan_stdout, plan_stderr = self._run_cmd_in_tf_dir(["terraform", "plan", "-out", tfplan_binary_filename], data)
-
-		# No need to handle any errors for removing the binary file
-		if plan_returncode == 0:
-			activity.logger.debug(f"Terraform plan succeeded: {plan_stdout}")
-		else:
-			self._run_cmd_in_tf_dir(["rm", tfplan_binary_filename], data)
-			activity.logger.error(f"Terraform plan failed: {plan_stderr}")
-			raise(TerraformPlanError(f"Terraform plan failed: {plan_stderr}"))
-
-		show_returncode, show_stdout, show_stderr = self._run_cmd_in_tf_dir(["terraform", "show", "-json", tfplan_binary_filename], data)
-		if show_returncode == 0:
-			activity.logger.debug(f"Terraform plan succeeded: {show_stdout}")
-		else:
-			self._run_cmd_in_tf_dir(["rm", tfplan_binary_filename], data)
-			activity.logger.error(f"Terraform plan failed: {show_stderr}")
-			raise(TerraformPlanError(f"Terraform plan failed: {show_stderr}"))
-
-		self._run_cmd_in_tf_dir(["rm", tfplan_binary_filename], data)
-
-		return show_stdout
+		return show_json_stdout
 
 	@activity.defn
 	async def terraform_apply(self, data: TerraformRunDetails) -> str:
 		"""Apply the Terraform configuration."""
 
 		activity.logger.info("Terraform apply")
+		apply_stdout, apply_stderr = "", ""
 
-		returncode, stdout, stderr = self._run_cmd_in_tf_dir(["terraform", "apply", "-json", "-auto-approve"], data)
+		try:
+			apply_stdout, apply_stderr = await self._runner.apply(data)
 
-		# NOTE: We want to heartbeat every second to imitate a long running terraform apply
-		counter = 0
-		while counter < 10:
-			activity.logger.info("Sleeping for 10 seconds, heartbeating every 1 second")
-			activity.heartbeat()
-			await asyncio.sleep(1)
-			counter += 1
+			counter = 0
+			# NOTE: We want to heartbeat every second to imitate a long running terraform apply
+			while counter < 10:
+				activity.logger.info("Sleeping for 10 seconds, heartbeating every 1 second")
+				activity.heartbeat()
+				await asyncio.sleep(1)
+				counter += 1
 
-		if returncode == 0:
-			activity.logger.debug(f"Terraform apply succeeded: {stdout}")
-		else:
-			activity.logger.error(f"Terraform apply failed: {stderr}")
-			raise(TerraformApplyError(f"Terraform apply failed: {stderr}"))
+			activity.logger.debug(f"Terraform apply succeeded: {apply_stdout}")
+		except TerraformApplyError as tfae:
+			activity.logger.error(f"Terraform apply errored: {apply_stderr}")
+			raise tfae
+		except ActivityError as ae:
+			activity.logger.error(f"Terraform apply errored: {apply_stderr}")
+			raise ae
 
-		return stdout
-
-	"""
-	@activity.defn
-	async def terraform_destroy(self, data: TerraformRunDetails) -> str:
-		\"""Destroy the Terraform configuration.\"""
-
-		activity.logger.info("Terraform destroy")
-		returncode, stdout, stderr = self._run_cmd_in_tf_dir(["terraform", "destroy", "-json", "-auto-approve"], data)
-
-		# NOTE: We want to heartbeat every second to imitate a long running terraform destroy
-		counter = 0
-		while counter < 10:
-			activity.logger.info("Sleeping for 10 seconds, heartbeating every 1 second")
-			activity.heartbeat()
-			await asyncio.sleep(1)
-			counter += 1
-
-		if returncode == 0:
-			activity.logger.debug(f"Terraform destroy succeeded: {stdout}")
-		else:
-			activity.logger.info(f"Terraform destroy failed: {stderr}")
-			raise(TerraformDestroyError(f"Terraform destroy failed: {stderr}"))
-		return stdout
-	"""
+		return apply_stdout
 
 	@activity.defn
 	async def terraform_output(self, data: TerraformRunDetails) -> str:
 		"""Show the output of the Terraform run."""
 
 		activity.logger.info("Terraform output")
-		returncode, stdout, stderr = self._run_cmd_in_tf_dir(["terraform", "output"], data)
-		if returncode == 0:
-			activity.logger.debug(f"Terraform output succeeded: {stdout}")
-		else:
-			activity.logger.info(f"Terraform output failed: {stderr}")
-			raise TerraformOutputError(f"Terraform output failed: {stderr}")
-		# return the destroy output as JSON
+		output_stdout, output_stderr = "", ""
 
-		return stdout
+		try:
+			output_stdout, output_stderr = self._runner.output(data)
+			activity.logger.debug(f"Terraform output succeeded: {output_stdout}")
+		except TerraformOutputError as tfoe:
+			activity.logger.error(f"Terraform output errored: {output_stderr}")
+			raise tfoe
+		except ActivityError as ae:
+			activity.logger.error(f"Terraform output errored: {output_stderr}")
+			raise ae
+
+		return output_stdout
 
 	@activity.defn
 	async def policy_check(self, data: TerraformRunDetails) -> bool:
 		"""Evaluate the Terraform plan against a policy. In this case, we're
 		checking for admin users being added at the account level."""
 
-		# TODO: check namespace is being deleted, use OPA
-		policy_passed = True
-
+		# TODO: check if a namespace is being deleted, use OPA
 		activity.logger.info("Policy check (could be external but isn't for now)")
+		policy_passed = False
+
 		try:
-			planned_changes = json.loads(data.plan)["resource_changes"]
-			for planned_change in planned_changes:
-				resource_type = planned_change["type"]
-				if resource_type == "temporalcloud_user":
-					actions = planned_change["change"]["actions"]
-					if "create" in actions:
-						expected_after_access = planned_change["change"]["after"]["account_access"]
-						if expected_after_access == "admin":
-							activity.logger.info("Admin user being created, policy check failed, must be approved manually")
-							policy_passed = False
-							continue
-		except Exception as e:
-			# TODO: activity error or just a raw exception?
-			raise PolicyCheckError(f"Policy check failed: {e}")
+			policy_passed = self._runner.policy_check(data)
+		except PolicyCheckError as pce:
+			activity.logger.error(f"Policy check errored: {pce}")
+			raise pce
+		except ActivityError as ae:
+			activity.logger.error(f"Policy check errored: {ae}")
+			raise ae
 
 		return policy_passed
 

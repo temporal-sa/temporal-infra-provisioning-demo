@@ -31,8 +31,7 @@ export TEMPORAL_HOST_URL="<namespace>.<accountId>.tmprl.cloud:7233"
 export TEMPORAL_MTLS_TLS_CERT="/path/to/ca.pem"
 export TEMPORAL_MTLS_TLS_KEY="/path/to/ca.key"
 export TEMPORAL_NAMESPACE="default"
-export TEMPORAL_WORKER_METRICS_PORT=9090
-export TEMPORAL_INFRA_PROVISION_TASK_QUEUE="infra-provisioning-python"
+export TEMPORAL_INFRA_PROVISION_TASK_QUEUE="infra-provisioning"
 ```
 
 Before kicking off the starter, make sure the custom search attributes have been created.
@@ -70,11 +69,11 @@ To query a workflow for it's current status, you can use the below command with 
 
 ```bash
 temporal workflow query \
-    --workflow-id="infra-provisioning-run-064501da-df61-494c-a5f6-d9a1412e23d2" \
+    --workflow-id="<WORKFLOW-ID>" \
     --type="query_current_state"
 
 temporal workflow query \
-    --workflow-id="infra-provisioning-run-064501da-df61-494c-a5f6-d9a1412e23d2" \
+    --workflow-id="<WORKFLOW-ID>" \
     --type="query_signal_reason"
 ```
 
@@ -100,34 +99,29 @@ temporal workflow query \
 ## TODO
 
 - Clear TODOs, more comments all over, no prints, linting, final README
-- Failure conditions on apply? Rollback? Retries? Ex: no API key
-- SDK metrics / Grafana integration
-- UI
-- Ephemeral Infrastructure w/ keepalives on the TTL
-- Clean out unused imports (use keys for custom attributes)
-- Bubble up stack traces
-- OPA
+- ENCRYPT_PAYLOADS=true
+- Slides on how to structure the demo.
+- UI (Take from Order Management)
+- For each scenario we created a different workflow so it’s easy to follow.
+- Retry plans
 
 ## Ideas
 
+- Ephemeral Infrastructure w/ keepalives on the TTL
+- OPA (Check if a namespace is being deleted)
+- SDK metrics / Grafana integration
 - Public Module Registry
-- Have a flag that requires approval of any plan?
-- Get certs for the runs from a local Vault instance? Generate with TF?
-- Use local activities for terraform stuff and normal activities for API checks?
-- Use an enum for provision statuses?
-- CDK TF Python?
+- Certs from Vault option
 - Compensations?
 - Destroy workflow
 - GH actions
+- Sticky Activities?
 
 ## Questions
 
-- Do we want to block admins in namespaces as well? Any other valuable policy?
-- Do we want to take arguments for each namespace in the .tf files or keep them declarative?
-- Do we want to generate certs with Vault? Or generate here in the TF?
+- Terraform Cloud / OPA Server vs what I am doing
 - Is this something we want to use for ephermeral scale testing environments?
 - Do we want to make this save statefiles / planfiles across runs? Load them up? Is this valuable enough?
-- Do we have a standard UI language for modeling out workflows?
 
 ## Notes
 

@@ -9,7 +9,6 @@ from temporalio.worker import Worker
 from temporalio.service import TLSConfig
 
 from codec import CompressionCodec
-from shared import PROVISION_INFRA_QUEUE_NAME
 from activities import ProvisioningActivities
 from workflows import ProvisionInfraWorkflow
 
@@ -17,7 +16,8 @@ TEMPORAL_HOST_URL = os.environ.get("TEMPORAL_ADDRESS", "localhost:7233")
 TEMPORAL_MTLS_TLS_CERT = os.environ.get("TEMPORAL_MTLS_TLS_CERT", "")
 TEMPORAL_MTLS_TLS_KEY = os.environ.get("TEMPORAL_MTLS_TLS_KEY", "")
 TEMPORAL_NAMESPACE = os.environ.get("TEMPORAL_NAMESPACE", "default")
-TEMPORAL_INFRA_PROVISION_TASK_QUEUE = os.environ.get("TEMPORAL_INFRA_PROVISION_TASK_QUEUE", PROVISION_INFRA_QUEUE_NAME)
+TEMPORAL_TASK_QUEUE = os.environ.get("TEMPORAL_TASK_QUEUE", "provision-infra")
+
 
 async def main() -> None:
 	logging.basicConfig(level=logging.INFO)
@@ -52,14 +52,13 @@ async def main() -> None:
 
 	worker: Worker = Worker(
 		client,
-		task_queue=TEMPORAL_INFRA_PROVISION_TASK_QUEUE,
+		task_queue=TEMPORAL_TASK_QUEUE,
 		workflows=[ProvisionInfraWorkflow],
 		activities=[
 			activities.terraform_init,
 			activities.terraform_plan,
 			activities.terraform_apply,
 			activities.terraform_output,
-			# activities.terraform_destroy,
 			activities.policy_check,
 		]
 	)

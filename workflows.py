@@ -1,9 +1,9 @@
 from datetime import timedelta
 
 from temporalio import workflow
-from temporalio.common import RetryPolicy, SearchAttributes, SearchAttributeKey
-# TODO: use activity errors?
-from temporalio.exceptions import ActivityError
+from temporalio.common import RetryPolicy
+# from temporalio.exceptions import ActivityError # TODO
+
 from shared import TERRAFORM_COMMON_TIMEOUT_SECS
 
 with workflow.unsafe.imports_passed_through():
@@ -18,17 +18,18 @@ class ProvisionInfraWorkflow:
 		self._apply_approved = None
 		self._signal_reason = ""
 		self._current_state = "uninitialized"
-		self._provision_status_key = SearchAttributeKey.for_text("provisionStatus")
+		self._tf_run_details = None
 
 	@workflow.run
 	async def run(self, terraform_run_details: TerraformRunDetails) -> str:
-		# This is
+		self._tf_run_details = terraform_run_details
+
+		# A simple retry policy to be used across some common, fast, TF
 		tf_fast_op_retry_policy = RetryPolicy(
 			maximum_attempts=1,
 			non_retryable_error_types=["TerraformInitError", "TerraformPlanError"],
 		)
 
-		# TODO: there has to be a better way to handle these search attributes? dict w/ key?
 		workflow.upsert_search_attributes({"provisionStatus": ["initializing"]})
 		self._current_state = "initializing"
 		await workflow.execute_activity_method(
