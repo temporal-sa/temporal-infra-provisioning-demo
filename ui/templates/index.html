@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0px auto;
+            padding: 0px;
+			padding-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;  /* light gray background for headers */
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+            background-color: #f9f9f9;  /* light gray background for all rows */
+        }
+
+        select {
+            width: 100%;
+            padding: 10px;
+        }
+
+        button {
+            padding: 10px;
+            background-color: #000000;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+    <script>
+        function provisionInfra() {
+            var selectedScenario = document.getElementById("scenario").value;
+            var tfModuleName = document.getElementById("tfModuleName").value;
+            var tfRunID = document.getElementById("tfRunID").value;
+
+            // Redirect to order processing page with the selected scenario as a query parameter
+            window.location.href =
+				'/provision_infra?scenario=' + encodeURIComponent(selectedScenario) +
+				'&tf_run_id=' + encodeURIComponent(tfRunID) +
+				'&tf_module_name=' + encodeURIComponent(tfModuleName);
+        }
+    </script>
+</head>
+<body>
+    <h1>Temporal Provisioning</h1>
+	<h2>Terraform Modules</h2>
+	<table>
+		<tr>
+			<th>Name</th>
+			<th>Description</th>
+		</tr>
+		{% for tf_module in tf_modules %}
+			<tr>
+				<td>{{ tf_module["name"] }}</td>
+				<td>{{ tf_module["description"] }}</td>
+			</tr>
+		{% endfor %}
+	</table>
+
+	<h3>Choose Module</h3>
+	<select id="tfModuleName" name="tfModuleName">
+		{% for tf_module in tf_modules %}
+			<option value="{{ tf_module['name'] }}">{{ tf_module["name"] }}</option>
+		{% endfor %}
+	</select>
+
+	<h3>Choose Scenario</h3>
+	<select id="scenario" name="scenario">
+		{% for choice in scenarios %}
+			<option value="{{ choice }}">{{ choice }}</option>
+		{% endfor %}
+	</select>
+
+	<button type="button" onclick="provisionInfra()">Provision Infrastructure</button>
+	<input type="hidden" id="tfRunID" value="{{ tf_run_id }}">
+</body>
+
+{% endblock %}

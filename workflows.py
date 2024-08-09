@@ -4,11 +4,13 @@ from temporalio import workflow
 from temporalio.common import RetryPolicy
 # from temporalio.exceptions import ActivityError # TODO
 
-from shared import TERRAFORM_COMMON_TIMEOUT_SECS
-
 with workflow.unsafe.imports_passed_through():
 	from activities import ProvisioningActivities
 	from shared import TerraformRunDetails
+
+# NOTE: for init, policy_check, plan and outputs, they shouldn't take longer
+# than 30 seconds.
+TERRAFORM_COMMON_TIMEOUT_SECS = 30
 
 
 @workflow.defn

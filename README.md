@@ -125,10 +125,11 @@ temporal workflow query \
 
 ## TODO
 
-- Clear TODOs, more comments all over, no prints, linting, final README
 - Slides on how to structure the demo.
-- UI (Take from Order Management)
-- For each scenario we created a different workflow so it’s easy to follow.
+- Scenario handling
+- Allow for auto-approve or not as well as policy
+- Show the plan in the UI
+- Show the outputs in the UI
 
 ## Ideas
 

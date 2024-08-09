@@ -107,7 +107,6 @@ class ProvisioningActivities:
 		"""Evaluate the Terraform plan against a policy. In this case, we're
 		checking for admin users being added at the account level."""
 
-		# TODO: check if a namespace is being deleted, use OPA
 		activity.logger.info("Policy check (could be external but isn't for now)")
 		policy_passed = False
 
@@ -129,4 +128,3 @@ class ProvisioningActivities:
 	def archive_state(self) -> str:
 		activity.logger.info("archive state")
 	"""
-

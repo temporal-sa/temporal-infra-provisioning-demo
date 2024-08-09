@@ -9,7 +9,6 @@ from shared import TerraformRunDetails, TerraformApplyError, \
 
 class TerraformRunner:
 
-	# TODO: can I instantiate these?
 	def _run_cmd_in_dir(self, command: list[str], data: TerraformRunDetails) -> tuple:
 		"""Run a Terraform command and capture the output."""
 
@@ -25,10 +24,11 @@ class TerraformRunner:
 	async def init(self, data: TerraformRunDetails) -> Tuple[str, str]:
 		"""Initialize the Terraform configuration."""
 
-		returncode, stdout, stderr = self._run_cmd_in_dir(["terraform", "init"], data)
+		returncode, stdout, stderr = self._run_cmd_in_dir(["terraform", "init", "-json"], data)
 
 		if returncode != 0:
 			raise TerraformInitError(f"Terraform init errored: {stderr}")
+
 		return stdout, stderr
 
 	async def plan(self, data: TerraformRunDetails, activity_id: str) -> Tuple[str, str, str]:
@@ -69,7 +69,6 @@ class TerraformRunner:
 	def output(self, data: TerraformRunDetails) -> Tuple[str, str]:
 		"""Show the output of the Terraform run."""
 		# NOTE: This is a blocking call since it simply returns the output
-		# TODO: make notes like this in every comment
 
 		returncode, stdout, stderr = \
 			self._run_cmd_in_dir(["terraform", "output"], data)
@@ -84,6 +83,7 @@ class TerraformRunner:
 		checking for admin users being added at the account level."""
 		# NOTE: This is a blocking call since it simply checks a JSON file
 
+		# TODO: check if a namespace is being deleted
 		policy_passed = True
 
 		try:

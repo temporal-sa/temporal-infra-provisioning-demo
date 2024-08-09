@@ -1,10 +1,5 @@
 from dataclasses import dataclass, field
 from typing import Dict
-from enum import Enum
-
-# NOTE: for init, policy_check, plan and outputs, they shouldn't take longer
-# than 30 seconds.
-TERRAFORM_COMMON_TIMEOUT_SECS = 30
 
 
 @dataclass
@@ -45,7 +40,7 @@ class PolicyCheckError(Exception):
 		super().__init__(self.message)
 
 """
-@dataclass
+@dataclasse
 class LoadStatefileError(Exception):
 	def __init__(self, message) -> None:
 		self.message: str = message
@@ -55,5 +50,5 @@ class LoadStatefileError(Exception):
 class ArchiveStatefileError(Exception):
 	def __init__(self, message) -> None:
 		self.message: str = message
-		super().__init__(self.message)
+		super().__init__(self.messag)
 """
