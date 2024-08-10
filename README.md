@@ -126,10 +126,13 @@ temporal workflow query \
 ## TODO
 
 - Slides on how to structure the demo.
+- Directory structure
+- Extra TF module
 - Scenario handling
 - Allow for auto-approve or not as well as policy
 - Show the plan in the UI
 - Show the outputs in the UI
+- Fail out if the env vars aren't set
 
 ## Ideas
 

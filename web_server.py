@@ -5,17 +5,9 @@ import os
 from dataclasses import dataclass, field
 from typing import Dict
 from flask import Flask, render_template, request, jsonify
-import temporal_client
+from shared import get_temporal_client, TerraformRunDetails
 
 TEMPORAL_CLOUD_API_KEY = os.environ.get("TEMPORAL_CLOUD_API_KEY", "")
-
-# TODO: can I get this from the parent app?
-@dataclass
-class TerraformRunDetails:
-	directory: str
-	plan: str = ""
-	env_vars: Dict[str, str] = field(default_factory=dict)
-	apply_timeout_secs: int = 30
 
 app = Flask(__name__)
 
@@ -37,7 +29,7 @@ tf_modules = [
 	{
 		"name": "temporal_cloud",
 		"description": "This deploys the Temporal Cloud infrastructure.",
-		"directory": "./terraform"
+		"directory": "./terraform/tcloud"
 	},
 	{
 		"name": "something_local",
@@ -46,12 +38,12 @@ tf_modules = [
 	}
 ]
 
-client = temporal_client.get()
+client = get_temporal_client()
 
 @app.route("/", methods=["GET", "POST"])
 async def main():
 	# TODO
-	tf_run_id = str(uuid.uuid4().int)[:6]
+	tf_run_id = f"provision-infra-{uuid.uuid4()}"
 	return render_template(
 		"index.html",
 		tf_modules=tf_modules,
@@ -62,7 +54,7 @@ async def main():
 @app.route("/provision_infra", methods=["GET", "POST"])
 async def provision_infra():
 	selected_scenario = request.args.get('scenario')
-	tf_run_id = request.args.get('tf_run_id')
+	tf_run_id = request.args.get('tf_run_id', "")
 	tf_module_name = request.args.get('tf_module_name')
 	tcloud_env_vars = { "TEMPORAL_CLOUD_API_KEY": TEMPORAL_CLOUD_API_KEY }
 	tcloud_tf_dir = ""
@@ -73,6 +65,7 @@ async def provision_infra():
 			break
 
 	run_details = TerraformRunDetails(
+		id=tf_run_id,
 		directory=tcloud_tf_dir,
 		env_vars=tcloud_env_vars
 	)
@@ -81,11 +74,6 @@ async def provision_infra():
 	# TODO: add a run to the table
 
 	"""
-	input = OrderInput(
-		OrderId= order_id,
-		Address=shipping_data["address"],
-	)
-
 	await client.start_workflow(
 		"OrderWorkflow"+selected_scenario,
 		input,
