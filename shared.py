@@ -58,7 +58,7 @@ class TerraformRunDetails:
 	id: str = ""
 	plan: str = ""
 	env_vars: Dict[str, str] = field(default_factory=dict)
-	apply_timeout_secs: int = 30
+	apply_timeout_secs: int = 60
 
 @dataclass
 class TerraformInitError(Exception):

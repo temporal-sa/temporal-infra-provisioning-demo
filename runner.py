@@ -62,6 +62,7 @@ class TerraformRunner:
 			self._run_cmd_in_dir(["terraform", "apply", "-json", "-auto-approve"], data)
 
 		if returncode != 0:
+			print(stderr)
 			raise TerraformApplyError(f"Terraform apply errored: {stderr}")
 
 		return stdout, stderr

@@ -14,8 +14,12 @@ provider "temporalcloud" {
 	allow_insecure = var.allow_insecure # or env var `TEMPORAL_CLOUD_ALLOW_INSECURE`
 }
 
-provider "tls" {
+provider "tls" {}
 
+provider "random" {}
+
+resource "random_id" "random_suffix" {
+  byte_length = 4
 }
 
 resource "tls_private_key" "terraform_test" {
@@ -43,7 +47,7 @@ resource "tls_self_signed_cert" "terraform_test" {
 }
 
 resource "temporalcloud_namespace" "terraform_test" {
-	name               = "neil-dahlke-terraform-test"
+	name               = "${var.prefix}-terraform-demo-${random_id.random_suffix.hex}"
 	regions            = ["aws-us-west-2"]
 	# accepted_client_ca = base64encode(file("/Users/neildahlke/.temporal_certs/ca.pem"))
 	accepted_client_ca = base64encode(tls_self_signed_cert.terraform_test.cert_pem)
@@ -52,12 +56,10 @@ resource "temporalcloud_namespace" "terraform_test" {
 
 /*
 resource "temporalcloud_user" "global_admin" {
-  email          = "neil@dahlke.io"
+	email          = "${var.prefix}-terraform-demo-${random_id.random_suffix.hex}@temporal.io"
   account_access = "admin"
 }
-*/
 
-/*
 resource "temporalcloud_user" "namespace_admin" {
   email          = "developer@yourdomain.com"
   account_access = "developer"

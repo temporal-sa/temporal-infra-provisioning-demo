@@ -6,11 +6,17 @@ from dataclasses import dataclass, field
 from typing import Dict
 from flask import Flask, render_template, request, jsonify
 from shared import get_temporal_client, TerraformRunDetails
+from workflows import ProvisionInfraWorkflow
+from temporalio.common import TypedSearchAttributes, SearchAttributeKey, \
+	SearchAttributePair
 
 TEMPORAL_CLOUD_API_KEY = os.environ.get("TEMPORAL_CLOUD_API_KEY", "")
+TEMPORAL_TASK_QUEUE = os.environ.get("TEMPORAL_TASK_QUEUE", "provision-infra")
 
 app = Flask(__name__)
 
+provision_status_key = SearchAttributeKey.for_text("provisionStatus")
+tf_directory_key = SearchAttributeKey.for_text("tfDirectory")
 scenarios = [
 	"HappyPath",
 	"AdvancedVisibility",
@@ -22,9 +28,7 @@ scenarios = [
 	"RecoverableFailure",
 	"NonRecoverableFailure",
 ]
-
 tf_runs = []
-
 tf_modules = [
 	{
 		"name": "temporal_cloud",
@@ -38,7 +42,6 @@ tf_modules = [
 	}
 ]
 
-client = get_temporal_client()
 
 @app.route("/", methods=["GET", "POST"])
 async def main():
@@ -64,24 +67,29 @@ async def provision_infra():
 			tcloud_tf_dir = module["directory"]
 			break
 
-	run_details = TerraformRunDetails(
+	tf_run_details = TerraformRunDetails(
 		id=tf_run_id,
 		directory=tcloud_tf_dir,
 		env_vars=tcloud_env_vars
 	)
-	print(run_details)
+	print(tf_run_details)
 
 	# TODO: add a run to the table
 
-	"""
-	await client.start_workflow(
-		"OrderWorkflow"+selected_scenario,
-		input,
-		id=f'order-{order_id}',
-		task_queue=os.getenv("TEMPORAL_TASK_QUEUE"),
-	)
-	"""
+	client = await get_temporal_client()
 
+	handle = await client.start_workflow(
+		ProvisionInfraWorkflow.run,
+		tf_run_details,
+		id=tf_run_id,
+		task_queue=TEMPORAL_TASK_QUEUE,
+		search_attributes=TypedSearchAttributes([
+			SearchAttributePair(provision_status_key, "uninitialized"),
+			SearchAttributePair(tf_directory_key, tcloud_tf_dir)
+		]),
+	)
+
+	# result = await handle.result()
 
 	return render_template(
 		"index.html",

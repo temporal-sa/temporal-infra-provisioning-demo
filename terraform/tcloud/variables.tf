@@ -8,3 +8,9 @@ variable "allow_insecure" {
   default = false
 }
 
+
+variable "prefix" {
+  type = string
+  default = "temporal-sa"
+}
+

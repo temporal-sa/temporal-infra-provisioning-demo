@@ -4,3 +4,4 @@ secrets.sh
 *.tfstate*
 *.binary
 .terraform/
+.DS_Store

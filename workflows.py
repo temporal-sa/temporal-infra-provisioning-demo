@@ -21,6 +21,8 @@ class ProvisionInfraWorkflow:
 		self._signal_reason = ""
 		self._current_state = "uninitialized"
 		self._tf_run_details = None
+		self._tf_plan_output = ""
+		self._tf_outputs = {}
 
 	@workflow.run
 	async def run(self, terraform_run_details: TerraformRunDetails) -> str:
@@ -45,7 +47,7 @@ class ProvisionInfraWorkflow:
 
 		workflow.upsert_search_attributes({"provisionStatus": ["planning"]})
 		self._current_state = "planning..."
-		plan_output = await workflow.execute_activity_method(
+		self._tf_plan_output = await workflow.execute_activity_method(
 			ProvisioningActivities.terraform_plan,
 			terraform_run_details,
 			start_to_close_timeout=timedelta(seconds=TERRAFORM_COMMON_TIMEOUT_SECS),
@@ -54,7 +56,7 @@ class ProvisionInfraWorkflow:
 		workflow.upsert_search_attributes({"provisionStatus": ["planned"]})
 		self._current_state = "planned"
 
-		terraform_run_details.plan = plan_output
+		terraform_run_details.plan = self._plan_output
 
 		policy_retry_policy = RetryPolicy(
 			maximum_attempts=5,
@@ -138,3 +140,8 @@ class ProvisionInfraWorkflow:
 	def query_current_state(self) -> str:
 		workflow.logger.info("State query received.")
 		return self._current_state
+
+	@workflow.query
+	def query_plan(self) -> str:
+		workflow.logger.info("Plan output query received.")
+		return self._tf_plan_output
