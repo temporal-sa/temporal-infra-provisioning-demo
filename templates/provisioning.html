@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<script>
+	// Start updating progress when the page loads
+	document.addEventListener("DOMContentLoaded", function () {
+		updateProgress();
+	});
+</script>
+
+<h2>Provisioning Infrastructure Workflow Status</h2>
+<p>Selected Scenario: {{ selected_scenario }}</p>
+<h5 class="tf-run-id">{{ tf_run_id }}</h5>
+
+<div class="status-bar">
+	<div id="progress-bar" class="status-progress" style="width: 0;"></div>
+</div>
+
+<p>Current Status: <span id="current-status">...</span></p>
+
+<div id="terraform-plan-container">
+	<h4>Terraform Plan</h4>
+	<code id="terraform-plan"></code>
+</div>
+
+<div id="humanInLoopSignal" style="display: none;">
+	<h5>Approve or Deny Apply?</h5>
+	<label for="signalAddress">Reason:</label>
+	<input type="text" id="signalAddress">
+	<button onclick="signal(true)">Approve</button>
+	<button onclick="signal(false)">Deny</button>
+	<p id="signalCountdown"></p>
+</div>
+
+<div id="updateResult"></div>
+<p id="error-message" style="color: red;"></p>
+
+{% endblock %}

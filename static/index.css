@@ -24,11 +24,11 @@ table, th, td {
 }
 
 th {
-	background-color: #f2f2f2;  /* light gray background for headers */
+	background-color: #f2f2f2;
 }
 
 td {
-	background-color: #f9f9f9;  /* light gray background for all rows */
+	background-color: #f9f9f9;
 }
 
 th, td {
@@ -41,6 +41,18 @@ select {
 	padding: 10px;
 }
 
+code {
+	display: block;
+	text-align: left;
+}
+
+button {
+	padding: 10px;
+	background-color: #4CAF50;
+	color: white;
+	border-radius: 5px;
+}
+
 .header-image {
 	text-align: center;
 	margin-top: 0px;
@@ -49,6 +61,10 @@ select {
 .header-image img {
 	width: 150px;
 	height: 150px;
+}
+
+.tf-run-id {
+	color: blue;
 }
 
 .status-bar {
@@ -63,11 +79,12 @@ select {
 .status-progress {
 	height: 100%;
 	background-color: #4CAF50;
+	-webkit-transition: width 1s ease-in-out;
+    -moz-transition: width 1s ease-in-out;
+    -o-transition: width 1s ease-in-out;
+    transition: width 1s ease-in-out;
 }
 
-button {
-	padding: 10px;
-	background-color: #4CAF50;
-	color: white;
-	border-radius: 5px;
+#terraform-plan-container {
+	display: none;
 }

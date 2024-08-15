@@ -31,8 +31,12 @@ class TerraformRunner:
 
 		return stdout, stderr
 
-	async def plan(self, data: TerraformRunDetails, activity_id: str) -> Tuple[str, str, str]:
+	async def plan(self, data: TerraformRunDetails, activity_id: str) -> Tuple[str, str, str, str]:
 		"""Plan the Terraform configuration."""
+
+		# We want to get the regular plan output here (no binary or json) for display purposes
+		_, plan_stdout, _ = \
+			self._run_cmd_in_dir(["terraform", "plan"], data)
 
 		tfplan_binary_filename = f"{activity_id}.binary"
 		plan_returncode, _, plan_stderr = \
@@ -52,7 +56,8 @@ class TerraformRunner:
 
 		self._run_cmd_in_dir(["rm", tfplan_binary_filename], data)
 
-		return show_json_stdout, show_json_stderr, plan_stderr
+		print(plan_stdout)
+		return show_json_stdout, show_json_stderr, plan_stdout, plan_stderr
 
 	async def apply(self, data: TerraformRunDetails) -> Tuple[str, str]:
 		"""Apply the Terraform configuration."""

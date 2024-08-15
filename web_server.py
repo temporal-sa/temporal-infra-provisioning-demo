@@ -91,7 +91,7 @@ async def provision_infra():
 	# result = await handle.result()
 
 	return render_template(
-		"provision_infra.html",
+		"provisioning.html",
 		tf_run_id=tf_run_id,
 		selected_scenario=selected_scenario
 	)
@@ -109,8 +109,9 @@ async def get_progress():
 	try:
 		client = await get_temporal_client()
 		tf_workflow = client.get_workflow_handle(tf_run_id)
-		payload["status"] = await tf_workflow.query("get_current_state")
+		payload["status"] = await tf_workflow.query("get_current_status")
 		payload["progress_percent"] = await tf_workflow.query("get_progress")
+		payload["plan"] = await tf_workflow.query("get_plan")
 		workflow_desc = await tf_workflow.describe()
 
 		if workflow_desc.status == 3:
@@ -119,8 +120,26 @@ async def get_progress():
 			return jsonify({"error": error_message}), 500
 
 		return jsonify(payload)
-	except:
+	except Exception as e:
+		print(e)
 		return jsonify(payload)
+
+@app.route('/provisioned')
+async def provisioned():
+	tf_run_id = request.args.get('tf_run_id')
+
+	client = await get_temporal_client()
+	tf_workflow = client.get_workflow_handle(tf_run_id)
+	status = await tf_workflow.query("get_current_status")
+	tf_workflow_output = await tf_workflow.result()
+
+	return render_template(
+		"provisioned.html",
+		tf_run_id=tf_run_id,
+		tf_workflow_output=tf_workflow_output,
+		tf_run_status=status
+	)
+
 
 if __name__ == "__main__":
 	app.run(debug=True, port=3000)

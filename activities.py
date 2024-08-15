@@ -1,8 +1,9 @@
 import json
 import asyncio
+
+from typing import Tuple
 from temporalio import activity
 from temporalio.exceptions import ActivityError
-
 from runner import TerraformRunner
 from shared import TerraformRunDetails, TerraformApplyError, \
 	TerraformInitError, TerraformPlanError, TerraformOutputError, \
@@ -22,6 +23,9 @@ class ProvisioningActivities:
 		init_stdout = ""
 		init_stderr = ""
 
+		await asyncio.sleep(3)
+		activity.logger.info("Sleeping for 3 seconds to slow execution down")
+
 		try:
 			init_stdout, init_stderr = await self._runner.init(data)
 			activity.logger.debug(f"Terraform init succeeded: {init_stdout}")
@@ -35,25 +39,28 @@ class ProvisioningActivities:
 		return init_stdout, init_stderr
 
 	@activity.defn
-	async def terraform_plan(self, data: TerraformRunDetails) -> str:
+	async def terraform_plan(self, data: TerraformRunDetails) -> Tuple[str, str]:
 		"""Plan the Terraform configuration."""
 
 		activity.logger.info("Terraform plan")
-		show_json_stdout, show_json_stderr, show_plan_stderr = "", "", ""
+		plan_json_stdout, plan_json_stderr, plan_stdout, plan_stderr = "", "", "", ""
 		activity_id = activity.info().activity_id
 
+		await asyncio.sleep(3)
+		activity.logger.info("Sleeping for 3 seconds to slow execution down")
+
 		try:
-			show_json_stdout, show_json_stderr, show_plan_stderr = await self._runner.plan(data, activity_id)
-			self._runner.set_plan(json.loads(show_json_stdout))
-			activity.logger.debug(f"Terraform plan succeeded: {show_json_stdout}")
+			plan_json_stdout, plan_json_stderr, plan_stdout, plan_stderr = await self._runner.plan(data, activity_id)
+			self._runner.set_plan(json.loads(plan_json_stdout))
+			activity.logger.debug(f"Terraform plan succeeded: {plan_json_stdout}")
 		except TerraformPlanError as tfpe:
-			activity.logger.error(f"Terraform plan errored: {show_plan_stderr}, {show_json_stderr}")
+			activity.logger.error(f"Terraform plan errored: {plan_json_stderr}, {plan_stderr}")
 			raise tfpe
 		except ActivityError as ae:
-			activity.logger.error(f"Terraform plan errored: {show_plan_stderr}, {show_json_stderr}")
+			activity.logger.error(f"Terraform plan errored: {plan_json_stderr}, {plan_stderr}")
 			raise ae
 
-		return show_json_stdout
+		return plan_stdout, plan_json_stdout
 
 	@activity.defn
 	async def terraform_apply(self, data: TerraformRunDetails) -> str:
@@ -109,6 +116,9 @@ class ProvisioningActivities:
 
 		activity.logger.info("Policy check (could be external but isn't for now)")
 		policy_passed = False
+
+		await asyncio.sleep(3)
+		activity.logger.info("Sleeping for 3 seconds to slow execution down")
 
 		try:
 			policy_passed = self._runner.policy_check(data)

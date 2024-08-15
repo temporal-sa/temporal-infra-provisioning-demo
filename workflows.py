@@ -37,6 +37,7 @@ class ProvisionInfraWorkflow:
 		)
 
 		workflow.upsert_search_attributes({"provisionStatus": ["initializing"]})
+		self._progress = 10
 		self._current_status = "initializing"
 		await workflow.execute_activity_method(
 			ProvisioningActivities.terraform_init,
@@ -45,20 +46,23 @@ class ProvisionInfraWorkflow:
 			retry_policy=tf_fast_op_retry_policy,
 		)
 		workflow.upsert_search_attributes({"provisionStatus": ["initialized"]})
+		self._progress = 20
 		self._current_status = "initialized"
 
 		workflow.upsert_search_attributes({"provisionStatus": ["planning"]})
+		self._progress = 30
 		self._current_status = "planning..."
-		self._tf_plan_output = await workflow.execute_activity_method(
+		self._tf_plan_output, tf_plan_output_json = await workflow.execute_activity_method(
 			ProvisioningActivities.terraform_plan,
 			terraform_run_details,
 			start_to_close_timeout=timedelta(seconds=TERRAFORM_COMMON_TIMEOUT_SECS),
 			retry_policy=tf_fast_op_retry_policy,
 		)
 		workflow.upsert_search_attributes({"provisionStatus": ["planned"]})
+		self._progress = 40
 		self._current_status = "planned"
 
-		terraform_run_details.plan = self._plan_output
+		terraform_run_details.plan = tf_plan_output_json
 
 		policy_retry_policy = RetryPolicy(
 			maximum_attempts=5,
@@ -66,6 +70,7 @@ class ProvisionInfraWorkflow:
 			non_retryable_error_types=["PolicyCheckError"],
 		)
 		workflow.upsert_search_attributes({"provisionStatus": ["policy_checking"]})
+		self._progress = 50
 		self._current_status = "checking policy"
 		policy_check_output = await workflow.execute_activity_method(
 			ProvisioningActivities.policy_check,
@@ -74,6 +79,7 @@ class ProvisionInfraWorkflow:
 			retry_policy=policy_retry_policy,
 		)
 		workflow.upsert_search_attributes({"provisionStatus": ["policy_checked"]})
+		self._progress = 60
 		self._current_status = "policy checked"
 
 		if not policy_check_output:
@@ -88,6 +94,7 @@ class ProvisionInfraWorkflow:
 		show_output = ""
 		if policy_check_output or self._apply_approved:
 			workflow.upsert_search_attributes({"provisionStatus": ["applying"]})
+			self._progress = 70
 			self._current_status = "applying"
 			tf_apply_retry_policy = RetryPolicy(
 				maximum_attempts=5,
@@ -102,9 +109,12 @@ class ProvisionInfraWorkflow:
 				retry_policy=tf_apply_retry_policy,
 			)
 			workflow.upsert_search_attributes({"provisionStatus": ["applied"]})
+			self._progress = 80
 			self._current_status = "applied"
 
 			workflow.logger.info(f"Workflow apply output {apply_output}")
+
+			# TODO: sleep for a bit here?
 
 			show_output = await workflow.execute_activity_method(
 				ProvisioningActivities.terraform_output,
@@ -116,9 +126,11 @@ class ProvisionInfraWorkflow:
 
 		else:
 			workflow.upsert_search_attributes({"provisionStatus": ["rejected"]})
+			self._progress = 100
 			self._current_status = "rejected"
 			workflow.logger.info("Workflow apply denied, no work to do.")
 
+		self._progress = 100
 		return show_output
 
 	@workflow.signal
@@ -144,7 +156,7 @@ class ProvisionInfraWorkflow:
 		return self._current_status
 
 	@workflow.query
-	def get_plan(self) -> str:
+	def get_plan(self) -> dict:
 		workflow.logger.info("Plan output query received.")
 		return self._tf_plan_output
 

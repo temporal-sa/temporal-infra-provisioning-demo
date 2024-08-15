@@ -2,56 +2,36 @@
 
 {% block content %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script>
-        function provisionInfra() {
-            var selectedScenario = document.getElementById("scenario").value;
-            var tfModuleName = document.getElementById("tfModuleName").value;
-            var tfRunID = document.getElementById("tfRunID").value;
+<h1>Temporal Provisioning</h1>
+<h2>Terraform Modules</h2>
+<table>
+    <tr>
+        <th>Name</th>
+        <th>Description</th>
+    </tr>
+    {% for tf_module in tf_modules %}
+    <tr>
+        <td>{{ tf_module["name"] }}</td>
+        <td>{{ tf_module["description"] }}</td>
+    </tr>
+    {% endfor %}
+</table>
 
-            // Redirect to order processing page with the selected scenario as a query parameter
-            window.location.href =
-                '/provision_infra?scenario=' + encodeURIComponent(selectedScenario) +
-                '&tf_run_id=' + encodeURIComponent(tfRunID) +
-                '&tf_module_name=' + encodeURIComponent(tfModuleName);
-        }
-    </script>
-</head>
+<h3>Choose Module</h3>
+<select id="tfModuleName" name="tfModuleName">
+    {% for tf_module in tf_modules %}
+    <option value="{{ tf_module['name'] }}">{{ tf_module["name"] }}</option>
+    {% endfor %}
+</select>
 
-<body>
-    <h1>Temporal Provisioning</h1>
-    <h2>Terraform Modules</h2>
-    <table>
-        <tr>
-            <th>Name</th>
-            <th>Description</th>
-        </tr>
-        {% for tf_module in tf_modules %}
-        <tr>
-            <td>{{ tf_module["name"] }}</td>
-            <td>{{ tf_module["description"] }}</td>
-        </tr>
-        {% endfor %}
-    </table>
+<h3>Choose Scenario</h3>
+<select id="scenario" name="scenario">
+    {% for choice in scenarios %}
+    <option value="{{ choice }}">{{ choice }}</option>
+    {% endfor %}
+</select>
 
-    <h3>Choose Module</h3>
-    <select id="tfModuleName" name="tfModuleName">
-        {% for tf_module in tf_modules %}
-        <option value="{{ tf_module['name'] }}">{{ tf_module["name"] }}</option>
-        {% endfor %}
-    </select>
-
-    <h3>Choose Scenario</h3>
-    <select id="scenario" name="scenario">
-        {% for choice in scenarios %}
-        <option value="{{ choice }}">{{ choice }}</option>
-        {% endfor %}
-    </select>
-
-    <button type="button" onclick="provisionInfra()">Provision Infrastructure</button>
-    <input type="hidden" id="tfRunID" value="{{ tf_run_id }}">
-</body>
+<button type="button" onclick="provisionInfra()">Provision Infrastructure</button>
+<input type="hidden" id="tfRunID" value="{{ tf_run_id }}">
 
 {% endblock %}
