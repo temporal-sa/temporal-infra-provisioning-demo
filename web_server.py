@@ -72,7 +72,6 @@ async def provision_infra():
 		directory=tcloud_tf_dir,
 		env_vars=tcloud_env_vars
 	)
-	print(tf_run_details)
 
 	# TODO: add a run to the table
 
@@ -92,11 +91,36 @@ async def provision_infra():
 	# result = await handle.result()
 
 	return render_template(
-		"index.html",
-		tf_modules=tf_modules,
+		"provision_infra.html",
 		tf_run_id=tf_run_id,
-		scenarios=scenarios
+		selected_scenario=selected_scenario
 	)
+
+
+@app.route('/get_progress')
+async def get_progress():
+	tf_run_id = request.args.get('tf_run_id', "")
+	payload = {
+		"progress": 0,
+		"status": "uninitialized",
+		"plan": None
+	}
+
+	try:
+		client = await get_temporal_client()
+		tf_workflow = client.get_workflow_handle(tf_run_id)
+		payload["status"] = await tf_workflow.query("get_current_state")
+		payload["progress_percent"] = await tf_workflow.query("get_progress")
+		workflow_desc = await tf_workflow.describe()
+
+		if workflow_desc.status == 3:
+			error_message = "Workflow failed: {tf_run_id}"
+			print(f"Error in get_progress route: {error_message}")
+			return jsonify({"error": error_message}), 500
+
+		return jsonify(payload)
+	except:
+		return jsonify(payload)
 
 if __name__ == "__main__":
 	app.run(debug=True, port=3000)

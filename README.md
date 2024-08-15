@@ -10,7 +10,8 @@ _Leveraging the Temporal Python SDK and Terraform_
 | Poetry 1.8.3       | ✅ | Signal         | ✅ | Continue As New     |    |
 | Terraform 1.9.0    | ✅ | Query          | ✅ | Manual Intervention | ✅ |
 | Open Policy Agent  |    | Heartbeat      | ✅ | Long-polling        |    |
-|                    |    | Retry          | ✅ | Polyglot            |    |
+|                    |    | Update         |    | Polyglot            |    |
+|                    |    | Retry          | ✅ |                     |    |
 |                    |    | Data Converter | ✅ |                     |    |
 |                    |    | Codec Server   | ✅ |                     |    |
 |                    |    | Custom Attrs   | ✅ |                     |    |
@@ -102,23 +103,31 @@ for a signal to approve or deny the execution of the plan.
 ```bash
 temporal workflow signal \
     --workflow-id="<WORKFLOW-ID>" \
-    --name signal_approve_apply \
+    --name approve_apply \
     --reason "approving apply"
 
 temporal workflow signal \
     --workflow-id="<WORKFLOW-ID>" \
-    --name signal_deny_apply \
+    --name deny_apply \
     --reason "approving apply"
 ```
 
-To query a workflow for it's current status, you can use the below command with the relevant in place of the current workflow ID.
+To query a workflow for it's current status, the plan, the signal reason or the progress, you can use the below commands with the relevant in place of the current workflow ID.
 
 ```bash
 temporal workflow query \
     --workflow-id="<WORKFLOW-ID>" \
-    --type="query_current_state"
+    --type="get_current_status"
 
 temporal workflow query \
     --workflow-id="<WORKFLOW-ID>" \
-    --type="query_signal_reason"
+    --type="get_progress"
+
+temporal workflow query \
+    --workflow-id="<WORKFLOW-ID>" \
+    --type="get_plan"
+
+temporal workflow query \
+    --workflow-id="<WORKFLOW-ID>" \
+    --type="get_signal_reason"
 ```

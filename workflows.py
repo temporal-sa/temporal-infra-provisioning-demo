@@ -19,10 +19,12 @@ class ProvisionInfraWorkflow:
 	def __init__(self) -> None:
 		self._apply_approved = None
 		self._signal_reason = ""
-		self._current_state = "uninitialized"
+		self._current_status = "uninitialized"
 		self._tf_run_details = None
 		self._tf_plan_output = ""
 		self._tf_outputs = {}
+		# TODO
+		self._progress = 30
 
 	@workflow.run
 	async def run(self, terraform_run_details: TerraformRunDetails) -> str:
@@ -35,7 +37,7 @@ class ProvisionInfraWorkflow:
 		)
 
 		workflow.upsert_search_attributes({"provisionStatus": ["initializing"]})
-		self._current_state = "initializing"
+		self._current_status = "initializing"
 		await workflow.execute_activity_method(
 			ProvisioningActivities.terraform_init,
 			terraform_run_details,
@@ -43,10 +45,10 @@ class ProvisionInfraWorkflow:
 			retry_policy=tf_fast_op_retry_policy,
 		)
 		workflow.upsert_search_attributes({"provisionStatus": ["initialized"]})
-		self._current_state = "initialized"
+		self._current_status = "initialized"
 
 		workflow.upsert_search_attributes({"provisionStatus": ["planning"]})
-		self._current_state = "planning..."
+		self._current_status = "planning..."
 		self._tf_plan_output = await workflow.execute_activity_method(
 			ProvisioningActivities.terraform_plan,
 			terraform_run_details,
@@ -54,7 +56,7 @@ class ProvisionInfraWorkflow:
 			retry_policy=tf_fast_op_retry_policy,
 		)
 		workflow.upsert_search_attributes({"provisionStatus": ["planned"]})
-		self._current_state = "planned"
+		self._current_status = "planned"
 
 		terraform_run_details.plan = self._plan_output
 
@@ -64,7 +66,7 @@ class ProvisionInfraWorkflow:
 			non_retryable_error_types=["PolicyCheckError"],
 		)
 		workflow.upsert_search_attributes({"provisionStatus": ["policy_checking"]})
-		self._current_state = "checking policy"
+		self._current_status = "checking policy"
 		policy_check_output = await workflow.execute_activity_method(
 			ProvisioningActivities.policy_check,
 			terraform_run_details,
@@ -72,11 +74,11 @@ class ProvisionInfraWorkflow:
 			retry_policy=policy_retry_policy,
 		)
 		workflow.upsert_search_attributes({"provisionStatus": ["policy_checked"]})
-		self._current_state = "policy checked"
+		self._current_status = "policy checked"
 
 		if not policy_check_output:
 			workflow.upsert_search_attributes({"provisionStatus": ["awaiting_approval"]})
-			self._current_state = "awaiting approval decision..."
+			self._current_status = "awaiting approval decision..."
 			workflow.logger.info("Workflow awaiting approval decision")
 			await workflow.wait_condition(
 				lambda: self._apply_approved is not None
@@ -86,7 +88,7 @@ class ProvisionInfraWorkflow:
 		show_output = ""
 		if policy_check_output or self._apply_approved:
 			workflow.upsert_search_attributes({"provisionStatus": ["applying"]})
-			self._current_state = "applying"
+			self._current_status = "applying"
 			tf_apply_retry_policy = RetryPolicy(
 				maximum_attempts=5,
 				maximum_interval=timedelta(seconds=5),
@@ -100,7 +102,7 @@ class ProvisionInfraWorkflow:
 				retry_policy=tf_apply_retry_policy,
 			)
 			workflow.upsert_search_attributes({"provisionStatus": ["applied"]})
-			self._current_state = "applied"
+			self._current_status = "applied"
 
 			workflow.logger.info(f"Workflow apply output {apply_output}")
 
@@ -114,34 +116,39 @@ class ProvisionInfraWorkflow:
 
 		else:
 			workflow.upsert_search_attributes({"provisionStatus": ["rejected"]})
-			self._current_state = "rejected"
+			self._current_status = "rejected"
 			workflow.logger.info("Workflow apply denied, no work to do.")
 
 		return show_output
 
 	@workflow.signal
-	async def signal_approve_apply(self, reason: str="") -> None:
+	async def approve_apply(self, reason: str="") -> None:
 		workflow.logger.info(f"Approval signal received for: {reason}.")
 		self._apply_approved = True
 		self._signal_reason = reason
 
 	@workflow.signal
-	async def signal_deny_apply(self, reason: str="") -> None:
+	async def deny_apply(self, reason: str="") -> None:
 		workflow.logger.info(f"Deny signal received for: {reason}.")
 		self._apply_approved = False
 		self._signal_reason = reason
 
 	@workflow.query
-	def query_signal_reason(self) -> str:
-		workflow.logger.info("State query received.")
-		return self._current_state
+	def get_signal_reason(self) -> str:
+		workflow.logger.info("Status query received.")
+		return self._current_status
 
 	@workflow.query
-	def query_current_state(self) -> str:
-		workflow.logger.info("State query received.")
-		return self._current_state
+	def get_current_status(self) -> str:
+		workflow.logger.info("Status query received.")
+		return self._current_status
 
 	@workflow.query
-	def query_plan(self) -> str:
+	def get_plan(self) -> str:
 		workflow.logger.info("Plan output query received.")
 		return self._tf_plan_output
+
+	@workflow.query
+	def get_progress(self) -> int:
+		workflow.logger.info("Progress query received.")
+		return self._progress
