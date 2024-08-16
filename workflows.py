@@ -1,8 +1,8 @@
-from datetime import timedelta
+import asyncio
 
+from datetime import timedelta
 from temporalio import workflow
 from temporalio.common import RetryPolicy
-# from temporalio.exceptions import ActivityError # TODO
 
 with workflow.unsafe.imports_passed_through():
 	from activities import ProvisioningActivities
@@ -114,7 +114,8 @@ class ProvisionInfraWorkflow:
 
 			workflow.logger.info(f"Workflow apply output {apply_output}")
 
-			# TODO: sleep for a bit here?
+			workflow.logger.info("Sleeping for 5 seconds to slow execution down")
+			await asyncio.sleep(5)
 
 			show_output = await workflow.execute_activity_method(
 				ProvisioningActivities.terraform_output,
@@ -133,6 +134,7 @@ class ProvisionInfraWorkflow:
 		self._progress = 100
 		return show_output
 
+	# TODO: change this to taking a dataclass
 	@workflow.signal
 	async def approve_apply(self, reason: str="") -> None:
 		workflow.logger.info(f"Approval signal received for: {reason}.")
@@ -156,7 +158,7 @@ class ProvisionInfraWorkflow:
 		return self._current_status
 
 	@workflow.query
-	def get_plan(self) -> dict:
+	def get_plan(self) -> str:
 		workflow.logger.info("Plan output query received.")
 		return self._tf_plan_output
 

@@ -23,8 +23,8 @@ class ProvisioningActivities:
 		init_stdout = ""
 		init_stderr = ""
 
-		await asyncio.sleep(3)
-		activity.logger.info("Sleeping for 3 seconds to slow execution down")
+		await asyncio.sleep(5)
+		activity.logger.info("Sleeping for 5 seconds to slow execution down")
 
 		try:
 			init_stdout, init_stderr = await self._runner.init(data)
@@ -46,8 +46,8 @@ class ProvisioningActivities:
 		plan_json_stdout, plan_json_stderr, plan_stdout, plan_stderr = "", "", "", ""
 		activity_id = activity.info().activity_id
 
-		await asyncio.sleep(3)
-		activity.logger.info("Sleeping for 3 seconds to slow execution down")
+		await asyncio.sleep(5)
+		activity.logger.info("Sleeping for 5 seconds to slow execution down")
 
 		try:
 			plan_json_stdout, plan_json_stderr, plan_stdout, plan_stderr = await self._runner.plan(data, activity_id)
@@ -117,8 +117,8 @@ class ProvisioningActivities:
 		activity.logger.info("Policy check (could be external but isn't for now)")
 		policy_passed = False
 
-		await asyncio.sleep(3)
-		activity.logger.info("Sleeping for 3 seconds to slow execution down")
+		await asyncio.sleep(5)
+		activity.logger.info("Sleeping for 5 seconds to slow execution down")
 
 		try:
 			policy_passed = self._runner.policy_check(data)

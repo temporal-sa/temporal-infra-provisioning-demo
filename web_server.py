@@ -45,7 +45,6 @@ tf_modules = [
 
 @app.route("/", methods=["GET", "POST"])
 async def main():
-	# TODO
 	tf_run_id = f"provision-infra-{uuid.uuid4()}"
 	return render_template(
 		"index.html",
@@ -56,9 +55,9 @@ async def main():
 
 @app.route("/provision_infra", methods=["GET", "POST"])
 async def provision_infra():
-	selected_scenario = request.args.get('scenario')
-	tf_run_id = request.args.get('tf_run_id', "")
-	tf_module_name = request.args.get('tf_module_name')
+	selected_scenario = request.args.get("scenario")
+	tf_run_id = request.args.get("tf_run_id", "")
+	tf_module_name = request.args.get("tf_module_name")
 	tcloud_env_vars = { "TEMPORAL_CLOUD_API_KEY": TEMPORAL_CLOUD_API_KEY }
 	tcloud_tf_dir = ""
 
@@ -73,22 +72,27 @@ async def provision_infra():
 		env_vars=tcloud_env_vars
 	)
 
-	# TODO: add a run to the table
-
 	client = await get_temporal_client()
+	no_existing_workflow = False
 
-	handle = await client.start_workflow(
-		ProvisionInfraWorkflow.run,
-		tf_run_details,
-		id=tf_run_id,
-		task_queue=TEMPORAL_TASK_QUEUE,
-		search_attributes=TypedSearchAttributes([
-			SearchAttributePair(provision_status_key, "uninitialized"),
-			SearchAttributePair(tf_directory_key, tcloud_tf_dir)
-		]),
-	)
+	try:
+		tf_workflow = client.get_workflow_handle(tf_run_id)
+		await tf_workflow.describe()
+	except Exception as e:
+		no_existing_workflow = True
 
-	# result = await handle.result()
+	if no_existing_workflow:
+		await client.start_workflow(
+			ProvisionInfraWorkflow.run,
+			tf_run_details,
+			id=tf_run_id,
+			task_queue=TEMPORAL_TASK_QUEUE,
+			search_attributes=TypedSearchAttributes([
+				SearchAttributePair(provision_status_key, "uninitialized"),
+				SearchAttributePair(tf_directory_key, tcloud_tf_dir)
+			]),
+		)
+		tf_runs.append(tf_run_details)
 
 	return render_template(
 		"provisioning.html",
@@ -126,7 +130,7 @@ async def get_progress():
 
 @app.route('/provisioned')
 async def provisioned():
-	tf_run_id = request.args.get('tf_run_id')
+	tf_run_id = request.args.get("tf_run_id", "")
 
 	client = await get_temporal_client()
 	tf_workflow = client.get_workflow_handle(tf_run_id)
@@ -139,6 +143,27 @@ async def provisioned():
 		tf_workflow_output=tf_workflow_output,
 		tf_run_status=status
 	)
+
+@app.route('/signal', methods=["POST"])
+async def signal():
+	tf_run_id = request.args.get("tf_run_id", "")
+	decision = request.json.get("decision", False)
+	reason = request.json.get("reason", "")
+
+	try:
+		client = await get_temporal_client()
+		order_workflow = client.get_workflow_handle(tf_run_id)
+
+		if decision is True:
+			await order_workflow.signal("approve_apply", reason)
+		else:
+			await order_workflow.signal("deny_apply", reason)
+
+	except Exception as e:
+		print(f"Error sending signal: {str(e)}")
+		return jsonify({"error": str(e)}), 500
+
+	return "Signal received successfully", 200
 
 
 if __name__ == "__main__":

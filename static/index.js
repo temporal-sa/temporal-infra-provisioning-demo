@@ -10,23 +10,6 @@ function provisionInfra() {
 		"&tf_module_name=" + encodeURIComponent(tfModuleName);
 }
 
-var interval;
-
-function startCountdown(seconds, countdownElement) {
-	function updateCountdown() {
-		countdownElement.innerText = seconds + " seconds remaining";
-		seconds--;
-
-		if (seconds < 0) {
-			clearInterval(interval);
-			countdownElement.style.display = "none";
-		}
-	}
-
-	// Set up interval to call updateCountdown every second
-	interval = setInterval(updateCountdown, 1000);
-}
-
 function updateProgress() {
 	var urlParams = new URLSearchParams(window.location.search);
 	var tfRunID = urlParams.get("tf_run_id");
@@ -42,20 +25,25 @@ function updateProgress() {
 		})
 		.then(data => {
 			// Update the progress bar
-			console.log(data)
+			// console.log(data)
 			document.getElementById("progress-bar").style.width = data.progress_percent + "%";
 			document.getElementById("current-status").innerText = data.status;
+
 			if (data.plan != "") {
 				document.getElementById("terraform-plan").innerText = data.plan;
 				document.getElementById("terraform-plan-container").style.display = "block";
+			}
+
+			if (data.status.includes("approval")) {
+				document.getElementById("signal-container").style.display = "block";
 			}
 
 			if (data.progress_percent === 100) {
 				// Redirect to order confirmation with the tf_run_id
 				window.location.href = "/provisioned?tf_run_id=" + encodeURIComponent(tfRunID);
 			} else {
-				// Continue updating progress
-				setTimeout(updateProgress, 500);
+				// Continue updating progress every second
+				setTimeout(updateProgress, 1000);
 			}
 		})
 		.catch(error => {
@@ -71,19 +59,21 @@ function updateProgress() {
 }
 
 // Define the signal function
-function signal(approval) {
+function signal(decision) {
 	// Get the order_id from the URL query parameters
 	var urlParams = new URLSearchParams(window.location.search);
-	var tf_run_id = urlParams.get("tf_run_id");
+	var tfRunID = urlParams.get("tf_run_id");
+	var reason = document.getElementById("reason").value;
 
 	// Perform AJAX request to the server for signaling
-	fetch("/signal?tf_run_id=" + encodeURIComponent(tf_run_id), {
+	fetch("/signal?tf_run_id=" + encodeURIComponent(tfRunID), {
 		method: "POST",
 		headers: {
 			"Content-Type": "application/json"
 		},
 		body: JSON.stringify({
-			address: document.getElementById("reason").value
+			decision: decision,
+			reason: reason
 		})
 	})
 		.then(response => {

@@ -1,3 +1,5 @@
+/* TODO: update the colors to use hex */
+
 body {
 	font-family: Arial, sans-serif;
 	max-width: 1000px;
@@ -48,9 +50,17 @@ code {
 
 button {
 	padding: 10px;
-	background-color: #4CAF50;
 	color: white;
 	border-radius: 5px;
+}
+
+
+button.green {
+	background-color: #4CAF50;
+}
+
+button.red {
+	background-color: red;
 }
 
 .header-image {
@@ -85,6 +95,7 @@ button {
     transition: width 1s ease-in-out;
 }
 
-#terraform-plan-container {
+#terraform-plan-container,
+#signal-container {
 	display: none;
 }

@@ -54,12 +54,12 @@ resource "temporalcloud_namespace" "terraform_test" {
 	retention_days     = 14
 }
 
+/*
 resource "temporalcloud_user" "global_admin" {
 	email          = "${var.prefix}-terraform-demo-${random_id.random_suffix.hex}@temporal.io"
   account_access = "admin"
 }
 
-/*
 resource "temporalcloud_user" "namespace_admin" {
   email          = "developer@yourdomain.com"
   account_access = "developer"

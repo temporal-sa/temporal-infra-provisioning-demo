@@ -24,13 +24,12 @@
 	<code id="terraform-plan"></code>
 </div>
 
-<div id="humanInLoopSignal" style="display: none;">
+<div id="signal-container">
 	<h5>Approve or Deny Apply?</h5>
-	<label for="signalAddress">Reason:</label>
-	<input type="text" id="signalAddress">
-	<button onclick="signal(true)">Approve</button>
-	<button onclick="signal(false)">Deny</button>
-	<p id="signalCountdown"></p>
+	<label for="reason">Reason:</label>
+	<input type="text" id="reason">
+	<button class="green" onclick="signal(true)">Approve</button>
+	<button class="red" onclick="signal(false)">Deny</button>
 </div>
 
 <div id="updateResult"></div>
