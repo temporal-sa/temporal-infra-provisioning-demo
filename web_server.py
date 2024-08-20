@@ -18,17 +18,6 @@ app = Flask(__name__)
 provision_status_key = SearchAttributeKey.for_text("provisionStatus")
 tf_directory_key = SearchAttributeKey.for_text("tfDirectory")
 
-"""
-scenarios = [
-	# TODO
-	"HumanInLoopUpdate",
-	"ChildWorkflow",
-	"APIFailure",
-]
-"""
-
-tf_runs = []
-
 SCENARIOS = {
 	"happy_path": {
 		"description": "This deploys a namespace to Temporal Cloud with no issues.",
@@ -101,7 +90,6 @@ async def provision_infra():
 				SearchAttributePair(tf_directory_key, tcloud_tf_dir)
 			]),
 		)
-		tf_runs.append(tf_run_details)
 
 	return render_template(
 		"provisioning.html",

@@ -48,7 +48,6 @@ class EncryptionCodec(PayloadCodec):
                 )
             # Decrypt and append
             ret.append(Payload.FromString(self.decrypt(p.data)))
-        print("NEILO", ret)
         return ret
 
     def encrypt(self, data: bytes) -> bytes:

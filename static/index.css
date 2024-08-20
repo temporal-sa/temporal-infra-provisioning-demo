@@ -1,5 +1,3 @@
-/* TODO: update the colors to use hex */
-
 body {
 	font-family: Arial, sans-serif;
 	max-width: 1000px;
@@ -60,7 +58,7 @@ button.green {
 }
 
 button.red {
-	background-color: red;
+	background-color: #FF0000;
 }
 
 .header-image {
@@ -101,5 +99,5 @@ button.red {
 }
 
 .error {
-	color: red;
+	color: #FF0000;
 }

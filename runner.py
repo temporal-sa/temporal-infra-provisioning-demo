@@ -89,7 +89,6 @@ class TerraformRunner:
 		checking for admin users being added at the account level."""
 		# NOTE: This is a blocking call since it simply checks a JSON file
 
-		# TODO: check if a namespace is being deleted
 		policy_passed = True
 
 		try:
