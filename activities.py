@@ -42,6 +42,9 @@ class ProvisioningActivities:
 	async def terraform_plan(self, data: TerraformRunDetails) -> Tuple[str, str]:
 		"""Plan the Terraform configuration."""
 
+		# NOTE: cause a recoverable error
+		# recoverable_error = 1 / 0
+
 		activity.logger.info("Terraform plan")
 		plan_json_stdout, plan_json_stderr, plan_stdout, plan_stderr = "", "", "", ""
 		activity_id = activity.info().activity_id

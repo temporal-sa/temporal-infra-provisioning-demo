@@ -43,7 +43,11 @@ SCENARIOS = {
 		"description": "This deploys an admin user to Temporal Cloud which requires an approval signal after a soft policy failure.",
 		"directory": "./terraform/human_in_the_loop"
 	},
-	"non_recoverable": {
+	"recoverable_failure": {
+		"description": "This deploys an admin user to Temporal Cloud which will fail due to a divide by zero error, which can be commented out.",
+		"directory": "./terraform/happy_path"
+	},
+	"non_recoverable_failure": {
 		"description": "This deploys an admin user to Temporal Cloud which will fail due to a hard soft policy failure.",
 		"directory": "./terraform/human_in_the_loop"
 	},
@@ -66,13 +70,11 @@ async def provision_infra():
 	tcloud_env_vars = { "TEMPORAL_CLOUD_API_KEY": TEMPORAL_CLOUD_API_KEY }
 	tcloud_tf_dir = SCENARIOS[selected_scenario]["directory"]
 
-	print(selected_scenario, selected_scenario == "non_recoverable")
-
 	tf_run_details = TerraformRunDetails(
 		id=tf_run_id,
 		directory=tcloud_tf_dir,
 		env_vars=tcloud_env_vars,
-		hard_fail_policy=(selected_scenario == "non_recoverable")
+		hard_fail_policy=(selected_scenario == "non_recoverable_failure")
 	)
 
 	client = await get_temporal_client()

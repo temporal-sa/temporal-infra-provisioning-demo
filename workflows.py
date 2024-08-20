@@ -11,8 +11,8 @@ with workflow.unsafe.imports_passed_through():
 	from shared import TerraformRunDetails
 
 # NOTE: for init, policy_check, plan and outputs, they shouldn't take longer
-# than 30 seconds.
-TERRAFORM_COMMON_TIMEOUT_SECS = 30
+# than 300 seconds.
+TERRAFORM_COMMON_TIMEOUT_SECS = 300
 
 
 @workflow.defn
@@ -33,7 +33,7 @@ class ProvisionInfraWorkflow:
 		self._tf_run_details = terraform_run_details
 
 		# A simple retry policy to be used across some common, fast, TF
-		tf_fast_op_retry_policy = RetryPolicy(
+		tf_init_retry_policy = RetryPolicy(
 			maximum_attempts=5,
 			non_retryable_error_types=["TerraformInitError"],
 		)
@@ -45,12 +45,16 @@ class ProvisionInfraWorkflow:
 			ProvisioningActivities.terraform_init,
 			terraform_run_details,
 			start_to_close_timeout=timedelta(seconds=TERRAFORM_COMMON_TIMEOUT_SECS),
-			retry_policy=tf_fast_op_retry_policy,
+			retry_policy=tf_init_retry_policy,
 		)
 		workflow.upsert_search_attributes({"provisionStatus": ["initialized"]})
 		self._progress = 20
 		self._current_status = "initialized"
 
+		tf_plan_retry_policy = RetryPolicy(
+			backoff_coefficient=2.0,
+			maximum_attempts=100,
+		)
 		workflow.upsert_search_attributes({"provisionStatus": ["planning"]})
 		self._progress = 30
 		self._current_status = "planning..."
@@ -58,7 +62,7 @@ class ProvisionInfraWorkflow:
 			ProvisioningActivities.terraform_plan,
 			terraform_run_details,
 			start_to_close_timeout=timedelta(seconds=TERRAFORM_COMMON_TIMEOUT_SECS),
-			retry_policy=tf_fast_op_retry_policy,
+			retry_policy=tf_plan_retry_policy,
 		)
 		workflow.upsert_search_attributes({"provisionStatus": ["planned"]})
 		self._progress = 40
