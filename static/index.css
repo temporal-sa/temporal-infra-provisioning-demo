@@ -99,3 +99,7 @@ button.red {
 #signal-container {
 	display: none;
 }
+
+.error {
+	color: red;
+}

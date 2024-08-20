@@ -6,7 +6,7 @@ from typing import Dict
 from temporalio.client import Client
 from temporalio.service import  TLSConfig
 from temporalio import converter
-from codec import CompressionCodec
+from codec import CompressionCodec, EncryptionCodec
 
 TEMPORAL_HOST_URL = os.environ.get("TEMPORAL_HOST_URL", "localhost:7233")
 TEMPORAL_MTLS_TLS_CERT = os.environ.get("TEMPORAL_MTLS_TLS_CERT", "")
@@ -39,7 +39,7 @@ async def get_temporal_client() -> Client:
 			tls=tls_config if tls_config else False,
 			data_converter=dataclasses.replace(
 				converter.default(),
-				payload_codec=CompressionCodec(),
+				payload_codec=EncryptionCodec(),
 				failure_converter_class=converter.DefaultFailureConverterWithEncodedAttributes
 			),
 		)

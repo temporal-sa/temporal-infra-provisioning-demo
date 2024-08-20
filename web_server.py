@@ -24,7 +24,6 @@ scenarios = [
 	"HumanInLoopUpdate",
 	"ChildWorkflow",
 	"APIFailure",
-	"RecoverableFailure",
 ]
 """
 
@@ -39,8 +38,12 @@ SCENARIOS = {
 		"description": "This deploys a namespace to Temporal Cloud with no issues, while publishing custom search attributes.",
 		"directory": "./terraform/happy_path"
 	},
-	"human_in_the_loop": {
+	"human_in_the_loop_signal": {
 		"description": "This deploys an admin user to Temporal Cloud which requires an approval signal after a soft policy failure.",
+		"directory": "./terraform/human_in_the_loop"
+	},
+	"human_in_the_loop_update": {
+		"description": "This deploys an admin user to Temporal Cloud which requires an approval update after a soft policy failure.",
 		"directory": "./terraform/human_in_the_loop"
 	},
 	"recoverable_failure": {
@@ -48,7 +51,7 @@ SCENARIOS = {
 		"directory": "./terraform/happy_path"
 	},
 	"non_recoverable_failure": {
-		"description": "This deploys an admin user to Temporal Cloud which will fail due to a hard soft policy failure.",
+		"description": "This deploys an admin user to Temporal Cloud which will fail due to a hard policy failure.",
 		"directory": "./terraform/human_in_the_loop"
 	},
 }
@@ -57,6 +60,7 @@ SCENARIOS = {
 @app.route("/", methods=["GET", "POST"])
 async def main():
 	tf_run_id = f"provision-infra-{uuid.uuid4()}"
+
 	return render_template(
 		"index.html",
 		tf_run_id=tf_run_id,
@@ -160,15 +164,36 @@ async def signal():
 		order_workflow = client.get_workflow_handle(tf_run_id)
 
 		if decision is True:
-			await order_workflow.signal("approve_apply", reason)
+			await order_workflow.signal("signal_approve_apply", reason)
 		else:
-			await order_workflow.signal("deny_apply", reason)
+			await order_workflow.signal("signal_deny_apply", reason)
 
 	except Exception as e:
 		print(f"Error sending signal: {str(e)}")
 		return jsonify({"error": str(e)}), 500
 
 	return "Signal received successfully", 200
+
+@app.route('/update', methods=["POST"])
+async def update():
+	tf_run_id = request.args.get("tf_run_id", "")
+	decision = request.json.get("decision", False)
+	reason = request.json.get("reason", "")
+
+	try:
+		client = await get_temporal_client()
+		order_workflow = client.get_workflow_handle(tf_run_id)
+
+		if decision is True:
+			await order_workflow.update("update_approve_apply", reason)
+		else:
+			await order_workflow.update("update_deny_apply", reason)
+
+	except Exception as e:
+		print(f"Error sending update: {str(e)}")
+		return jsonify({"error": str(e)}), 500
+
+	return "Update received successfully", 200
 
 
 if __name__ == "__main__":

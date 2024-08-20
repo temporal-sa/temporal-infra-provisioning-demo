@@ -44,6 +44,7 @@ class ProvisioningActivities:
 
 		# NOTE: cause a recoverable error
 		# recoverable_error = 1 / 0
+		# TODO: raise exception WorkflowExecutionError("Recoverable error")
 
 		activity.logger.info("Terraform plan")
 		plan_json_stdout, plan_json_stderr, plan_stdout, plan_stderr = "", "", "", ""

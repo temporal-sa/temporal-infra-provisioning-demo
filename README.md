@@ -5,7 +5,7 @@ _Leveraging the Temporal Python SDK and Terraform_
 | Prerequisites      |    | Features       |    | Patterns            |    |
 |:-------------------|----|----------------|----|---------------------|----|
 | Network Connection | ✅ | Schedule       |    | Entity              |    |
-| GitHub Access      |    | Local Activity | ✅ | Long-Running        | ✅ |
+| GitHub Actions     |    | Local Activity | ✅ | Long-Running        | ✅ |
 | Python 3.12        | ✅ | Timer          |    | Fanout              |    |
 | Poetry 1.8.3       | ✅ | Signal         | ✅ | Continue As New     |    |
 | Terraform 1.9.0    | ✅ | Query          | ✅ | Manual Intervention | ✅ |
@@ -16,6 +16,7 @@ _Leveraging the Temporal Python SDK and Terraform_
 |                    |    | Codec Server   | ✅ |                     |    |
 |                    |    | Custom Attrs   | ✅ |                     |    |
 |                    |    | Worker Metrics |    |                     |    |
+|                    |    | Side Effect    |    |                     |    |
 
 This demo has the building blocks for you to execute any terraform code to completion, but is focused on
 provisioning namespaces and users in Temporal Cloud. Because of that, you will need to generate a
@@ -82,7 +83,11 @@ poetry install
 Start the Codec server locally.
 
 ```bash
-poetry run python codec_server.py --web http://localhost:8080
+poetry run python codec_server.py --web http://localhost:8081
+
+temporal workflow show \
+   --workflow-id <workflow-id>
+   --codec-endpoint 'http://localhost:8081/default'
 ```
 
 Then run the worker (be sure you have the environment variables set).
@@ -131,3 +136,15 @@ temporal workflow query \
     --workflow-id="<WORKFLOW-ID>" \
     --type="get_signal_reason"
 ```
+
+## Scenarios
+
+### Happy Path
+
+### Advanced Visibility
+
+### Human in the Loop Signal
+
+### Recoverable Failure
+
+### Non-Recoverable Failure

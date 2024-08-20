@@ -20,13 +20,17 @@ class ProvisionInfraWorkflow:
 
 	def __init__(self) -> None:
 		self._apply_approved = None
+		self._tf_run_details = None
 		self._signal_reason = ""
 		self._current_status = "uninitialized"
-		self._tf_run_details = None
+		self._progress = 0
 		self._tf_plan_output = ""
 		self._tf_outputs = {}
-		# TODO
-		self._progress = 30
+
+	"""
+	def _custom_upsert(self, payload):
+		workflow.upsert_search_attributes(payload)
+	"""
 
 	@workflow.run
 	async def run(self, terraform_run_details: TerraformRunDetails) -> str:
@@ -148,16 +152,28 @@ class ProvisionInfraWorkflow:
 		self._progress = 100
 		return show_output
 
-	# TODO: change this to taking a dataclass
+	# TODO: change these to taking a dataclass
 	@workflow.signal
-	async def approve_apply(self, reason: str="") -> None:
+	async def signal_approve_apply(self, reason: str="") -> None:
 		workflow.logger.info(f"Approval signal received for: {reason}.")
 		self._apply_approved = True
 		self._signal_reason = reason
 
 	@workflow.signal
-	async def deny_apply(self, reason: str="") -> None:
+	async def signal_deny_apply(self, reason: str="") -> None:
 		workflow.logger.info(f"Deny signal received for: {reason}.")
+		self._apply_approved = False
+		self._signal_reason = reason
+
+	@workflow.update
+	async def update_approve_apply(self, reason: str="") -> None:
+		workflow.logger.info(f"Approval update received for: {reason}.")
+		self._apply_approved = True
+		self._signal_reason = reason
+
+	@workflow.update
+	async def update_deny_apply(self, reason: str="") -> None:
+		workflow.logger.info(f"Deny update received for: {reason}.")
 		self._apply_approved = False
 		self._signal_reason = reason
 

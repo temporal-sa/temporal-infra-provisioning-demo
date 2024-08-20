@@ -32,7 +32,15 @@
 	<button class="red" onclick="signal(false)">Deny</button>
 </div>
 
-<div id="updateResult"></div>
-<p id="error-message" style="color: red;"></p>
+<div id="update-container">
+	<h5>Approve or Deny Apply?</h5>
+	<label for="reason">Reason:</label>
+	<input type="text" id="reason">
+	<button class="green" onclick="update(true)">Approve</button>
+	<button class="red" onclick="update(false)">Deny</button>
+</div>
+
+<div id="update-result"></div>
+<p id="error-message" class="error"></p>
 
 {% endblock %}
