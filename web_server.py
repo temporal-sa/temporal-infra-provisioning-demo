@@ -20,15 +20,11 @@ tf_directory_key = SearchAttributeKey.for_text("tfDirectory")
 
 """
 scenarios = [
-	"HappyPath",
-	"AdvancedVisibility",
-	"HumanInLoopSignal",
 	# TODO
-	# "HumanInLoopUpdate",
-	# "ChildWorkflow",
+	"HumanInLoopUpdate",
+	"ChildWorkflow",
 	"APIFailure",
 	"RecoverableFailure",
-	"NonRecoverableFailure",
 ]
 """
 
@@ -39,12 +35,16 @@ SCENARIOS = {
 		"description": "This deploys a namespace to Temporal Cloud with no issues.",
 		"directory": "./terraform/happy_path"
 	},
-	"advanved_visibliity": {
+	"advanced_visibliity": {
 		"description": "This deploys a namespace to Temporal Cloud with no issues, while publishing custom search attributes.",
 		"directory": "./terraform/happy_path"
 	},
 	"human_in_the_loop": {
-		"description": "This deploys an admin user to Temporal Cloud which requires an approval signal.",
+		"description": "This deploys an admin user to Temporal Cloud which requires an approval signal after a soft policy failure.",
+		"directory": "./terraform/human_in_the_loop"
+	},
+	"non_recoverable": {
+		"description": "This deploys an admin user to Temporal Cloud which will fail due to a hard soft policy failure.",
 		"directory": "./terraform/human_in_the_loop"
 	},
 }
@@ -66,10 +66,13 @@ async def provision_infra():
 	tcloud_env_vars = { "TEMPORAL_CLOUD_API_KEY": TEMPORAL_CLOUD_API_KEY }
 	tcloud_tf_dir = SCENARIOS[selected_scenario]["directory"]
 
+	print(selected_scenario, selected_scenario == "non_recoverable")
+
 	tf_run_details = TerraformRunDetails(
 		id=tf_run_id,
 		directory=tcloud_tf_dir,
-		env_vars=tcloud_env_vars
+		env_vars=tcloud_env_vars,
+		hard_fail_policy=(selected_scenario == "non_recoverable")
 	)
 
 	client = await get_temporal_client()

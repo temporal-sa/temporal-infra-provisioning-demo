@@ -4,6 +4,8 @@ from datetime import timedelta
 from temporalio import workflow
 from temporalio.common import RetryPolicy
 
+from shared import TerraformInitError
+
 with workflow.unsafe.imports_passed_through():
 	from activities import ProvisioningActivities
 	from shared import TerraformRunDetails
@@ -82,7 +84,9 @@ class ProvisionInfraWorkflow:
 		self._progress = 60
 		self._current_status = "policy checked"
 
-		if not policy_check_output:
+		hard_fail = terraform_run_details.hard_fail_policy and not policy_check_output
+
+		if not policy_check_output and not hard_fail:
 			workflow.upsert_search_attributes({"provisionStatus": ["awaiting_approval"]})
 			self._current_status = "awaiting approval decision..."
 			workflow.logger.info("Workflow awaiting approval decision")
@@ -90,9 +94,16 @@ class ProvisionInfraWorkflow:
 				lambda: self._apply_approved is not None
 			)
 
-		# If the policy check passed or the apply was approved, apply the changes
+		# If the policy check passed or the apply was approved, apply the changes,
+		# unless the policy check failed and the hard fail policy is set.
 		show_output = ""
-		if policy_check_output or self._apply_approved:
+
+		if hard_fail:
+			workflow.upsert_search_attributes({"provisionStatus": ["policy_hard_failed"]})
+			self._progress = 100
+			self._current_status = "policy_hard_failed"
+			workflow.logger.info("Workflow apply hard failed policy check, no work to do.")
+		elif policy_check_output or self._apply_approved:
 			workflow.upsert_search_attributes({"provisionStatus": ["applying"]})
 			self._progress = 70
 			self._current_status = "applying"
@@ -124,7 +135,6 @@ class ProvisionInfraWorkflow:
 				heartbeat_timeout=timedelta(seconds=3),
 				retry_policy=tf_apply_retry_policy,
 			)
-
 		else:
 			workflow.upsert_search_attributes({"provisionStatus": ["rejected"]})
 			self._progress = 100
