@@ -21,7 +21,7 @@ async def main():
 	logging.basicConfig(level=logging.INFO)
 
 	client = await get_temporal_client()
-	tcloud_tf_dir = "./terraform/tcloud"
+	tcloud_tf_dir = "./terraform/happy_path"
 	tcloud_env_vars = {
 		"TEMPORAL_CLOUD_API_KEY": TEMPORAL_CLOUD_API_KEY
 	}

@@ -17,6 +17,8 @@ app = Flask(__name__)
 
 provision_status_key = SearchAttributeKey.for_text("provisionStatus")
 tf_directory_key = SearchAttributeKey.for_text("tfDirectory")
+
+"""
 scenarios = [
 	"HappyPath",
 	"AdvancedVisibility",
@@ -28,19 +30,24 @@ scenarios = [
 	"RecoverableFailure",
 	"NonRecoverableFailure",
 ]
+"""
+
 tf_runs = []
-tf_modules = [
-	{
-		"name": "temporal_cloud",
-		"description": "This deploys the Temporal Cloud infrastructure.",
-		"directory": "./terraform/tcloud"
+
+SCENARIOS = {
+	"happy_path": {
+		"description": "This deploys a namespace to Temporal Cloud with no issues.",
+		"directory": "./terraform/happy_path"
 	},
-	{
-		"name": "something_local",
-		"description": "This deploys something locally to my machine.",
-		"directory": "./terraform"
-	}
-]
+	"advanved_visibliity": {
+		"description": "This deploys a namespace to Temporal Cloud with no issues, while publishing custom search attributes.",
+		"directory": "./terraform/happy_path"
+	},
+	"human_in_the_loop": {
+		"description": "This deploys an admin user to Temporal Cloud which requires an approval signal.",
+		"directory": "./terraform/human_in_the_loop"
+	},
+}
 
 
 @app.route("/", methods=["GET", "POST"])
@@ -48,23 +55,16 @@ async def main():
 	tf_run_id = f"provision-infra-{uuid.uuid4()}"
 	return render_template(
 		"index.html",
-		tf_modules=tf_modules,
 		tf_run_id=tf_run_id,
-		scenarios=scenarios
+		scenarios=SCENARIOS
 	)
 
 @app.route("/provision_infra", methods=["GET", "POST"])
 async def provision_infra():
-	selected_scenario = request.args.get("scenario")
+	selected_scenario = request.args.get("scenario", "")
 	tf_run_id = request.args.get("tf_run_id", "")
-	tf_module_name = request.args.get("tf_module_name")
 	tcloud_env_vars = { "TEMPORAL_CLOUD_API_KEY": TEMPORAL_CLOUD_API_KEY }
-	tcloud_tf_dir = ""
-
-	for module in tf_modules:
-		if module["name"] == tf_module_name:
-			tcloud_tf_dir = module["directory"]
-			break
+	tcloud_tf_dir = SCENARIOS[selected_scenario]["directory"]
 
 	tf_run_details = TerraformRunDetails(
 		id=tf_run_id,

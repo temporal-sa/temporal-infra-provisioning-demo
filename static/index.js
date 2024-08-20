@@ -1,13 +1,11 @@
 function provisionInfra() {
 	var selectedScenario = document.getElementById("scenario").value;
-	var tfModuleName = document.getElementById("tfModuleName").value;
 	var tfRunID = document.getElementById("tfRunID").value;
 
 	// Redirect to provisioninn page with the selected scenario as a query parameter
 	window.location.href =
 		"/provision_infra?scenario=" + encodeURIComponent(selectedScenario) +
-		"&tf_run_id=" + encodeURIComponent(tfRunID) +
-		"&tf_module_name=" + encodeURIComponent(tfModuleName);
+		"&tf_run_id=" + encodeURIComponent(tfRunID);
 }
 
 function updateProgress() {

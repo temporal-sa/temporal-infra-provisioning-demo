@@ -8,26 +8,21 @@
     <tr>
         <th>Name</th>
         <th>Description</th>
+        <th>Directory</th>
     </tr>
-    {% for tf_module in tf_modules %}
+    {% for name, scenario in scenarios.items() %}
     <tr>
-        <td>{{ tf_module["name"] }}</td>
-        <td>{{ tf_module["description"] }}</td>
+        <td>{{ name }}</td>
+        <td>{{ scenario["description"] }}</td>
+        <td>{{ scenario["directory"] }}</td>
     </tr>
     {% endfor %}
 </table>
 
-<h3>Choose Module</h3>
-<select id="tfModuleName" name="tfModuleName">
-    {% for tf_module in tf_modules %}
-    <option value="{{ tf_module['name'] }}">{{ tf_module["name"] }}</option>
-    {% endfor %}
-</select>
-
 <h3>Choose Scenario</h3>
 <select id="scenario" name="scenario">
-    {% for choice in scenarios %}
-    <option value="{{ choice }}">{{ choice }}</option>
+    {% for name in scenarios.keys() %}
+        <option value="{{ name }}">{{ name }}</option>
     {% endfor %}
 </select>
 

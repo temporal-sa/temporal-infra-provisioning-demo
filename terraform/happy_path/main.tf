@@ -53,21 +53,3 @@ resource "temporalcloud_namespace" "terraform_test" {
 	accepted_client_ca = base64encode(tls_self_signed_cert.terraform_test.cert_pem)
 	retention_days     = 14
 }
-
-/*
-resource "temporalcloud_user" "global_admin" {
-	email          = "${var.prefix}-terraform-demo-${random_id.random_suffix.hex}@temporal.io"
-  account_access = "admin"
-}
-
-resource "temporalcloud_user" "namespace_admin" {
-  email          = "developer@yourdomain.com"
-  account_access = "developer"
-  namespace_accesses = [
-    {
-      namespace  = temporalcloud_namespace.namespace.id
-      permission = "admin"
-    }
-  ]
-}
-*/
