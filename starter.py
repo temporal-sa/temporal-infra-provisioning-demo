@@ -26,9 +26,9 @@ async def main():
 		"TEMPORAL_CLOUD_API_KEY": TEMPORAL_CLOUD_API_KEY
 	}
 
-	tf_run_id = f"provision-infra-{uuid.uuid4()}"
+	wf_id = f"provision-infra-{uuid.uuid4()}"
 	tf_run_details = TerraformRunDetails(
-		id=tf_run_id,
+		id=wf_id,
 		directory=tcloud_tf_dir,
 		env_vars=tcloud_env_vars
 	)
@@ -40,7 +40,7 @@ async def main():
 	handle = await client.start_workflow(
 		ProvisionInfraWorkflow.run,
 		tf_run_details,
-		id=tf_run_id,
+		id=wf_id,
 		task_queue=TEMPORAL_TASK_QUEUE,
 		search_attributes=TypedSearchAttributes([
 			SearchAttributePair(provision_status_key, "uninitialized"),

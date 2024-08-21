@@ -10,8 +10,11 @@ from workflows import ProvisionInfraWorkflow
 from temporalio.common import TypedSearchAttributes, SearchAttributeKey, \
 	SearchAttributePair
 
-TEMPORAL_CLOUD_API_KEY = os.environ.get("TEMPORAL_CLOUD_API_KEY", "")
+TEMPORAL_HOST_URL = os.environ.get("TEMPORAL_HOST_URL", "localhost:7233")
+TEMPORAL_NAMESPACE = os.environ.get("TEMPORAL_NAMESPACE", "default")
 TEMPORAL_TASK_QUEUE = os.environ.get("TEMPORAL_TASK_QUEUE", "provision-infra")
+TEMPORAL_CLOUD_API_KEY = os.environ.get("TEMPORAL_CLOUD_API_KEY", "")
+ENCRYPT_PAYLOADS = os.getenv("ENCRYPT_PAYLOADS", 'false').lower() in ('true', '1', 't')
 
 app = Flask(__name__)
 
@@ -48,23 +51,26 @@ SCENARIOS = {
 
 @app.route("/", methods=["GET", "POST"])
 async def main():
-	tf_run_id = f"provision-infra-{uuid.uuid4()}"
+	wf_id = f"provision-infra-{uuid.uuid4()}"
 
 	return render_template(
 		"index.html",
-		tf_run_id=tf_run_id,
-		scenarios=SCENARIOS
+		wf_id=wf_id,
+		scenarios=SCENARIOS,
+		temporal_host_url=TEMPORAL_HOST_URL,
+		temporal_namespace=TEMPORAL_NAMESPACE,
+		payloads_encrypted=ENCRYPT_PAYLOADS
 	)
 
 @app.route("/provision_infra", methods=["GET", "POST"])
 async def provision_infra():
 	selected_scenario = request.args.get("scenario", "")
-	tf_run_id = request.args.get("tf_run_id", "")
+	wf_id = request.args.get("wf_id", "")
 	tcloud_env_vars = { "TEMPORAL_CLOUD_API_KEY": TEMPORAL_CLOUD_API_KEY }
 	tcloud_tf_dir = SCENARIOS[selected_scenario]["directory"]
 
 	tf_run_details = TerraformRunDetails(
-		id=tf_run_id,
+		id=wf_id,
 		directory=tcloud_tf_dir,
 		env_vars=tcloud_env_vars,
 		hard_fail_policy=(selected_scenario == "non_recoverable_failure")
@@ -74,7 +80,7 @@ async def provision_infra():
 	no_existing_workflow = False
 
 	try:
-		tf_workflow = client.get_workflow_handle(tf_run_id)
+		tf_workflow = client.get_workflow_handle(wf_id)
 		await tf_workflow.describe()
 	except Exception as e:
 		no_existing_workflow = True
@@ -83,7 +89,7 @@ async def provision_infra():
 		await client.start_workflow(
 			ProvisionInfraWorkflow.run,
 			tf_run_details,
-			id=tf_run_id,
+			id=wf_id,
 			task_queue=TEMPORAL_TASK_QUEUE,
 			search_attributes=TypedSearchAttributes([
 				SearchAttributePair(provision_status_key, "uninitialized"),
@@ -93,14 +99,17 @@ async def provision_infra():
 
 	return render_template(
 		"provisioning.html",
-		tf_run_id=tf_run_id,
-		selected_scenario=selected_scenario
+		wf_id=wf_id,
+		selected_scenario=selected_scenario,
+		temporal_host_url=TEMPORAL_HOST_URL,
+		temporal_namespace=TEMPORAL_NAMESPACE,
+		payloads_encrypted=ENCRYPT_PAYLOADS
 	)
 
 
 @app.route('/get_progress')
 async def get_progress():
-	tf_run_id = request.args.get('tf_run_id', "")
+	wf_id = request.args.get('wf_id', "")
 	payload = {
 		"progress": 0,
 		"status": "uninitialized",
@@ -109,14 +118,14 @@ async def get_progress():
 
 	try:
 		client = await get_temporal_client()
-		tf_workflow = client.get_workflow_handle(tf_run_id)
+		tf_workflow = client.get_workflow_handle(wf_id)
 		payload["status"] = await tf_workflow.query("get_current_status")
 		payload["progress_percent"] = await tf_workflow.query("get_progress")
 		payload["plan"] = await tf_workflow.query("get_plan")
 		workflow_desc = await tf_workflow.describe()
 
 		if workflow_desc.status == 3:
-			error_message = "Workflow failed: {tf_run_id}"
+			error_message = "Workflow failed: {wf_id}"
 			print(f"Error in get_progress route: {error_message}")
 			return jsonify({"error": error_message}), 500
 
@@ -127,29 +136,32 @@ async def get_progress():
 
 @app.route('/provisioned')
 async def provisioned():
-	tf_run_id = request.args.get("tf_run_id", "")
+	wf_id = request.args.get("wf_id", "")
 
 	client = await get_temporal_client()
-	tf_workflow = client.get_workflow_handle(tf_run_id)
+	tf_workflow = client.get_workflow_handle(wf_id)
 	status = await tf_workflow.query("get_current_status")
 	tf_workflow_output = await tf_workflow.result()
 
 	return render_template(
 		"provisioned.html",
-		tf_run_id=tf_run_id,
+		wf_id=wf_id,
 		tf_workflow_output=tf_workflow_output,
-		tf_run_status=status
+		tf_run_status=status,
+		temporal_host_url=TEMPORAL_HOST_URL,
+		temporal_namespace=TEMPORAL_NAMESPACE,
+		payloads_encrypted=ENCRYPT_PAYLOADS
 	)
 
 @app.route('/signal', methods=["POST"])
 async def signal():
-	tf_run_id = request.args.get("tf_run_id", "")
+	wf_id = request.args.get("wf_id", "")
 	decision = request.json.get("decision", False)
 	reason = request.json.get("reason", "")
 
 	try:
 		client = await get_temporal_client()
-		order_workflow = client.get_workflow_handle(tf_run_id)
+		order_workflow = client.get_workflow_handle(wf_id)
 
 		if decision is True:
 			await order_workflow.signal("signal_approve_apply", reason)
@@ -164,13 +176,13 @@ async def signal():
 
 @app.route('/update', methods=["POST"])
 async def update():
-	tf_run_id = request.args.get("tf_run_id", "")
+	wf_id = request.args.get("wf_id", "")
 	decision = request.json.get("decision", False)
 	reason = request.json.get("reason", "")
 
 	try:
 		client = await get_temporal_client()
-		order_workflow = client.get_workflow_handle(tf_run_id)
+		order_workflow = client.get_workflow_handle(wf_id)
 
 		if decision is True:
 			await order_workflow.execute_update("update_approve_apply", reason)

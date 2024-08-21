@@ -24,6 +24,19 @@
     {% block content %}
     {% endblock %}
   </div>
+  <div class="footer">
+    <a class="github-link" href="https://github.com/temporal-sa/temporal-infra-provisioning-demo" target="_blank"><img src="{{ url_for('static', filename='github.svg') }}" alt="GitHub Logo"></a>
+    <div class="temporal-details">
+      <span><strong>Temporal Host:</strong> {{ temporal_host_url }}</span>
+      <span><strong>Namespace:</strong> {{ temporal_namespace }}</span>
+      <span><strong>Payloads Encrypted:</strong> {{ payloads_encrypted }}</span>
+    </div>
+
+  </table>
+
+
+
+  </div>
 </body>
 
 </html>

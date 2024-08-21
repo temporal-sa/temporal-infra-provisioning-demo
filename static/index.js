@@ -5,15 +5,15 @@ function provisionInfra() {
 	// Redirect to provisioninn page with the selected scenario as a query parameter
 	window.location.href =
 		"/provision_infra?scenario=" + encodeURIComponent(selectedScenario) +
-		"&tf_run_id=" + encodeURIComponent(tfRunID);
+		"&wf_id=" + encodeURIComponent(tfRunID);
 }
 
 function updateProgress() {
 	var urlParams = new URLSearchParams(window.location.search);
 	var scenario = urlParams.get("scenario");
-	var tfRunID = urlParams.get("tf_run_id");
+	var tfRunID = urlParams.get("wf_id");
 
-	fetch("/get_progress?tf_run_id=" + encodeURIComponent(tfRunID))
+	fetch("/get_progress?wf_id=" + encodeURIComponent(tfRunID))
 		.then(response => {
 			if (response.ok) {
 				return response.json();
@@ -46,8 +46,8 @@ function updateProgress() {
 			}
 
 			if (data.progress_percent === 100) {
-				// Redirect to order confirmation with the tf_run_id
-				window.location.href = "/provisioned?tf_run_id=" + encodeURIComponent(tfRunID);
+				// Redirect to order confirmation with the wf_id
+				window.location.href = "/provisioned?wf_id=" + encodeURIComponent(tfRunID);
 			} else {
 				// Continue updating progress every second
 				setTimeout(updateProgress, 1000);
@@ -66,13 +66,13 @@ function updateProgress() {
 }
 
 function signal(decision) {
-	// Get the tf_run_id from the URL query parameters
+	// Get the wf_id from the URL query parameters
 	var urlParams = new URLSearchParams(window.location.search);
-	var tfRunID = urlParams.get("tf_run_id");
+	var tfRunID = urlParams.get("wf_id");
 	var reason = document.getElementById("reason").value;
 
 	// Perform AJAX request to the server for signaling
-	fetch("/signal?tf_run_id=" + encodeURIComponent(tfRunID), {
+	fetch("/signal?wf_id=" + encodeURIComponent(tfRunID), {
 		method: "POST",
 		headers: {
 			"Content-Type": "application/json"
@@ -95,13 +95,13 @@ function signal(decision) {
 }
 
 function update(decision) {
-	// Get the tf_run_id from the URL query parameters
+	// Get the wf_id from the URL query parameters
 	var urlParams = new URLSearchParams(window.location.search);
-	var tfRunID = urlParams.get("tf_run_id");
+	var tfRunID = urlParams.get("wf_id");
 	var reason = document.getElementById("reason").value;
 
 	// Perform AJAX request to the server for updating
-	fetch('/update?tf_run_id=' + encodeURIComponent(tfRunID), {
+	fetch('/update?wf_id=' + encodeURIComponent(tfRunID), {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json'
