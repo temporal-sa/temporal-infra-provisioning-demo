@@ -1,5 +1,5 @@
 body {
-	font-family: Arial, sans-serif;
+  	font-family: "Poppins", sans-serif;
 	max-width: 1000px;
 	margin: 0px auto;
 	padding: 0px;
@@ -10,7 +10,10 @@ body {
 
 h1 {
 	margin-bottom: 20px;
-	text-align: center;
+}
+
+h5 {
+	margin-top: 10px;
 }
 
 table {
@@ -31,8 +34,7 @@ td {
 	background-color: #f9f9f9;
 }
 
-th, td {
-	padding: 10px;
+th, td { padding: 10px;
 	text-align: left;
 }
 
@@ -41,24 +43,31 @@ select {
 	padding: 10px;
 }
 
-code {
+pre, code {
 	display: block;
 	text-align: left;
+	background-color: #2d2d2d;
+	color: #c5c8c6;
+	font-family: 'Fira Code', monospace;
+	font-size: 14px;
+	line-height: 1.6;
+	border-radius: 4px;
+	padding: 10px;
+	overflow-x: auto;
+	white-space: pre-wrap; /* Wrap long lines */
 }
+
+/* Syntax Highlighting */
+code .keyword { color: #cc99cd; }
+code .string { color: #8ec07c; }
+code .number { color: #d19a66; }
+code .function { color: #61afef; }
+code .comment { color: #7c7c7c; font-style: italic; }
+code .operator { color: #f78c6c; }
+code .variable { color: #dcdcaa; }
 
 button {
-	padding: 10px;
-	color: white;
-	border-radius: 5px;
-}
-
-
-button.green {
-	background-color: #4CAF50;
-}
-
-button.red {
-	background-color: #FF0000;
+	margin: 20px 0;
 }
 
 .header-image {
@@ -69,10 +78,6 @@ button.red {
 .header-image img {
 	width: 150px;
 	height: 150px;
-}
-
-.tf-run-id {
-	color: blue;
 }
 
 .status-bar {
@@ -94,7 +99,8 @@ button.red {
 }
 
 #terraform-plan-container,
-#signal-container {
+#signal-container,
+#update-container {
 	display: none;
 }
 

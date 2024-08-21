@@ -10,6 +10,7 @@ function provisionInfra() {
 
 function updateProgress() {
 	var urlParams = new URLSearchParams(window.location.search);
+	var scenario = urlParams.get("scenario");
 	var tfRunID = urlParams.get("tf_run_id");
 
 	fetch("/get_progress?tf_run_id=" + encodeURIComponent(tfRunID))
@@ -25,15 +26,23 @@ function updateProgress() {
 			// Update the progress bar
 			// console.log(data)
 			document.getElementById("progress-bar").style.width = data.progress_percent + "%";
-			document.getElementById("current-status").innerText = data.status;
+
+			var currentStatusElement = document.getElementById("current-status");
+			if (currentStatusElement != null) {
+				currentStatusElement.innerText = data.status;
+			}
 
 			if (data.plan != "") {
-				document.getElementById("terraform-plan").innerText = data.plan;
+				document.getElementById("terraform-plan").innerText = stripAnsi(data.plan);
 				document.getElementById("terraform-plan-container").style.display = "block";
 			}
 
 			if (data.status.includes("approval")) {
-				document.getElementById("signal-container").style.display = "block";
+				if (scenario === "human_in_the_loop_signal") {
+					document.getElementById("signal-container").style.display = "block";
+				} else if (scenario === "human_in_the_loop_update") {
+					document.getElementById("update-container").style.display = "block";
+				}
 			}
 
 			if (data.progress_percent === 100) {
@@ -85,7 +94,7 @@ function signal(decision) {
 		});
 }
 
-function update() {
+function update(decision) {
 	// Get the tf_run_id from the URL query parameters
 	var urlParams = new URLSearchParams(window.location.search);
 	var tfRunID = urlParams.get("tf_run_id");
@@ -133,4 +142,12 @@ function update() {
 
 function reloadMainPage() {
 	window.location.href = "/";
+}
+
+function stripAnsi(text) {
+  // This regex matches ANSI escape sequences
+  const ansiRegex = /\x1b\[[0-9;]*m/g;
+
+  // Replace the ANSI escape codes with an empty string
+  return text.replace(ansiRegex, '');
 }

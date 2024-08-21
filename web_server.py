@@ -173,9 +173,9 @@ async def update():
 		order_workflow = client.get_workflow_handle(tf_run_id)
 
 		if decision is True:
-			await order_workflow.update("update_approve_apply", reason)
+			await order_workflow.execute_update("update_approve_apply", reason)
 		else:
-			await order_workflow.update("update_deny_apply", reason)
+			await order_workflow.execute_update("update_deny_apply", reason)
 
 	except Exception as e:
 		print(f"Error sending update: {str(e)}")

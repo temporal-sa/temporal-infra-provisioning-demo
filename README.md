@@ -32,9 +32,14 @@ be published to whatever Temporal server you connect to, so it is recommended to
 - Terraform Plan
 - Evaluate Policy
 - Terraform Apply
-- Terraform Show
+- Terraform Output
 
 ### Provision Signals
+
+- Human Approval of Policy Failure
+- Human Denial of Policy Failure
+
+### Provision Updates
 
 - Human Approval of Policy Failure
 - Human Denial of Policy Failure
@@ -42,6 +47,9 @@ be published to whatever Temporal server you connect to, so it is recommended to
 ### Provision Queries
 
 - Get Status
+- Get Signal REason
+- Get Plan
+- Get Progress
 
 ## Running the Demo
 
@@ -70,6 +78,7 @@ export ENCRYPT_PAYLOADS="true"
 Before kicking off the starter, make sure the custom search attributes have been created.
 
 ```bash
+temporal server start-dev --ui-port 8080 --db-filename temporal.sqlite --dynamic-config-value frontend.enableUpdateWorkflowExecution=true
 temporal operator search-attribute create --namespace $TEMPORAL_NAMESPACE --name provisionStatus --type text
 temporal operator search-attribute create --namespace $TEMPORAL_NAMESPACE --name tfDirectory --type text
 ```
@@ -141,10 +150,24 @@ temporal workflow query \
 
 ### Happy Path
 
+This deploys a namespace to Temporal Cloud with no issues.
+
 ### Advanced Visibility
+
+This deploys a namespace to Temporal Cloud with no issues, while publishing custom search attributes.
 
 ### Human in the Loop Signal
 
+This deploys an admin user to Temporal Cloud which requires an approval signal after a soft policy failure.
+
+### Human in the Loop Update
+
+This deploys an admin user to Temporal Cloud which requires an approval update after a soft policy failure.
+
 ### Recoverable Failure
 
+This deploys an admin user to Temporal Cloud which will fail due to a divide by zero error, which can be commented out.
+
 ### Non-Recoverable Failure
+
+This deploys an admin user to Temporal Cloud which will fail due to a hard policy failure.

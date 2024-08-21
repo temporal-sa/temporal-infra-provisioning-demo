@@ -4,13 +4,23 @@
 
 <h2>Provisioned Infrastructure Workflow Status</h2>
 
-<h5 class="tf-run-id">{{ tf_run_id }}</h5>
+<table class="table">
+    <tr>
+        <th scope="row">Workflow ID</th>
+        <td>{{ tf_run_id }}</td>
+    </tr>
+    <tr>
+        <th scope="row">Status</th>
+        <td>{{ tf_run_status }}</td>
+    </tr>
+</table>
 
-<h4>Terraform Output</h4>
-<code class="tf-output">{{ tf_workflow_output }}</code>
+{% if tf_workflow_output %}
+	<h4>Terraform Output</h4>
+	<code class="tf-output">{{ tf_workflow_output }}</code>
+{% endif %}
 
-<p>Current Status: <span id="current-status">{{ tf_run_status }}</span></p>
 
-<button class="green" onclick="reloadMainPage()">Provision More Infrastructure</button>
+<button class="btn btn-primary" onclick="reloadMainPage()">Provision More Infrastructure</button>
 
 {% endblock %}
