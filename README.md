@@ -5,18 +5,18 @@ _Leveraging the Temporal Python SDK and Terraform_
 | Prerequisites      |    | Features       |    | Patterns            |    |
 |:-------------------|----|----------------|----|---------------------|----|
 | Network Connection | ✅ | Schedule       |    | Entity              |    |
-| GitHub Actions     |    | Local Activity | ✅ | Long-Running        | ✅ |
 | Python 3.12        | ✅ | Timer          |    | Fanout              |    |
-| Poetry 1.8.3       | ✅ | Signal         | ✅ | Continue As New     |    |
+| Poetry 1.8.3       | ✅ | Local Activity | ✅ | Long-Running        | ✅ |
+| Terraform 1.9.0    | ✅ | Signal         | ✅ | Continue As New     |    |
 | Terraform 1.9.0    | ✅ | Query          | ✅ | Manual Intervention | ✅ |
 | Open Policy Agent  |    | Heartbeat      | ✅ | Long-polling        |    |
-|                    |    | Update         |    | Polyglot            |    |
+| GitHub Actions     |    | Update         | ✅ | Polyglot            |    |
 |                    |    | Retry          | ✅ |                     |    |
 |                    |    | Data Converter | ✅ |                     |    |
 |                    |    | Codec Server   | ✅ |                     |    |
 |                    |    | Custom Attrs   | ✅ |                     |    |
-|                    |    | Worker Metrics |    |                     |    |
-|                    |    | Side Effect    |    |                     |    |
+
+<img src="./static/ui.png" width="1000">
 
 This demo has the building blocks for you to execute any terraform code to completion, but is
 focused on provisioning namespaces and users in Temporal Cloud. Because of that, you will need to
@@ -180,3 +180,6 @@ This deploys an admin user to Temporal Cloud which will fail due to a divide by 
 ### Non-Recoverable Failure
 
 This can deploy an admin user to Temporal Cloud which will fail due to a hard policy failure, or can delete the environment variables and fail out w/ a `non_retryable_error`.
+
+
+### API
