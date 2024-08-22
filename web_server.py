@@ -1,18 +1,7 @@
-"""
-This file contains a Flask web server that provides endpoints for provisioning infrastructure using Temporal workflows.
-
-Endpoints:
-- `/`: Renders the main page with options to select a provisioning scenario.
-- `/provision_infra`: Initiates the infrastructure provisioning workflow based on the selected scenario.
-- `/get_progress`: Retrieves the progress and status of the infrastructure provisioning workflow.
-- `/provisioned`: Renders the page indicating that the infrastructure provisioning is complete.
-- `/signal`: Handles the approval or denial signal for the human-in-the-loop scenario.
-- `/update`: Handles the approval or denial update for the human-in-the-loop scenario.
-"""
-
 import uuid
 import os
 import re
+import json
 from dataclasses import dataclass, field
 from typing import Dict
 from flask import Flask, render_template, request, jsonify
@@ -21,27 +10,19 @@ from workflows import ProvisionInfraWorkflow
 from temporalio.common import TypedSearchAttributes, SearchAttributeKey, \
 	SearchAttributePair
 
-# Get environment variables
 TEMPORAL_HOST_URL = os.environ.get("TEMPORAL_HOST_URL", "localhost:7233")
 TEMPORAL_NAMESPACE = os.environ.get("TEMPORAL_NAMESPACE", "default")
 TEMPORAL_TASK_QUEUE = os.environ.get("TEMPORAL_TASK_QUEUE", "provision-infra")
 TEMPORAL_CLOUD_API_KEY = os.environ.get("TEMPORAL_CLOUD_API_KEY", "")
 ENCRYPT_PAYLOADS = os.getenv("ENCRYPT_PAYLOADS", 'false').lower() in ('true', '1', 't')
 
-# Create Flask app
 app = Flask(__name__)
 
-# Define search attribute keys
 provision_status_key = SearchAttributeKey.for_text("provisionStatus")
 tf_directory_key = SearchAttributeKey.for_text("tfDirectory")
-
-# Initialize list to store Terraform run details
 tf_runs = []
-
-# Generate Temporal UI URL
 temporal_ui_url = re.sub(r':\d+', ':8080', TEMPORAL_HOST_URL)
 
-# Define provisioning scenarios
 SCENARIOS = {
 	"happy_path": {
 		"title": "Happy Path",
@@ -80,11 +61,9 @@ SCENARIOS = {
 	},
 }
 
+
 @app.route("/", methods=["GET", "POST"])
 async def main():
-	"""
-	Renders the main page with options to select a provisioning scenario.
-	"""
 	wf_id = f"provision-infra-{uuid.uuid4()}"
 
 	return render_template(
@@ -100,9 +79,6 @@ async def main():
 
 @app.route("/provision_infra", methods=["GET", "POST"])
 async def provision_infra():
-	"""
-	Initiates the infrastructure provisioning workflow based on the selected scenario.
-	"""
 	selected_scenario = request.args.get("scenario", "")
 	wf_id = request.args.get("wf_id", "")
 
@@ -114,7 +90,9 @@ async def provision_infra():
 	tf_run_details = TerraformRunDetails(
 		id=wf_id,
 		directory=tcloud_tf_dir,
+		# NOTE: You can do non-recoverable with hard_fail_policy, or deleting the env vars.
 		env_vars=tcloud_env_vars,
+		# hard_fail_policy=(selected_scenario == "non_recoverable_failure")
 		simulate_api_failure=(selected_scenario == "api_failure")
 	)
 
@@ -149,11 +127,9 @@ async def provision_infra():
 		payloads_encrypted=ENCRYPT_PAYLOADS
 	)
 
+
 @app.route('/get_progress')
 async def get_progress():
-	"""
-	Retrieves the progress and status of the infrastructure provisioning workflow.
-	"""
 	wf_id = request.args.get('wf_id', "")
 	payload = {
 		"progress": 0,
@@ -181,9 +157,6 @@ async def get_progress():
 
 @app.route('/provisioned')
 async def provisioned():
-	"""
-	Renders the page indicating that the infrastructure provisioning is complete.
-	"""
 	wf_id = request.args.get("wf_id", "")
 
 	client = await get_temporal_client()
@@ -198,6 +171,7 @@ async def provisioned():
 	})
 
 	# TODO: scrub sensitive in the server
+	print("NEILIO", tf_workflow_output)
 
 	return render_template(
 		"provisioned.html",
@@ -212,9 +186,6 @@ async def provisioned():
 
 @app.route('/signal', methods=["POST"])
 async def signal():
-	"""
-	Handles the approval or denial signal for the human-in-the-loop scenario.
-	"""
 	wf_id = request.args.get("wf_id", "")
 	decision = request.json.get("decision", False)
 	reason = request.json.get("reason", "")
@@ -236,9 +207,6 @@ async def signal():
 
 @app.route('/update', methods=["POST"])
 async def update():
-	"""
-	Handles the approval or denial update for the human-in-the-loop scenario.
-	"""
 	wf_id = request.args.get("wf_id", "")
 	decision = request.json.get("decision", False)
 	reason = request.json.get("reason", "")
@@ -257,6 +225,7 @@ async def update():
 		return jsonify({"error": str(e)}), 500
 
 	return "Update received successfully", 200
+
 
 if __name__ == "__main__":
 	app.run(debug=True, port=3000)

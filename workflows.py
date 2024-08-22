@@ -105,7 +105,7 @@ class ProvisionInfraWorkflow:
 
 		# If the policy check passed or the apply was approved, apply the changes,
 		# unless the policy check failed and the hard fail policy is set.
-		show_output = ""
+		show_output = {}
 
 		if hard_fail:
 			workflow.upsert_search_attributes({"provisionStatus": ["policy_hard_failed"]})
