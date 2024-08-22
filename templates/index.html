@@ -2,9 +2,9 @@
 
 {% block content %}
 
-<h1>Temporal Provisioning</h1>
+<h1>Temporal Infrastructure Provisioning</h1>
 <h2>Terraform Scenarios</h2>
-<table>
+<table class="table table-sm table-striped">
     <tr>
         <th>Name</th>
         <th>Description</th>
@@ -19,7 +19,7 @@
     {% endfor %}
 </table>
 
-<h3>Choose Scenario</h3>
+<h4>Choose Scenario</h4>
 <select id="scenario" name="scenario">
     {% for name in scenarios.keys() %}
         <option value="{{ name }}">{{ name }}</option>

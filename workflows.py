@@ -4,8 +4,6 @@ from datetime import timedelta
 from temporalio import workflow
 from temporalio.common import RetryPolicy
 
-from shared import TerraformInitError
-
 with workflow.unsafe.imports_passed_through():
 	from activities import ProvisioningActivities
 	from shared import TerraformRunDetails
@@ -55,9 +53,11 @@ class ProvisionInfraWorkflow:
 		self._progress = 20
 		self._current_status = "initialized"
 
+		# TODO: check for env vars and throw a non_retryable_error if they're not set, catch it?
 		tf_plan_retry_policy = RetryPolicy(
 			backoff_coefficient=2.0,
 			maximum_attempts=100,
+			non_retryable_error_types=["TerraformMissingEnvVars"],
 		)
 		workflow.upsert_search_attributes({"provisionStatus": ["planning"]})
 		self._progress = 30

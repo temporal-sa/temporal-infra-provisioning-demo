@@ -24,27 +24,28 @@ tf_directory_key = SearchAttributeKey.for_text("tfDirectory")
 SCENARIOS = {
 	"happy_path": {
 		"description": "This deploys a namespace to Temporal Cloud with no issues.",
-		"directory": "./terraform/happy_path"
+		"directory": "./terraform/tcloud_namespace"
 	},
 	"advanced_visibliity": {
 		"description": "This deploys a namespace to Temporal Cloud with no issues, while publishing custom search attributes.",
-		"directory": "./terraform/happy_path"
+		"directory": "./terraform/tcloud_namespace"
 	},
 	"human_in_the_loop_signal": {
 		"description": "This deploys an admin user to Temporal Cloud which requires an approval signal after a soft policy failure.",
-		"directory": "./terraform/human_in_the_loop"
+		"directory": "./terraform/tcloud_admin_user"
 	},
 	"human_in_the_loop_update": {
 		"description": "This deploys an admin user to Temporal Cloud which requires an approval update after a soft policy failure.",
-		"directory": "./terraform/human_in_the_loop"
+		"directory": "./terraform/tcloud_admin_user"
 	},
 	"recoverable_failure": {
 		"description": "This deploys an admin user to Temporal Cloud which will fail due to a divide by zero error, which can be commented out.",
-		"directory": "./terraform/happy_path"
+		"directory": "./terraform/tcloud_namespace"
 	},
 	"non_recoverable_failure": {
-		"description": "This deploys an admin user to Temporal Cloud which will fail due to a hard policy failure.",
-		"directory": "./terraform/human_in_the_loop"
+		# "description": "This deploys an admin user to Temporal Cloud which will fail due to a hard policy failure.",
+		"description": "This will attempt to deploy to Temporal Cloud without the needed environment variables.",
+		"directory": "./terraform/tcloud_namespace"
 	},
 }
 
@@ -66,14 +67,16 @@ async def main():
 async def provision_infra():
 	selected_scenario = request.args.get("scenario", "")
 	wf_id = request.args.get("wf_id", "")
-	tcloud_env_vars = { "TEMPORAL_CLOUD_API_KEY": TEMPORAL_CLOUD_API_KEY }
+	tcloud_env_vars = { "TEMPORAL_CLOUD_API_KEY": TEMPORAL_CLOUD_API_KEY } \
+		if selected_scenario != "non_recoverable_failure" else {}
 	tcloud_tf_dir = SCENARIOS[selected_scenario]["directory"]
 
 	tf_run_details = TerraformRunDetails(
 		id=wf_id,
 		directory=tcloud_tf_dir,
+		# NOTE: You can do non-recoverable with hard_fail_policy, or deleting the env vars.
 		env_vars=tcloud_env_vars,
-		hard_fail_policy=(selected_scenario == "non_recoverable_failure")
+		# hard_fail_policy=(selected_scenario == "non_recoverable_failure")
 	)
 
 	client = await get_temporal_client()

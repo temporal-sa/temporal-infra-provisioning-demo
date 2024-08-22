@@ -7,7 +7,7 @@ from temporalio.exceptions import ActivityError
 from runner import TerraformRunner
 from shared import TerraformRunDetails, TerraformApplyError, \
 	TerraformInitError, TerraformPlanError, TerraformOutputError, \
-		PolicyCheckError
+		PolicyCheckError, TerraformMissingEnvVars
 
 
 class ProvisioningActivities:
@@ -49,6 +49,10 @@ class ProvisioningActivities:
 		activity.logger.info("Terraform plan")
 		plan_json_stdout, plan_json_stderr, plan_stdout, plan_stderr = "", "", "", ""
 		activity_id = activity.info().activity_id
+
+		if not data.env_vars:
+			activity.logger.debug("Missing environment variables, cannot proceed.")
+			raise TerraformMissingEnvVars("Missing environment variables, cannot proceed.")
 
 		await asyncio.sleep(5)
 		activity.logger.info("Sleeping for 5 seconds to slow execution down")

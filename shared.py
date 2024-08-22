@@ -62,6 +62,12 @@ class TerraformRunDetails:
 	hard_fail_policy: bool = False
 
 @dataclass
+class TerraformMissingEnvVars(Exception):
+	def __init__(self, message) -> None:
+		self.message: str = message
+		super().__init__(self.message)
+
+@dataclass
 class TerraformInitError(Exception):
 	def __init__(self, message) -> None:
 		self.message: str = message

@@ -25,6 +25,7 @@ function updateProgress() {
 		.then(data => {
 			// Update the progress bar
 			// console.log(data)
+			document.getElementById("error-message").innerText = "";
 			document.getElementById("progress-bar").style.width = data.progress_percent + "%";
 
 			var currentStatusElement = document.getElementById("current-status");

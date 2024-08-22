@@ -18,7 +18,9 @@
 
 <body>
   <div class="header-image">
-    <img src="{{ url_for('static', filename='temporal_logo.gif') }}" alt="Animated Temporal Logo">
+    <a href="http://localhost:3000/">
+      <img src="{{ url_for('static', filename='temporal_logo.gif') }}" alt="Animated Temporal Logo">
+    </a>
   </div>
   <div class="container">
     {% block content %}
@@ -27,7 +29,7 @@
   <div class="footer">
     <a class="github-link" href="https://github.com/temporal-sa/temporal-infra-provisioning-demo" target="_blank"><img src="{{ url_for('static', filename='github.svg') }}" alt="GitHub Logo"></a>
     <div class="temporal-details">
-      <span><strong>Temporal Host:</strong> {{ temporal_host_url }}</span>
+      <span><strong>Temporal Host:</strong> <a href="{{ temporal_host_url }}" target="_blank">{{ temporal_host_url }}</a></span>
       <span><strong>Namespace:</strong> {{ temporal_namespace }}</span>
       <span><strong>Payloads Encrypted:</strong> {{ payloads_encrypted }}</span>
     </div>
