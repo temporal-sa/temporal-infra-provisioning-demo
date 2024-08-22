@@ -186,8 +186,6 @@ async def provisioned():
 	})
 
 	# TODO: scrub sensitive in the server
-	print("NEILIO", tf_workflow_output)
-
 	return render_template(
 		"provisioned.html",
 		wf_id=wf_id,

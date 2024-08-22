@@ -25,14 +25,23 @@ generate a Temporal Cloud API key for usage with the Terraform plan. This is als
 and will be published to whatever Temporal server you connect to, so it is recommended to leverage
 the `ENCRYPT_PAYLOADS` variable, or that you retire the credential you use in the demo immediately.
 
+Note that this repo will create a namespace in the target Temporal Cloud account, so you should
+always be sure to clean up the infrastructure you provision, by `cd`ing in to the Terraform
+directory that you applied in the demo and running `terraform destroy`. You can also override any
+of the default variable values in the `terraform` directories by adding your own `terraform.tfvars`
+file. There is an example file in [terraform.tfvars.example](./terraform/tcloud_namespace/terraform.tfvars.example).
+
 ## Provision Workflow
 
 ### Provision Activities
 
+Each of these activities has a short sleep period associated with them, to simulate a longer running
+`terraform plan` and `terraform apply`, as well as longer policy evaluation.
+
 - Terraform Init
 - Terraform Plan
 - Evaluate Policy
-- Terraform Apply
+- Terraform Apply (leverages Heartbeats)
 - Terraform Output
 
 ### Provision Signals
@@ -48,7 +57,7 @@ the `ENCRYPT_PAYLOADS` variable, or that you retire the credential you use in th
 ### Provision Queries
 
 - Get Status
-- Get Signal REason
+- Get Signal Reason
 - Get Plan
 - Get Progress
 
@@ -83,10 +92,15 @@ export TEMPORAL_INFRA_PROVISION_TASK_QUEUE="infra-provisioning"
 export ENCRYPT_PAYLOADS="true"
 ```
 
-Before kicking off the starter, make sure the custom search attributes have been created.
+Start the server with the `frontend.enableUpdateWorkflowExecution` config option set to `true`, which will allow us to perform updates to our workflows.
 
 ```bash
 temporal server start-dev --ui-port 8080 --db-filename temporal.sqlite --dynamic-config-value frontend.enableUpdateWorkflowExecution=true
+```
+
+Then, before kicking off the starter or using the UI, make sure the custom search attributes have been created.
+
+```bash
 temporal operator search-attribute create --namespace $TEMPORAL_NAMESPACE --name provisionStatus --type text
 temporal operator search-attribute create --namespace $TEMPORAL_NAMESPACE --name tfDirectory --type text
 ```
@@ -100,7 +114,7 @@ poetry install
 Start the Codec server locally.
 
 ```bash
-poetry run python codec_server.py --web http://localhost:8081
+poetry run python codec_server.py --web http://localhost:8080
 
 temporal workflow show \
    --workflow-id <workflow-id>
@@ -113,7 +127,7 @@ Then run the worker (be sure you have the environment variables set).
 poetry run python worker.py
 ```
 
-Once you start the worker, submit a workflow using the starter (also needs the environment
+Once you start the worker, submit a workflow using the starter (this also needs the environment
 variables set).
 
 ```bash
