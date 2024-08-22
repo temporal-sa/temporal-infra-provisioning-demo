@@ -1,6 +1,7 @@
 import uuid
 import os
 import re
+import json
 
 from dataclasses import dataclass, field
 from typing import Dict
@@ -55,7 +56,7 @@ SCENARIOS = {
 		"directory": "./terraform/tcloud_namespace"
 	},
 	"api_failure": {
-		"title": "Advanced Visibility (recover on 3rd attempt)",
+		"title": "API Failure (recover on 3rd attempt)",
 		"description": "This will get to the plan stage and then simulate an API failure, recovering after 3 attempts.",
 		"directory": "./terraform/tcloud_namespace"
 	},
@@ -164,10 +165,13 @@ async def provisioned():
 	status = await tf_workflow.query("get_current_status")
 	tf_workflow_output = await tf_workflow.result()
 
+	# TODO: check for dupes before inserting
 	tf_runs.insert(0, {
 		"id": wf_id,
 		"status": status,
 	})
+
+	# TODO: scrub sensitive in the server
 
 	return render_template(
 		"provisioned.html",

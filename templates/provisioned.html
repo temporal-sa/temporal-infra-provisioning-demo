@@ -15,9 +15,20 @@
     </tr>
 </table>
 
-{% if tf_workflow_output %}
+{% if tf_workflow_output != {} %}
 	<h4>Terraform Output</h4>
-	<code class="tf-output">{{ tf_workflow_output }}</code>
+	<table class="table table-sm table-striped">
+		<tr>
+			<th>Key</th>
+			<th>Value</th>
+		</tr>
+		{% for key, value in tf_workflow_output.items() %}
+		<tr>
+			<td><code>{{ key }}</code></td>
+			<td><code>{{ value["value"] if not value["sensitive"] else "<sensitive>" }}</code></td>
+		</tr>
+		{% endfor %}
+	</table>
 {% endif %}
 
 

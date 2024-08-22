@@ -20,7 +20,7 @@
 </table>
 
 <h4>Choose Scenario</h4>
-<select id="scenario" name="scenario">
+<select id="scenario" name="scenario" class="form-select">
     {% for name, scenario in scenarios.items() %}
         <option value="{{ name }}">{{ scenario["title"] }}</option>
     {% endfor %}

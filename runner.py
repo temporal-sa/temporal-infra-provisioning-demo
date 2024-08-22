@@ -62,7 +62,6 @@ class TerraformRunner:
 	async def apply(self, data: TerraformRunDetails) -> Tuple[str, str]:
 		"""Apply the Terraform configuration."""
 
-		# TODO: add a flag to use auto-approve instead of opting in?
 		returncode, stdout, stderr = \
 			self._run_cmd_in_dir(["terraform", "apply", "-json", "-auto-approve"], data)
 
@@ -77,7 +76,7 @@ class TerraformRunner:
 		# NOTE: This is a blocking call since it simply returns the output
 
 		returncode, stdout, stderr = \
-			self._run_cmd_in_dir(["terraform", "output"], data)
+			self._run_cmd_in_dir(["terraform", "output", "-json"], data)
 
 		if returncode != 0:
 			raise TerraformOutputError(f"Terraform output errored: {stderr}")
@@ -109,12 +108,3 @@ class TerraformRunner:
 
 	def set_plan(self, plan: dict) -> None:
 		self._tfplan = plan
-
-	"""
-	def load_state(self) -> str:
-		activity.logger.info("load state")
-
-	def archive_state(self) -> str:
-		activity.logger.info("archive state")
-	"""
-

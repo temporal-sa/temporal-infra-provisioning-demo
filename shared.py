@@ -69,6 +69,12 @@ class TerraformMissingEnvVarsError(Exception):
 		super().__init__(self.message)
 
 @dataclass
+class TerraformRecoverableError(Exception):
+	def __init__(self, message) -> None:
+		self.message: str = message
+		super().__init__(self.message)
+
+@dataclass
 class TerraformAPIFailureError(Exception):
 	def __init__(self, message) -> None:
 		self.message: str = message
@@ -104,17 +110,3 @@ class PolicyCheckError(Exception):
 	def __init__(self, message) -> None:
 		self.message: str = message
 		super().__init__(self.message)
-
-"""
-@dataclasse
-class LoadStatefileError(Exception):
-	def __init__(self, message) -> None:
-		self.message: str = message
-		super().__init__(self.message)
-
-@dataclass
-class ArchiveStatefileError(Exception):
-	def __init__(self, message) -> None:
-		self.message: str = message
-		super().__init__(self.messag)
-"""

@@ -31,7 +31,7 @@ class ProvisionInfraWorkflow:
 	"""
 
 	@workflow.run
-	async def run(self, terraform_run_details: TerraformRunDetails) -> str:
+	async def run(self, terraform_run_details: TerraformRunDetails) -> dict:
 		self._tf_run_details = terraform_run_details
 
 		# A simple retry policy to be used across some common, fast, TF
@@ -134,8 +134,8 @@ class ProvisionInfraWorkflow:
 
 			workflow.logger.info(f"Workflow apply output {apply_output}")
 
-			workflow.logger.info("Sleeping for 5 seconds to slow execution down")
-			await asyncio.sleep(5)
+			workflow.logger.info("Sleeping for 3 seconds to slow execution down")
+			await asyncio.sleep(3)
 
 			show_output = await workflow.execute_activity_method(
 				ProvisioningActivities.terraform_output,
