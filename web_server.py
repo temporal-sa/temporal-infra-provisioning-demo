@@ -1,28 +1,36 @@
 import uuid
 import os
 import re
-import json
 from dataclasses import dataclass, field
 from typing import Dict
 from flask import Flask, render_template, request, jsonify
 from shared import get_temporal_client, TerraformRunDetails
 from workflows import ProvisionInfraWorkflow
+
 from temporalio.common import TypedSearchAttributes, SearchAttributeKey, \
 	SearchAttributePair
 
+# Get the Temporal host URL from the environment variable, default to "localhost:7233"
 TEMPORAL_HOST_URL = os.environ.get("TEMPORAL_HOST_URL", "localhost:7233")
+# Get the Temporal namespace from the environment variable, default to "default"
 TEMPORAL_NAMESPACE = os.environ.get("TEMPORAL_NAMESPACE", "default")
+# Get the Temporal task queue from the environment variable, default to "provision-infra"
 TEMPORAL_TASK_QUEUE = os.environ.get("TEMPORAL_TASK_QUEUE", "provision-infra")
+# Get the Temporal Cloud API key from the environment variable, default to an empty string
 TEMPORAL_CLOUD_API_KEY = os.environ.get("TEMPORAL_CLOUD_API_KEY", "")
+# Determine whether to encrypt payloads based on the environment variable, default to False
 ENCRYPT_PAYLOADS = os.getenv("ENCRYPT_PAYLOADS", 'false').lower() in ('true', '1', 't')
 
 app = Flask(__name__)
 
+# Define search attribute keys for workflow search
 provision_status_key = SearchAttributeKey.for_text("provisionStatus")
 tf_directory_key = SearchAttributeKey.for_text("tfDirectory")
 tf_runs = []
+# Modify the Temporal UI URL to use port 8080
 temporal_ui_url = re.sub(r':\d+', ':8080', TEMPORAL_HOST_URL)
 
+# Define the available scenarios
 SCENARIOS = {
 	"happy_path": {
 		"title": "Happy Path",
@@ -61,9 +69,10 @@ SCENARIOS = {
 	},
 }
 
-
+# Define the main route
 @app.route("/", methods=["GET", "POST"])
 async def main():
+	# Generate a unique workflow ID
 	wf_id = f"provision-infra-{uuid.uuid4()}"
 
 	return render_template(
@@ -77,35 +86,40 @@ async def main():
 		payloads_encrypted=ENCRYPT_PAYLOADS
 	)
 
+# Define the provision_infra route
 @app.route("/provision_infra", methods=["GET", "POST"])
 async def provision_infra():
+	# Get the selected scenario and workflow ID from the request arguments
 	selected_scenario = request.args.get("scenario", "")
 	wf_id = request.args.get("wf_id", "")
 
+	# Set Temporal Cloud environment variables based on the selected scenario
 	tcloud_env_vars = { "TEMPORAL_CLOUD_API_KEY": TEMPORAL_CLOUD_API_KEY } \
 		if selected_scenario != "non_recoverable_failure" else {}
 
 	tcloud_tf_dir = SCENARIOS[selected_scenario]["directory"]
 
+	# Create Terraform run details
 	tf_run_details = TerraformRunDetails(
 		id=wf_id,
 		directory=tcloud_tf_dir,
-		# NOTE: You can do non-recoverable with hard_fail_policy, or deleting the env vars.
 		env_vars=tcloud_env_vars,
-		# hard_fail_policy=(selected_scenario == "non_recoverable_failure")
 		simulate_api_failure=(selected_scenario == "api_failure")
 	)
 
+	# Get the Temporal client
 	client = await get_temporal_client()
 	no_existing_workflow = False
 
 	try:
+		# Check if the workflow already exists
 		tf_workflow = client.get_workflow_handle(wf_id)
 		await tf_workflow.describe()
 	except Exception as e:
 		no_existing_workflow = True
 
 	if no_existing_workflow:
+		# Start the workflow if it doesn't exist
 		await client.start_workflow(
 			ProvisionInfraWorkflow.run,
 			tf_run_details,
@@ -127,7 +141,7 @@ async def provision_infra():
 		payloads_encrypted=ENCRYPT_PAYLOADS
 	)
 
-
+# Define the get_progress route
 @app.route('/get_progress')
 async def get_progress():
 	wf_id = request.args.get('wf_id', "")
@@ -155,6 +169,7 @@ async def get_progress():
 		print(e)
 		return jsonify(payload)
 
+# Define the provisioned route
 @app.route('/provisioned')
 async def provisioned():
 	wf_id = request.args.get("wf_id", "")
@@ -184,6 +199,7 @@ async def provisioned():
 		payloads_encrypted=ENCRYPT_PAYLOADS
 	)
 
+# Define the signal route
 @app.route('/signal', methods=["POST"])
 async def signal():
 	wf_id = request.args.get("wf_id", "")
@@ -205,6 +221,7 @@ async def signal():
 
 	return "Signal received successfully", 200
 
+# Define the update route
 @app.route('/update', methods=["POST"])
 async def update():
 	wf_id = request.args.get("wf_id", "")
@@ -226,6 +243,6 @@ async def update():
 
 	return "Update received successfully", 200
 
-
+# Run the Flask app
 if __name__ == "__main__":
 	app.run(debug=True, port=3000)

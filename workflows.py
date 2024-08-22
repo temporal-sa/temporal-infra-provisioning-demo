@@ -62,7 +62,7 @@ class ProvisionInfraWorkflow:
 		)
 		workflow.upsert_search_attributes({"provisionStatus": ["planning"]})
 		self._progress = 30
-		self._current_status = "planning..."
+		self._current_status = "planning"
 		self._tf_plan_output, tf_plan_output_json = await workflow.execute_activity_method(
 			ProvisioningActivities.terraform_plan,
 			terraform_run_details,
@@ -97,7 +97,7 @@ class ProvisionInfraWorkflow:
 
 		if not policy_check_output and not hard_fail:
 			workflow.upsert_search_attributes({"provisionStatus": ["awaiting_approval"]})
-			self._current_status = "awaiting approval decision..."
+			self._current_status = "awaiting approval decision"
 			workflow.logger.info("Workflow awaiting approval decision")
 			await workflow.wait_condition(
 				lambda: self._apply_approved is not None
