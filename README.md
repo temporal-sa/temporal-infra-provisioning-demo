@@ -18,11 +18,11 @@ _Leveraging the Temporal Python SDK and Terraform_
 |                    |    | Worker Metrics |    |                     |    |
 |                    |    | Side Effect    |    |                     |    |
 
-This demo has the building blocks for you to execute any terraform code to completion, but is focused on
-provisioning namespaces and users in Temporal Cloud. Because of that, you will need to generate a
-Temporal Cloud API key for usage with the Terraform plan. This is also a sensitive value and will
-be published to whatever Temporal server you connect to, so it is recommended to leverage the
-`ENCRYPT_PAYLOADS` variable, or that you retire the credential you use in the demo immediately.
+This demo has the building blocks for you to execute any terraform code to completion, but is
+focused on provisioning namespaces and users in Temporal Cloud. Because of that, you will need to
+generate a Temporal Cloud API key for usage with the Terraform plan. This is also a sensitive value
+and will be published to whatever Temporal server you connect to, so it is recommended to leverage
+the `ENCRYPT_PAYLOADS` variable, or that you retire the credential you use in the demo immediately.
 
 ## Provision Workflow
 
@@ -52,6 +52,13 @@ be published to whatever Temporal server you connect to, so it is recommended to
 - Get Progress
 
 ## Running the Demo
+
+Make sure you have [Terraform](https://www.terraform.io/) installed, as we will be shelling out
+from Python to it.
+
+```bash
+brew install terraform
+```
 
 To generate an API key, use `tcld`:
 
@@ -105,14 +112,15 @@ Then run the worker (be sure you have the environment variables set).
 poetry run python worker.py
 ```
 
-Once you start the worker, submit a workflow using the starter (also needs the environment variables set).
+Once you start the worker, submit a workflow using the starter (also needs the environment
+variables set).
 
 ```bash
 poetry run python starter.py
 ```
 
-If you introduce a Terraform stanza that provisions a user with admin permissions, this workflow will pause and wait
-for a signal to approve or deny the execution of the plan.
+If you introduce a Terraform stanza that provisions a user with admin permissions, this workflow
+will pause and wait for a signal to approve or deny the execution of the plan.
 
 ```bash
 temporal workflow signal \
@@ -126,7 +134,8 @@ temporal workflow signal \
     --reason "approving apply"
 ```
 
-To query a workflow for it's current status, the plan, the signal reason or the progress, you can use the below commands with the relevant in place of the current workflow ID.
+To query a workflow for it's current status, the plan, the signal reason or the progress, you can
+use the below commands with the relevant in place of the current workflow ID.
 
 ```bash
 temporal workflow query \
@@ -170,4 +179,4 @@ This deploys an admin user to Temporal Cloud which will fail due to a divide by 
 
 ### Non-Recoverable Failure
 
-This deploys an admin user to Temporal Cloud which will fail due to a hard policy failure.
+This can deploy an admin user to Temporal Cloud which will fail due to a hard policy failure, or can delete the environment variables and fail out w/ a `non_retryable_error`.

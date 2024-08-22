@@ -39,12 +39,11 @@ SCENARIOS = {
 		"directory": "./terraform/tcloud_admin_user"
 	},
 	"recoverable_failure": {
-		"description": "This deploys an admin user to Temporal Cloud which will fail due to a divide by zero error, which can be commented out.",
+		"description": "This will attempt to deploy to Temporal Cloud without the needed environment variables.",
 		"directory": "./terraform/tcloud_namespace"
 	},
 	"non_recoverable_failure": {
-		# "description": "This deploys an admin user to Temporal Cloud which will fail due to a hard policy failure.",
-		"description": "This will attempt to deploy to Temporal Cloud without the needed environment variables.",
+		"description": "This deploys an admin user to Temporal Cloud which will fail due to a hard policy failure.",
 		"directory": "./terraform/tcloud_namespace"
 	},
 }
@@ -67,8 +66,10 @@ async def main():
 async def provision_infra():
 	selected_scenario = request.args.get("scenario", "")
 	wf_id = request.args.get("wf_id", "")
+
 	tcloud_env_vars = { "TEMPORAL_CLOUD_API_KEY": TEMPORAL_CLOUD_API_KEY } \
 		if selected_scenario != "non_recoverable_failure" else {}
+
 	tcloud_tf_dir = SCENARIOS[selected_scenario]["directory"]
 
 	tf_run_details = TerraformRunDetails(
