@@ -3,7 +3,7 @@
 {% block content %}
 
 <h1>Temporal Infrastructure Provisioning</h1>
-<h2>Terraform Scenarios</h2>
+<h2>Terraform Run Scenarios</h2>
 <table class="table table-sm table-striped">
     <tr>
         <th>Name</th>
@@ -12,7 +12,7 @@
     </tr>
     {% for name, scenario in scenarios.items() %}
     <tr>
-        <td>{{ name }}</td>
+        <td>{{ scenario["title"] }}</td>
         <td>{{ scenario["description"] }}</td>
         <td><pre>{{ scenario["directory"] }}</pre></td>
     </tr>
@@ -21,12 +21,30 @@
 
 <h4>Choose Scenario</h4>
 <select id="scenario" name="scenario">
-    {% for name in scenarios.keys() %}
-        <option value="{{ name }}">{{ name }}</option>
+    {% for name, scenario in scenarios.items() %}
+        <option value="{{ name }}">{{ scenario["title"] }}</option>
     {% endfor %}
 </select>
 
 <button class="btn btn-primary" onclick="provisionInfra()">Provision Infrastructure</button>
 <input type="hidden" id="tfRunID" value="{{ wf_id }}">
+
+<hr />
+
+<h4>Historical Runs</h4>
+
+<table class="table table-sm table-striped">
+    <tr>
+        <th>Workflow ID</th>
+        <th>Status</th>
+    </tr>
+    {% for run in tf_runs %}
+    <tr>
+        <td><a href="{{temporal_ui_url}}/namespaces/{{temporal_namespace}}/workflows/{{run['id']}}" target="_blank">{{ run["id"] }}</a></td>
+        <td>{{ run["status"] }}</td>
+    </tr>
+    {% endfor %}
+</table>
+
 
 {% endblock %}

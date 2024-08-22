@@ -17,8 +17,8 @@
         <td>{{ selected_scenario }}</td>
     </tr>
     <tr>
-        <th scope="row">Selected Scenario</th>
-        <td>{{ wf_id }}</td>
+        <th scope="row">Workflow ID</th>
+		<td><a href="{{temporal_ui_url}}/namespaces/{{temporal_namespace}}/workflows/{{wf_id}}" target="_blank">{{ wf_id }}</a></td>
     </tr>
 </table>
 
@@ -45,8 +45,8 @@ other scenarios because it is helpful to have.
 	<h5>Approve or Deny Apply w/ Signal?</h5>
 	<label for="reason">Reason:</label>
 	<input type="text" id="reason">
-	<button class="green" onclick="signal(true)">Approve</button>
-	<button class="red" onclick="signal(false)">Deny</button>
+	<button class="btn btn-primary" onclick="signal(true)">Approve</button>
+	<button class="btn btn-danger" onclick="signal(false)">Deny</button>
 </div>
 
 <div id="update-container">

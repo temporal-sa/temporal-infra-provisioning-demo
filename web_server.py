@@ -1,6 +1,6 @@
-from pdb import run
 import uuid
 import os
+import re
 
 from dataclasses import dataclass, field
 from typing import Dict
@@ -20,33 +20,42 @@ app = Flask(__name__)
 
 provision_status_key = SearchAttributeKey.for_text("provisionStatus")
 tf_directory_key = SearchAttributeKey.for_text("tfDirectory")
+tf_runs = []
+temporal_ui_url = re.sub(r':\d+', ':8080', TEMPORAL_HOST_URL)
 
 SCENARIOS = {
 	"happy_path": {
+		"title": "Happy Path",
 		"description": "This deploys a namespace to Temporal Cloud with no issues.",
 		"directory": "./terraform/tcloud_namespace"
 	},
 	"advanced_visibliity": {
+		"title": "Advanced Visibility",
 		"description": "This deploys a namespace to Temporal Cloud with no issues, while publishing custom search attributes.",
 		"directory": "./terraform/tcloud_namespace"
 	},
 	"human_in_the_loop_signal": {
+		"title": "Human in the Loop (Signal)",
 		"description": "This deploys an admin user to Temporal Cloud which requires an approval signal after a soft policy failure.",
 		"directory": "./terraform/tcloud_admin_user"
 	},
 	"human_in_the_loop_update": {
+		"title": "Human in the Loop (Update)",
 		"description": "This deploys an admin user to Temporal Cloud which requires an approval update after a soft policy failure.",
 		"directory": "./terraform/tcloud_admin_user"
 	},
 	"recoverable_failure": {
-		"description": "This will attempt to deploy to Temporal Cloud without the needed environment variables.",
+		"title": "Recoverable Failure (Bug in Code)",
+		"description": "This will attempt to deploy to Temporal Cloud but fail due to a divide by zero error.",
 		"directory": "./terraform/tcloud_namespace"
 	},
 	"non_recoverable_failure": {
+		"title": "Non Recoverable Failure (Hard Policy Fail)",
 		"description": "This deploys an admin user to Temporal Cloud which will fail due to a hard policy failure.",
 		"directory": "./terraform/tcloud_namespace"
 	},
 	"api_failure": {
+		"title": "Advanced Visibility (recover on 3rd attempt)",
 		"description": "This will get to the plan stage and then simulate an API failure, recovering after 3 attempts.",
 		"directory": "./terraform/tcloud_namespace"
 	},
@@ -60,8 +69,10 @@ async def main():
 	return render_template(
 		"index.html",
 		wf_id=wf_id,
+		tf_runs=tf_runs[::1],
 		scenarios=SCENARIOS,
 		temporal_host_url=TEMPORAL_HOST_URL,
+		temporal_ui_url=temporal_ui_url,
 		temporal_namespace=TEMPORAL_NAMESPACE,
 		payloads_encrypted=ENCRYPT_PAYLOADS
 	)
@@ -111,6 +122,7 @@ async def provision_infra():
 		wf_id=wf_id,
 		selected_scenario=selected_scenario,
 		temporal_host_url=TEMPORAL_HOST_URL,
+		temporal_ui_url=temporal_ui_url,
 		temporal_namespace=TEMPORAL_NAMESPACE,
 		payloads_encrypted=ENCRYPT_PAYLOADS
 	)
@@ -152,12 +164,18 @@ async def provisioned():
 	status = await tf_workflow.query("get_current_status")
 	tf_workflow_output = await tf_workflow.result()
 
+	tf_runs.append(({
+		"id": wf_id,
+		"status": status,
+	}))
+
 	return render_template(
 		"provisioned.html",
 		wf_id=wf_id,
 		tf_workflow_output=tf_workflow_output,
 		tf_run_status=status,
 		temporal_host_url=TEMPORAL_HOST_URL,
+		temporal_ui_url=temporal_ui_url,
 		temporal_namespace=TEMPORAL_NAMESPACE,
 		payloads_encrypted=ENCRYPT_PAYLOADS
 	)
