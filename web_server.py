@@ -65,7 +65,6 @@ SCENARIOS = {
 @app.route("/", methods=["GET", "POST"])
 async def main():
 	wf_id = f"provision-infra-{uuid.uuid4()}"
-	tf_runs.reverse()
 
 	return render_template(
 		"index.html",
@@ -165,10 +164,10 @@ async def provisioned():
 	status = await tf_workflow.query("get_current_status")
 	tf_workflow_output = await tf_workflow.result()
 
-	tf_runs.append(({
+	tf_runs.insert(0, {
 		"id": wf_id,
 		"status": status,
-	}))
+	})
 
 	return render_template(
 		"provisioned.html",
