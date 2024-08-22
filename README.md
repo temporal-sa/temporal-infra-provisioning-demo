@@ -1,16 +1,14 @@
 # Temporal Infrastructure Provisioning
 
-_Leveraging the Temporal Python SDK and Terraform_
-
 | Prerequisites      |    | Features       |    | Patterns            |    |
 |:-------------------|----|----------------|----|---------------------|----|
 | Network Connection | ✅ | Schedule       |    | Entity              |    |
 | Python 3.12        | ✅ | Timer          |    | Fanout              |    |
 | Poetry 1.8.3       | ✅ | Local Activity | ✅ | Long-Running        | ✅ |
 | Terraform 1.9.0    | ✅ | Signal         | ✅ | Continue As New     |    |
-| Terraform 1.9.0    | ✅ | Query          | ✅ | Manual Intervention | ✅ |
-| Open Policy Agent  |    | Heartbeat      | ✅ | Long-polling        |    |
-| GitHub Actions     |    | Update         | ✅ | Polyglot            |    |
+| Open Policy Agent  | ✅ | Query          | ✅ | Manual Intervention | ✅ |
+| GitHub Actions     |    | Heartbeat      | ✅ | Long-polling        |    |
+|                    |    | Update         | ✅ | Polyglot            |    |
 |                    |    | Retry          | ✅ |                     |    |
 |                    |    | Data Converter | ✅ |                     |    |
 |                    |    | Codec Server   | ✅ |                     |    |
