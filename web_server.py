@@ -1,29 +1,49 @@
 import uuid
 import os
 import re
-import json
-
 from dataclasses import dataclass, field
 from typing import Dict
 from flask import Flask, render_template, request, jsonify
 from shared import get_temporal_client, TerraformRunDetails
 from workflows import ProvisionInfraWorkflow
+
+"""
+This file contains a Flask web server that provides endpoints for provisioning infrastructure using Temporal workflows.
+
+Endpoints:
+- `/`: Renders the main page with options to select a provisioning scenario.
+- `/provision_infra`: Initiates the infrastructure provisioning workflow based on the selected scenario.
+- `/get_progress`: Retrieves the progress and status of the infrastructure provisioning workflow.
+- `/provisioned`: Renders the page indicating that the infrastructure provisioning is complete.
+- `/signal`: Handles the approval or denial signal for the human-in-the-loop scenario.
+- `/update`: Handles the approval or denial update for the human-in-the-loop scenario.
+"""
+
+
 from temporalio.common import TypedSearchAttributes, SearchAttributeKey, \
 	SearchAttributePair
 
+# Get environment variables
 TEMPORAL_HOST_URL = os.environ.get("TEMPORAL_HOST_URL", "localhost:7233")
 TEMPORAL_NAMESPACE = os.environ.get("TEMPORAL_NAMESPACE", "default")
 TEMPORAL_TASK_QUEUE = os.environ.get("TEMPORAL_TASK_QUEUE", "provision-infra")
 TEMPORAL_CLOUD_API_KEY = os.environ.get("TEMPORAL_CLOUD_API_KEY", "")
 ENCRYPT_PAYLOADS = os.getenv("ENCRYPT_PAYLOADS", 'false').lower() in ('true', '1', 't')
 
+# Create Flask app
 app = Flask(__name__)
 
+# Define search attribute keys
 provision_status_key = SearchAttributeKey.for_text("provisionStatus")
 tf_directory_key = SearchAttributeKey.for_text("tfDirectory")
+
+# Initialize list to store Terraform run details
 tf_runs = []
+
+# Generate Temporal UI URL
 temporal_ui_url = re.sub(r':\d+', ':8080', TEMPORAL_HOST_URL)
 
+# Define provisioning scenarios
 SCENARIOS = {
 	"happy_path": {
 		"title": "Happy Path",
@@ -47,12 +67,12 @@ SCENARIOS = {
 	},
 	"recoverable_failure": {
 		"title": "Recoverable Failure (Bug in Code)",
-		"description": "This will attempt to deploy to Temporal Cloud but fail due to a divide by zero error.",
+		"description": "This deploys an admin user to Temporal Cloud which will fail due to uncommenting an exception in the terraform_plan activity and restarting the worker, then recommenting and restarting the worker.",
 		"directory": "./terraform/tcloud_namespace"
 	},
 	"non_recoverable_failure": {
 		"title": "Non Recoverable Failure (Hard Policy Fail)",
-		"description": "This deploys an admin user to Temporal Cloud which will fail due to a hard policy failure.",
+		"description": "This can deploy an admin user to Temporal Cloud which will fail due to a hard policy failure, or can delete the environment variables and fail out w/ a non-retryable error.",
 		"directory": "./terraform/tcloud_namespace"
 	},
 	"api_failure": {
@@ -62,9 +82,11 @@ SCENARIOS = {
 	},
 }
 
-
 @app.route("/", methods=["GET", "POST"])
 async def main():
+	"""
+	Renders the main page with options to select a provisioning scenario.
+	"""
 	wf_id = f"provision-infra-{uuid.uuid4()}"
 
 	return render_template(
@@ -80,6 +102,9 @@ async def main():
 
 @app.route("/provision_infra", methods=["GET", "POST"])
 async def provision_infra():
+	"""
+	Initiates the infrastructure provisioning workflow based on the selected scenario.
+	"""
 	selected_scenario = request.args.get("scenario", "")
 	wf_id = request.args.get("wf_id", "")
 
@@ -91,9 +116,7 @@ async def provision_infra():
 	tf_run_details = TerraformRunDetails(
 		id=wf_id,
 		directory=tcloud_tf_dir,
-		# NOTE: You can do non-recoverable with hard_fail_policy, or deleting the env vars.
 		env_vars=tcloud_env_vars,
-		# hard_fail_policy=(selected_scenario == "non_recoverable_failure")
 		simulate_api_failure=(selected_scenario == "api_failure")
 	)
 
@@ -128,9 +151,11 @@ async def provision_infra():
 		payloads_encrypted=ENCRYPT_PAYLOADS
 	)
 
-
 @app.route('/get_progress')
 async def get_progress():
+	"""
+	Retrieves the progress and status of the infrastructure provisioning workflow.
+	"""
 	wf_id = request.args.get('wf_id', "")
 	payload = {
 		"progress": 0,
@@ -158,6 +183,9 @@ async def get_progress():
 
 @app.route('/provisioned')
 async def provisioned():
+	"""
+	Renders the page indicating that the infrastructure provisioning is complete.
+	"""
 	wf_id = request.args.get("wf_id", "")
 
 	client = await get_temporal_client()
@@ -186,6 +214,9 @@ async def provisioned():
 
 @app.route('/signal', methods=["POST"])
 async def signal():
+	"""
+	Handles the approval or denial signal for the human-in-the-loop scenario.
+	"""
 	wf_id = request.args.get("wf_id", "")
 	decision = request.json.get("decision", False)
 	reason = request.json.get("reason", "")
@@ -207,6 +238,9 @@ async def signal():
 
 @app.route('/update', methods=["POST"])
 async def update():
+	"""
+	Handles the approval or denial update for the human-in-the-loop scenario.
+	"""
 	wf_id = request.args.get("wf_id", "")
 	decision = request.json.get("decision", False)
 	reason = request.json.get("reason", "")
@@ -225,7 +259,6 @@ async def update():
 		return jsonify({"error": str(e)}), 500
 
 	return "Update received successfully", 200
-
 
 if __name__ == "__main__":
 	app.run(debug=True, port=3000)

@@ -165,21 +165,22 @@ This deploys a namespace to Temporal Cloud with no issues.
 
 This deploys a namespace to Temporal Cloud with no issues, while publishing custom search attributes.
 
-### Human in the Loop Signal
+### Human in the Loop (Signal)
 
 This deploys an admin user to Temporal Cloud which requires an approval signal after a soft policy failure.
 
-### Human in the Loop Update
+### Human in the Loop (Update)
 
 This deploys an admin user to Temporal Cloud which requires an approval update after a soft policy failure.
 
-### Recoverable Failure
+### Recoverable Failure (Bug in Code)
 
-This deploys an admin user to Temporal Cloud which will fail due to a divide by zero error, which can be commented out.
+This deploys an admin user to Temporal Cloud which will fail due to uncommenting an exception in the terraform_plan activity and restarting the worker, then recommenting and restarting the worker.
 
-### Non-Recoverable Failure
+### Non-Recoverable Failure (Hard Policy Failure)
 
 This can deploy an admin user to Temporal Cloud which will fail due to a hard policy failure, or can delete the environment variables and fail out w/ a `non_retryable_error`.
 
+### API Failure
 
-### API
+This will get to the plan stage and then simulate an API failure, recovering after 3 attempts.
