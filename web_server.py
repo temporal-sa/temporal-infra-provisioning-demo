@@ -65,11 +65,12 @@ SCENARIOS = {
 @app.route("/", methods=["GET", "POST"])
 async def main():
 	wf_id = f"provision-infra-{uuid.uuid4()}"
+	tf_runs.reverse()
 
 	return render_template(
 		"index.html",
 		wf_id=wf_id,
-		tf_runs=tf_runs[::1],
+		tf_runs=tf_runs,
 		scenarios=SCENARIOS,
 		temporal_host_url=TEMPORAL_HOST_URL,
 		temporal_ui_url=temporal_ui_url,
