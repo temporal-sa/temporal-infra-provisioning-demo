@@ -1,6 +1,5 @@
 import os
 import dataclasses
-
 from dataclasses import dataclass, field
 from typing import Dict
 from temporalio.client import Client
@@ -8,17 +7,29 @@ from temporalio.service import  TLSConfig
 from temporalio import converter
 from codec import CompressionCodec, EncryptionCodec
 
+# Get the Temporal host URL from environment variable, default to "localhost:7233" if not set
 TEMPORAL_HOST_URL = os.environ.get("TEMPORAL_HOST_URL", "localhost:7233")
+
+# Get the mTLS TLS certificate and key file paths from environment variables
 TEMPORAL_MTLS_TLS_CERT = os.environ.get("TEMPORAL_MTLS_TLS_CERT", "")
 TEMPORAL_MTLS_TLS_KEY = os.environ.get("TEMPORAL_MTLS_TLS_KEY", "")
+
+# Get the Temporal namespace from environment variable, default to "default" if not set
 TEMPORAL_NAMESPACE = os.environ.get("TEMPORAL_NAMESPACE", "default")
+
+# Get the Temporal task queue from environment variable, default to "provision-infra" if not set
 TEMPORAL_TASK_QUEUE = os.environ.get("TEMPORAL_TASK_QUEUE", "provision-infra")
+
+# Get the Temporal Cloud API key from environment variable
 TEMPORAL_CLOUD_API_KEY = os.environ.get("TEMPORAL_CLOUD_API_KEY", "")
+
+# Determine if payloads should be encrypted based on the value of the "ENCRYPT_PAYLOADS" environment variable
 ENCRYPT_PAYLOADS = os.getenv("ENCRYPT_PAYLOADS", 'false').lower() in ('true', '1', 't')
 
 async def get_temporal_client() -> Client:
 	tls_config = None
 
+	# If mTLS TLS certificate and key are provided, create a TLSConfig object
 	if TEMPORAL_MTLS_TLS_CERT != "" and TEMPORAL_MTLS_TLS_KEY != "":
 		with open(TEMPORAL_MTLS_TLS_CERT, "rb") as f:
 			client_cert = f.read()
@@ -33,6 +44,7 @@ async def get_temporal_client() -> Client:
 		)
 
 	if ENCRYPT_PAYLOADS:
+		# Create a Temporal client with encryption codec for payloads
 		client: Client = await Client.connect(
 			TEMPORAL_HOST_URL,
 			namespace=TEMPORAL_NAMESPACE,
@@ -44,6 +56,7 @@ async def get_temporal_client() -> Client:
 			),
 		)
 	else:
+		# Create a regular Temporal client
 		client: Client = await Client.connect(
 			TEMPORAL_HOST_URL,
 			namespace=TEMPORAL_NAMESPACE,
