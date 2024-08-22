@@ -16,7 +16,8 @@ _Leveraging the Temporal Python SDK and Terraform_
 |                    |    | Codec Server   | ✅ |                     |    |
 |                    |    | Custom Attrs   | ✅ |                     |    |
 
-<img src="./static/ui.png" width="1000">
+
+![Temporal Infrastructure Provisioning UI Screenshot](./static/ui.png)
 
 This demo has the building blocks for you to execute any terraform code to completion, but is
 focused on provisioning namespaces and users in Temporal Cloud. Because of that, you will need to

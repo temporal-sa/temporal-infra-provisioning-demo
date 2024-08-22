@@ -1,10 +1,10 @@
 import os
 import subprocess
-
 from typing import Tuple
+
 from shared import TerraformRunDetails, TerraformApplyError, \
 	TerraformInitError, TerraformPlanError, TerraformOutputError, \
-		PolicyCheckError
+	PolicyCheckError
 
 
 class TerraformRunner:
@@ -12,9 +12,11 @@ class TerraformRunner:
 	def _run_cmd_in_dir(self, command: list[str], data: TerraformRunDetails) -> tuple:
 		"""Run a Terraform command and capture the output."""
 
+		# Copy the environment variables and update with the provided ones
 		env = os.environ.copy()
 		env.update(data.env_vars)
 
+		# Run the command in the specified directory
 		process = subprocess.Popen(command, env=env, cwd=data.directory, \
 			stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
 		stdout, stderr = process.communicate()
@@ -24,6 +26,7 @@ class TerraformRunner:
 	async def init(self, data: TerraformRunDetails) -> Tuple[str, str]:
 		"""Initialize the Terraform configuration."""
 
+		# Run 'terraform init' command with the '-json' flag
 		returncode, stdout, stderr = self._run_cmd_in_dir(["terraform", "init", "-json"], data)
 
 		if returncode != 0:
@@ -34,27 +37,29 @@ class TerraformRunner:
 	async def plan(self, data: TerraformRunDetails, activity_id: str) -> Tuple[str, str, str, str]:
 		"""Plan the Terraform configuration."""
 
-		# We want to get the regular plan output here (no binary or json) for display purposes
+		# Get the regular plan output for display purposes
 		_, plan_stdout, _ = \
 			self._run_cmd_in_dir(["terraform", "plan"], data)
 
+		# Generate a binary plan file with the provided activity ID
 		tfplan_binary_filename = f"{activity_id}.binary"
 		plan_returncode, _, plan_stderr = \
 			self._run_cmd_in_dir(["terraform", "plan", "-out", tfplan_binary_filename], data)
 
-		# No need to handle any errors for removing the binary file
+		# Remove the binary plan file if there are errors
 		if plan_returncode != 0:
 			self._run_cmd_in_dir(["rm", tfplan_binary_filename], data)
 			raise TerraformPlanError(f"Terraform plan errored: {plan_stderr}")
 
+		# Show the JSON representation of the plan
 		show_json_returncode, show_json_stdout, show_json_stderr \
 			= self._run_cmd_in_dir(["terraform", "show", "-json", tfplan_binary_filename], data)
 
-		if show_json_returncode != 0:
-			self._run_cmd_in_dir(["rm", tfplan_binary_filename], data)
-			raise TerraformPlanError(f"Terraform show JSON errored: {show_json_stderr}")
-
+		# Remove the binary plan file
 		self._run_cmd_in_dir(["rm", tfplan_binary_filename], data)
+
+		if show_json_returncode != 0:
+			raise TerraformPlanError(f"Terraform show JSON errored: {show_json_stderr}")
 
 		print(plan_stdout)
 		return show_json_stdout, show_json_stderr, plan_stdout, plan_stderr
@@ -62,6 +67,7 @@ class TerraformRunner:
 	async def apply(self, data: TerraformRunDetails) -> Tuple[str, str]:
 		"""Apply the Terraform configuration."""
 
+		# Apply the Terraform configuration with the '-json' and '-auto-approve' flags
 		returncode, stdout, stderr = \
 			self._run_cmd_in_dir(["terraform", "apply", "-json", "-auto-approve"], data)
 
@@ -75,6 +81,7 @@ class TerraformRunner:
 		"""Show the output of the Terraform run."""
 		# NOTE: This is a blocking call since it simply returns the output
 
+		# Get the output of the Terraform run in JSON format
 		returncode, stdout, stderr = \
 			self._run_cmd_in_dir(["terraform", "output", "-json"], data)
 
@@ -107,4 +114,5 @@ class TerraformRunner:
 		return policy_passed
 
 	def set_plan(self, plan: dict) -> None:
+		"""Set the Terraform plan."""
 		self._tfplan = plan
