@@ -1,12 +1,3 @@
-import uuid
-import os
-import re
-from dataclasses import dataclass, field
-from typing import Dict
-from flask import Flask, render_template, request, jsonify
-from shared import get_temporal_client, TerraformRunDetails
-from workflows import ProvisionInfraWorkflow
-
 """
 This file contains a Flask web server that provides endpoints for provisioning infrastructure using Temporal workflows.
 
@@ -19,7 +10,14 @@ Endpoints:
 - `/update`: Handles the approval or denial update for the human-in-the-loop scenario.
 """
 
-
+import uuid
+import os
+import re
+from dataclasses import dataclass, field
+from typing import Dict
+from flask import Flask, render_template, request, jsonify
+from shared import get_temporal_client, TerraformRunDetails
+from workflows import ProvisionInfraWorkflow
 from temporalio.common import TypedSearchAttributes, SearchAttributeKey, \
 	SearchAttributePair
 

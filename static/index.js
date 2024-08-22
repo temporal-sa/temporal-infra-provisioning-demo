@@ -24,7 +24,6 @@ function updateProgress() {
 		})
 		.then(data => {
 			// Update the progress bar
-			// console.log(data)
 			document.getElementById("error-message").innerText = "";
 			document.getElementById("progress-bar").style.width = data.progress_percent + "%";
 
@@ -34,11 +33,13 @@ function updateProgress() {
 			}
 
 			if (data.plan != "") {
+				// Display the Terraform plan
 				document.getElementById("terraform-plan").innerText = stripAnsi(data.plan);
 				document.getElementById("terraform-plan-container").style.display = "block";
 			}
 
 			if (data.status.includes("approval")) {
+				// Show the appropriate container based on the scenario
 				if (scenario === "human_in_the_loop_signal") {
 					document.getElementById("signal-container").style.display = "block";
 				} else if (scenario === "human_in_the_loop_update") {
@@ -47,7 +48,7 @@ function updateProgress() {
 			}
 
 			if (data.progress_percent === 100) {
-				// Redirect to order confirmation with the wf_id
+				// Redirect to order confirmation with the tfRunID
 				window.location.href = "/provisioned?wf_id=" + encodeURIComponent(tfRunID);
 			} else {
 				// Continue updating progress every second
@@ -67,7 +68,7 @@ function updateProgress() {
 }
 
 function signal(decision) {
-	// Get the wf_id from the URL query parameters
+	// Get the tfRunID from the URL query parameters
 	var urlParams = new URLSearchParams(window.location.search);
 	var tfRunID = urlParams.get("wf_id");
 	var reason = document.getElementById("reason").value;
@@ -96,7 +97,7 @@ function signal(decision) {
 }
 
 function update(decision) {
-	// Get the wf_id from the URL query parameters
+	// Get the tfRunID from the URL query parameters
 	var urlParams = new URLSearchParams(window.location.search);
 	var tfRunID = urlParams.get("wf_id");
 	var reason = document.getElementById("reason").value;
@@ -140,8 +141,8 @@ function update(decision) {
 	});
 }
 
-
 function reloadMainPage() {
+	// Redirect to the main page
 	window.location.href = "/";
 }
 
