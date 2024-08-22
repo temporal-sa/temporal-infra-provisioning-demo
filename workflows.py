@@ -53,11 +53,12 @@ class ProvisionInfraWorkflow:
 		self._progress = 20
 		self._current_status = "initialized"
 
-		# TODO: check for env vars and throw a non_retryable_error if they're not set, catch it?
 		tf_plan_retry_policy = RetryPolicy(
+			initial_interval=timedelta(seconds=3),
+			maximum_interval=timedelta(seconds=60),
 			backoff_coefficient=2.0,
 			maximum_attempts=100,
-			non_retryable_error_types=["TerraformMissingEnvVars"],
+			non_retryable_error_types=["TerraformMissingEnvVarsErrors"],
 		)
 		workflow.upsert_search_attributes({"provisionStatus": ["planning"]})
 		self._progress = 30

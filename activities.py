@@ -7,7 +7,7 @@ from temporalio.exceptions import ActivityError
 from runner import TerraformRunner
 from shared import TerraformRunDetails, TerraformApplyError, \
 	TerraformInitError, TerraformPlanError, TerraformOutputError, \
-		PolicyCheckError, TerraformMissingEnvVars
+		PolicyCheckError, TerraformMissingEnvVarsError, TerraformAPIFailureError
 
 
 class ProvisioningActivities:
@@ -52,10 +52,15 @@ class ProvisioningActivities:
 
 		if not data.env_vars:
 			activity.logger.debug("Missing environment variables, cannot proceed.")
-			raise TerraformMissingEnvVars("Missing environment variables, cannot proceed.")
+			raise TerraformMissingEnvVarsError("Missing environment variables, cannot proceed.")
 
-		await asyncio.sleep(5)
-		activity.logger.info("Sleeping for 5 seconds to slow execution down")
+		print("NEILIO", data, data.simulate_api_failure, activity.info().attempt)
+
+		if data.simulate_api_failure and activity.info().attempt < 3:
+			raise TerraformAPIFailureError("Terraform cannot reach the API")
+		else:
+			await asyncio.sleep(5)
+			activity.logger.info("Sleeping for 5 seconds to slow execution down")
 
 		try:
 			plan_json_stdout, plan_json_stderr, plan_stdout, plan_stderr = await self._runner.plan(data, activity_id)

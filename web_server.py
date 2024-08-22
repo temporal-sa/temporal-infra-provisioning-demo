@@ -46,6 +46,10 @@ SCENARIOS = {
 		"description": "This deploys an admin user to Temporal Cloud which will fail due to a hard policy failure.",
 		"directory": "./terraform/tcloud_namespace"
 	},
+	"api_failure": {
+		"description": "This will get to the plan stage and then simulate an API failure, recovering after 3 attempts.",
+		"directory": "./terraform/tcloud_namespace"
+	},
 }
 
 
@@ -78,6 +82,7 @@ async def provision_infra():
 		# NOTE: You can do non-recoverable with hard_fail_policy, or deleting the env vars.
 		env_vars=tcloud_env_vars,
 		# hard_fail_policy=(selected_scenario == "non_recoverable_failure")
+		simulate_api_failure=(selected_scenario == "api_failure")
 	)
 
 	client = await get_temporal_client()
