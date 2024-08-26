@@ -66,7 +66,7 @@ from Python to execute the locally installed `terraform` binary.
 
 ```bash
 brew tap hashicorp/tap
-brew install terraform
+brew install hashicorp/tap/terraform
 ```
 
 To generate an API key, use `tcld`, you'll need to `tcld login` first to do this.
