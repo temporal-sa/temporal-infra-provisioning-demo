@@ -61,20 +61,17 @@ Each of these activities has a short sleep period associated with them, to simul
 
 ## Running the Demo
 
-Make sure you have [Terraform](https://www.terraform.io/) installed, as we will be shelling out
-from Python to it.
+Make sure you have [Terraform](https://www.terraform.io/) installed, as the runner shells out
+from Python to execute the locally installed `terraform` binary.
 
 ```bash
+brew tap hashicorp/tap
 brew install terraform
 ```
 
-To generate an API key, use `tcld`:
+To generate an API key, use `tcld`, you'll need to `tcld login` first to do this.
 
 ```bash
-# authenticate your session
-tcld login
-
-# generate an API Key
 tcld apikey create -n "terraform-test" --desc "Testing the API Key for the TF Provider" -d 90d
 ```
 
@@ -90,15 +87,15 @@ export TEMPORAL_INFRA_PROVISION_TASK_QUEUE="infra-provisioning"
 export ENCRYPT_PAYLOADS="true"
 ```
 
-Start the server with the `frontend.enableUpdateWorkflowExecution` config option set to `true`,
-which will allow us to perform updates to our workflows.
+If you are using the Temporal Dev Server, start the server with the `frontend.enableUpdateWorkflowExecution` config
+option set to `true`, which will allow us to perform updates to our workflows.
 
 ```bash
 temporal server start-dev --ui-port 8080 --db-filename temporal.sqlite --dynamic-config-value frontend.enableUpdateWorkflowExecution=true
 ```
 
-Then, before kicking off the starter or using the UI, make sure the custom search attributes have
-been created. If you are using the Temporal dev server, use the `operator search-attribute create`
+Before kicking off the starter or using the UI, make sure the custom search attributes have been
+created. If you are using the Temporal dev server, use the `operator search-attribute create`
 command.
 
 ```bash
@@ -106,11 +103,10 @@ temporal operator search-attribute create --namespace $TEMPORAL_NAMESPACE --name
 temporal operator search-attribute create --namespace $TEMPORAL_NAMESPACE --name tfDirectory --type text
 ```
 
-If you are using Temporal Cloud, the command will look a bit different.
+If you are using Temporal Cloud, the command will look a bit different, using `tcld namespace search-attributes-add`.
+If you are not already logged into Temporal Cloud with `tcld` run `tcld login`.
 
 ```bash
-tcld login
-
 tcld namespace search-attributes add -n $TEMPORAL_NAMESPACE --sa "provisionStatus=Text" --sa "tfDirectory=Text"
 ```
 
@@ -124,9 +120,11 @@ Start the Codec server locally.
 
 ```bash
 poetry run python codec_server.py --web http://localhost:8080
+```
 
+```bash
 temporal workflow show \
-   --workflow-id <workflow-id>
+   --workflow-id <workflow-id> \
    --codec-endpoint 'http://localhost:8081/default'
 ```
 
@@ -177,6 +175,13 @@ temporal workflow query \
 temporal workflow query \
     --workflow-id="<WORKFLOW-ID>" \
     --type="get_signal_reason"
+```
+
+Once you have run your first starter and confirmed that you have wired up the server, worker, and
+starter, it's time to to start up the UI. This is where the most time will be spent with the demo.
+
+```bash
+poetry run python web_server.py
 ```
 
 ## Scenarios
