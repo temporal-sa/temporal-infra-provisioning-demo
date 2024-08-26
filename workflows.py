@@ -26,6 +26,7 @@ class ProvisionInfraWorkflow:
 		self._tf_outputs = {}
 
 	"""
+	# TODO
 	def _custom_upsert(self, payload):
 		workflow.upsert_search_attributes(payload)
 	"""

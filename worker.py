@@ -33,6 +33,7 @@ async def main() -> None:
 	)
 
 	# Run the worker
+	print("Worker running...")
 	await worker.run()
 
 

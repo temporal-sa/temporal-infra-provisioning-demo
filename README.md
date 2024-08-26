@@ -90,17 +90,28 @@ export TEMPORAL_INFRA_PROVISION_TASK_QUEUE="infra-provisioning"
 export ENCRYPT_PAYLOADS="true"
 ```
 
-Start the server with the `frontend.enableUpdateWorkflowExecution` config option set to `true`, which will allow us to perform updates to our workflows.
+Start the server with the `frontend.enableUpdateWorkflowExecution` config option set to `true`,
+which will allow us to perform updates to our workflows.
 
 ```bash
 temporal server start-dev --ui-port 8080 --db-filename temporal.sqlite --dynamic-config-value frontend.enableUpdateWorkflowExecution=true
 ```
 
-Then, before kicking off the starter or using the UI, make sure the custom search attributes have been created.
+Then, before kicking off the starter or using the UI, make sure the custom search attributes have
+been created. If you are using the Temporal dev server, use the `operator search-attribute create`
+command.
 
 ```bash
 temporal operator search-attribute create --namespace $TEMPORAL_NAMESPACE --name provisionStatus --type text
 temporal operator search-attribute create --namespace $TEMPORAL_NAMESPACE --name tfDirectory --type text
+```
+
+If you are using Temporal Cloud, the command will look a bit different.
+
+```bash
+tcld login
+
+tcld namespace search-attributes add -n $TEMPORAL_NAMESPACE --sa "provisionStatus=Text" --sa "tfDirectory=Text"
 ```
 
 Make sure the dependencies for Python have been installed via Poetry.
@@ -176,23 +187,28 @@ This deploys a namespace to Temporal Cloud with no issues.
 
 ### Advanced Visibility
 
-This deploys a namespace to Temporal Cloud with no issues, while publishing custom search attributes.
+This deploys a namespace to Temporal Cloud with no issues, while publishing custom search
+attributes.
 
 ### Human in the Loop (Signal)
 
-This deploys an admin user to Temporal Cloud which requires an approval signal after a soft policy failure.
+This deploys an admin user to Temporal Cloud which requires an approval signal after a soft policy
+failure.
 
 ### Human in the Loop (Update)
 
-This deploys an admin user to Temporal Cloud which requires an approval update after a soft policy failure.
+This deploys an admin user to Temporal Cloud which requires an approval update after a soft policy
+failure.
 
 ### Recoverable Failure (Bug in Code)
 
-This deploys an admin user to Temporal Cloud which will fail due to uncommenting an exception in the terraform_plan activity and restarting the worker, then recommenting and restarting the worker.
+This deploys an admin user to Temporal Cloud which will fail due to uncommenting an exception in
+the terraform_plan activity and restarting the worker, then recommenting and restarting the worker.
 
 ### Non-Recoverable Failure (Hard Policy Failure)
 
-This can deploy an admin user to Temporal Cloud which will fail due to a hard policy failure, or can delete the environment variables and fail out w/ a `non_retryable_error`.
+This can deploy an admin user to Temporal Cloud which will fail due to a hard policy failure, or
+can delete the environment variables and fail out w/ a `non_retryable_error`.
 
 ### API Failure
 

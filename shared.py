@@ -27,7 +27,7 @@ TEMPORAL_CLOUD_API_KEY = os.environ.get("TEMPORAL_CLOUD_API_KEY", "")
 ENCRYPT_PAYLOADS = os.getenv("ENCRYPT_PAYLOADS", 'false').lower() in ('true', '1', 't')
 
 async def get_temporal_client() -> Client:
-	tls_config = None
+	tls_config = False
 
 	# If mTLS TLS certificate and key are provided, create a TLSConfig object
 	if TEMPORAL_MTLS_TLS_CERT != "" and TEMPORAL_MTLS_TLS_KEY != "":
@@ -38,7 +38,6 @@ async def get_temporal_client() -> Client:
 			client_key = f.read()
 
 		tls_config = TLSConfig(
-			domain=TEMPORAL_HOST_URL.split(":")[0],
 			client_cert=client_cert,
 			client_private_key=client_key,
 		)
@@ -48,7 +47,7 @@ async def get_temporal_client() -> Client:
 		client: Client = await Client.connect(
 			TEMPORAL_HOST_URL,
 			namespace=TEMPORAL_NAMESPACE,
-			tls=tls_config if tls_config else False,
+			tls=tls_config,
 			data_converter=dataclasses.replace(
 				converter.default(),
 				payload_codec=EncryptionCodec(),
@@ -60,7 +59,7 @@ async def get_temporal_client() -> Client:
 		client: Client = await Client.connect(
 			TEMPORAL_HOST_URL,
 			namespace=TEMPORAL_NAMESPACE,
-			tls=tls_config if tls_config else False,
+			tls=tls_config
 		)
 
 	return client
@@ -71,7 +70,7 @@ class TerraformRunDetails:
 	id: str = ""
 	plan: str = ""
 	env_vars: Dict[str, str] = field(default_factory=dict)
-	apply_timeout_secs: int = 60
+	apply_timeout_secs: int = 300
 	hard_fail_policy: bool = False
 	simulate_api_failure: bool = False
 
