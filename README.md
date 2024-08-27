@@ -106,9 +106,10 @@ brew tap hashicorp/tap
 brew install hashicorp/tap/terraform
 ```
 
-Make sure the dependencies for Python have been installed via Poetry.
+Install poetry (if you haven't already), then install the Python dependencies for this project.
 
 ```bash
+pipx install poetry
 poetry install
 ```
 
