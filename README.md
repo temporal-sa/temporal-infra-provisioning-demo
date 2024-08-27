@@ -6,7 +6,7 @@
 | Python 3.12        | ✅ | Timer          |    | Fanout              |    |
 | Poetry 1.8.3       | ✅ | Local Activity |    | Long-Running        | ✅ |
 | Terraform 1.9.0    | ✅ | Signal         | ✅ | Continue As New     |    |
-| Open Policy Agent  | ✅ | Query          | ✅ | Manual Intervention | ✅ |
+| Open Policy Agent  |    | Query          | ✅ | Manual Intervention | ✅ |
 | GitHub Actions     |    | Heartbeat      | ✅ | Long-polling        |    |
 |                    |    | Update         | ✅ | Polyglot            |    |
 |                    |    | Retry          | ✅ |                     |    |
