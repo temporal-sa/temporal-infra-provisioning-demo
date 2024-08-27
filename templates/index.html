@@ -40,7 +40,11 @@
     </tr>
     {% for run in tf_runs %}
     <tr>
-        <td><a href="{{temporal_ui_url}}/namespaces/{{temporal_namespace}}/workflows/{{run['id']}}" target="_blank">{{ run["id"] }}</a></td>
+        {% if "localhost:" in temporal_host_url %}
+            <td><a href="{{temporal_host_url}}/namespaces/{{temporal_namespace}}/workflows/{{run['id']}}" target="_blank">{{ run["id"] }}</a></td>
+        {% else %}
+            <td><a href="https://cloud.temporal.io/namespaces/{{temporal_namespace}}/workflows/{{run['id']}}" target="_blank">{{ run["id"] }}</a></td>
+        {% endif %}
         <td>{{ run["status"] }}</td>
     </tr>
     {% endfor %}

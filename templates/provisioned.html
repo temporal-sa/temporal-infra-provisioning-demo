@@ -7,7 +7,11 @@
 <table class="table">
     <tr>
         <th scope="row">Workflow ID</th>
-		<td><a href="{{temporal_ui_url}}/namespaces/{{temporal_namespace}}/workflows/{{wf_id}}" target="_blank">{{ wf_id }}</a></td>
+        {% if "localhost:" in temporal_host_url %}
+            <td><a href="{{temporal_host_url}}/namespaces/{{temporal_namespace}}/workflows/{{wf_id}}" target="_blank">{{ wf_id }}</a></td>
+        {% else %}
+            <td><a href="https://cloud.temporal.io/namespaces/{{temporal_namespace}}/workflows/{{wf_id}}" target="_blank">{{ wf_id }}</a></td>
+        {% endif %}
     </tr>
     <tr>
         <th scope="row">Status</th>

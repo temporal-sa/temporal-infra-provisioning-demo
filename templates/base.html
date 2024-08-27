@@ -29,7 +29,11 @@
   <div class="footer">
     <a class="github-link" href="https://github.com/temporal-sa/temporal-infra-provisioning-demo" target="_blank"><img src="{{ url_for('static', filename='github.svg') }}" alt="GitHub Logo"></a>
     <div class="temporal-details">
-      <span><strong>Temporal Host:</strong> <a href="{{ temporal_host_url }}" target="_blank">{{ temporal_host_url }}</a></span>
+      {% if "localhost:" in temporal_host_url %}
+          <span><strong>Temporal Host:</strong> <a href="{{ temporal_host_url }}" target="_blank">{{ temporal_host_url }}</a></span>
+      {% else %}
+          <span><strong>Temporal Host:</strong> <a href="https://cloud.temporal.io/namespaces/{{temporal_namespace}}/workflows" target="_blank">{{ temporal_host_url }}</a></span>
+      {% endif %}
       <span><strong>Namespace:</strong> {{ temporal_namespace }}</span>
       <span><strong>Payloads Encrypted:</strong> {{ payloads_encrypted }}</span>
     </div>

@@ -8,26 +8,11 @@ from shared import TerraformRunDetails, get_temporal_client
 from temporalio.common import TypedSearchAttributes, SearchAttributeKey, \
 	SearchAttributePair
 
-# Get the TEMPORAL_HOST_URL environment variable, defaulting to "localhost:7233" if not set
-TEMPORAL_HOST_URL = os.environ.get("TEMPORAL_HOST_URL", "localhost:7233")
-
-# Get the TEMPORAL_MTLS_TLS_CERT environment variable, which stores the TLS certificate for mTLS authentication
-TEMPORAL_MTLS_TLS_CERT = os.environ.get("TEMPORAL_MTLS_TLS_CERT", "")
-
-# Get the TEMPORAL_MTLS_TLS_KEY environment variable, which stores the TLS key for mTLS authentication
-TEMPORAL_MTLS_TLS_KEY = os.environ.get("TEMPORAL_MTLS_TLS_KEY", "")
-
-# Get the TEMPORAL_NAMESPACE environment variable, defaulting to "default" if not set
-TEMPORAL_NAMESPACE = os.environ.get("TEMPORAL_NAMESPACE", "default")
-
 # Get the TEMPORAL_TASK_QUEUE environment variable, defaulting to "provision-infra" if not set
 TEMPORAL_TASK_QUEUE = os.environ.get("TEMPORAL_TASK_QUEUE", "provision-infra")
 
 # Get the TEMPORAL_CLOUD_API_KEY environment variable, which stores the API key for Temporal Cloud
 TEMPORAL_CLOUD_API_KEY = os.environ.get("TEMPORAL_CLOUD_API_KEY", "")
-
-# Determine whether to encrypt payloads based on the ENCRYPT_PAYLOADS environment variable
-ENCRYPT_PAYLOADS = os.getenv("ENCRYPT_PAYLOADS", 'false').lower() in ('true', '1', 't')
 
 
 async def main():

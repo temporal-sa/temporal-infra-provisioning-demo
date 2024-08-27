@@ -27,8 +27,6 @@ app = Flask(__name__)
 provision_status_key = SearchAttributeKey.for_text("provisionStatus")
 tf_directory_key = SearchAttributeKey.for_text("tfDirectory")
 tf_runs = []
-# Modify the Temporal UI URL to use port 8080
-temporal_ui_url = re.sub(r':\d+', ':8080', TEMPORAL_HOST_URL)
 
 # Define the available scenarios
 SCENARIOS = {
@@ -81,7 +79,6 @@ async def main():
 		tf_runs=tf_runs,
 		scenarios=SCENARIOS,
 		temporal_host_url=TEMPORAL_HOST_URL,
-		temporal_ui_url=temporal_ui_url,
 		temporal_namespace=TEMPORAL_NAMESPACE,
 		payloads_encrypted=ENCRYPT_PAYLOADS
 	)
@@ -136,7 +133,6 @@ async def provision_infra():
 		wf_id=wf_id,
 		selected_scenario=selected_scenario,
 		temporal_host_url=TEMPORAL_HOST_URL,
-		temporal_ui_url=temporal_ui_url,
 		temporal_namespace=TEMPORAL_NAMESPACE,
 		payloads_encrypted=ENCRYPT_PAYLOADS
 	)
@@ -192,7 +188,6 @@ async def provisioned():
 		tf_workflow_output=tf_workflow_output,
 		tf_run_status=status,
 		temporal_host_url=TEMPORAL_HOST_URL,
-		temporal_ui_url=temporal_ui_url,
 		temporal_namespace=TEMPORAL_NAMESPACE,
 		payloads_encrypted=ENCRYPT_PAYLOADS
 	)
