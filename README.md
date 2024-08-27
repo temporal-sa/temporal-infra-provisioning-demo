@@ -4,7 +4,7 @@
 |:-------------------|----|----------------|----|---------------------|----|
 | Network Connection | ✅ | Schedule       |    | Entity              |    |
 | Python 3.12        | ✅ | Timer          |    | Fanout              |    |
-| Poetry 1.8.3       | ✅ | Local Activity | ✅ | Long-Running        | ✅ |
+| Poetry 1.8.3       | ✅ | Local Activity |    | Long-Running        | ✅ |
 | Terraform 1.9.0    | ✅ | Signal         | ✅ | Continue As New     |    |
 | Open Policy Agent  | ✅ | Query          | ✅ | Manual Intervention | ✅ |
 | GitHub Actions     |    | Heartbeat      | ✅ | Long-polling        |    |
@@ -90,9 +90,9 @@ the terraform_plan activity and restarting the worker, then recommenting and res
 This can deploy an admin user to Temporal Cloud which will fail due to a hard policy failure, or
 can delete the environment variables and fail out w/ a `non_retryable_error`.
 
-### API Failure
+### API Failure (Recover on 5th Attempt)
 
-This will get to the plan stage and then simulate an API failure, recovering after 3 attempts.
+This will get to the plan stage and then simulate an API failure, recovering after 5 attempts.
 
 ## Running the Demo
 

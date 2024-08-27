@@ -55,7 +55,7 @@ class ProvisioningActivities:
 			activity.logger.debug("Missing environment variables, cannot proceed.")
 			raise TerraformMissingEnvVarsError("Missing environment variables, cannot proceed.")
 
-		if data.simulate_api_failure and activity.info().attempt < 3:
+		if data.simulate_api_failure and activity.info().attempt < 5:
 			raise TerraformAPIFailureError("Terraform cannot reach the API")
 		else:
 			await asyncio.sleep(3)

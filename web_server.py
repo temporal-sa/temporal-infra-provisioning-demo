@@ -61,8 +61,8 @@ SCENARIOS = {
 		"directory": "./terraform/tcloud_namespace"
 	},
 	"api_failure": {
-		"title": "API Failure (recover on 3rd attempt)",
-		"description": "This will get to the plan stage and then simulate an API failure, recovering after 3 attempts.",
+		"title": "API Failure (recover on 5th attempt)",
+		"description": "This will get to the plan stage and then simulate an API failure, recovering after 5 attempts.",
 		"directory": "./terraform/tcloud_namespace"
 	},
 }
@@ -91,8 +91,7 @@ async def provision_infra():
 	wf_id = request.args.get("wf_id", "")
 
 	# Set Temporal Cloud environment variables based on the selected scenario
-	tcloud_env_vars = { "TEMPORAL_CLOUD_API_KEY": TEMPORAL_CLOUD_API_KEY } \
-		if selected_scenario != "non_recoverable_failure" else {}
+	tcloud_env_vars = { "TEMPORAL_CLOUD_API_KEY": TEMPORAL_CLOUD_API_KEY }
 
 	tcloud_tf_dir = SCENARIOS[selected_scenario]["directory"]
 
@@ -101,6 +100,9 @@ async def provision_infra():
 		id=wf_id,
 		directory=tcloud_tf_dir,
 		env_vars=tcloud_env_vars,
+		# NOTE: You can create a non-recoverable failure in the Plan stage instead of the the
+		# Eval Policy stage if you uncomment the below.
+		# env_vars=(tcloud_env_vars if selected_scenario != "non_recoverable_failure" else {} ),
 		simulate_api_failure=(selected_scenario == "api_failure")
 	)
 
