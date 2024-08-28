@@ -171,6 +171,7 @@ async def get_progress():
 @app.route('/provisioned')
 async def provisioned():
 	wf_id = request.args.get("wf_id", "")
+	scenario = request.args.get("scenario", "")
 
 	client = await get_temporal_client()
 	tf_workflow = client.get_workflow_handle(wf_id)
@@ -180,6 +181,7 @@ async def provisioned():
 	# TODO: check for dupes before inserting
 	tf_runs.insert(0, {
 		"id": wf_id,
+		"scenario": scenario,
 		"status": status,
 	})
 

@@ -1,5 +1,4 @@
 {% extends 'base.html' %}
-
 {% block content %}
 
 <h1>Temporal Infrastructure Provisioning</h1>
@@ -36,6 +35,7 @@
 <table class="table table-sm table-striped">
     <tr>
         <th>Workflow ID</th>
+        <th>Scenario</th>
         <th>Status</th>
     </tr>
     {% for run in tf_runs %}
@@ -45,6 +45,7 @@
         {% else %}
             <td><a href="https://cloud.temporal.io/namespaces/{{temporal_namespace}}/workflows/{{run['id']}}" target="_blank">{{ run["id"] }}</a></td>
         {% endif %}
+        <td>{{ run["scenario"] }}</td>
         <td>{{ run["status"] }}</td>
     </tr>
     {% endfor %}

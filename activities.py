@@ -82,13 +82,13 @@ class ProvisioningActivities:
 		apply_stdout, apply_stderr = "", ""
 
 		try:
+			counter = 0
 			apply_stdout, apply_stderr = await self._runner.apply(data)
 
-			counter = 0
 			# NOTE: We want to heartbeat every second to imitate a long running terraform apply
 			while counter < 5:
 				activity.logger.info("Sleeping for 5 seconds, heartbeating every 1 second")
-				activity.heartbeat()
+				activity.heartbeat("Sleeping for 5 seconds, heartbeating every 1 second")
 				await asyncio.sleep(1)
 				counter += 1
 

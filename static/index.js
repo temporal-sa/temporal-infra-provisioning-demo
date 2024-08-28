@@ -49,7 +49,9 @@ function updateProgress() {
 
 			if (data.progress_percent === 100) {
 				// Redirect to order confirmation with the tfRunID
-				window.location.href = "/provisioned?wf_id=" + encodeURIComponent(tfRunID);
+				window.location.href =
+					"/provisioned?wf_id=" + encodeURIComponent(tfRunID) +
+					"&scenario=" + encodeURIComponent(scenario);
 			} else {
 				// Continue updating progress every second
 				setTimeout(updateProgress, 1000);

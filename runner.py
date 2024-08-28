@@ -61,7 +61,6 @@ class TerraformRunner:
 		if show_json_returncode != 0:
 			raise TerraformPlanError(f"Terraform show JSON errored: {show_json_stderr}")
 
-		print(plan_stdout)
 		return show_json_stdout, show_json_stderr, plan_stdout, plan_stderr
 
 	async def apply(self, data: TerraformRunDetails) -> Tuple[str, str]:
@@ -71,8 +70,8 @@ class TerraformRunner:
 		returncode, stdout, stderr = \
 			self._run_cmd_in_dir(["terraform", "apply", "-json", "-auto-approve"], data)
 
+
 		if returncode != 0:
-			print(stderr)
 			raise TerraformApplyError(f"Terraform apply errored: {stderr}")
 
 		return stdout, stderr
