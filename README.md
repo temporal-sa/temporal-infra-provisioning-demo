@@ -215,8 +215,9 @@ is the URL from which the codec server will allow incoming CORS requests.
 poetry run python codec_server.py --web http://localhost:8233
 ```
 
-In the Temporal UI, configure your Codec server to use `http://localhost:8081/default` and do not
-check any other boxes.
+In the Temporal UI, configure your Codec server to use `http://localhost:8081/encryption_codec` and
+do not check any other boxes. If you intend to use the compression codec that is available in the
+data converter, you can use `http://localhost:8081/compression_codec`.
 
 ### Interacting with the Workflows
 

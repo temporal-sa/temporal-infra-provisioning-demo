@@ -53,7 +53,8 @@ def build_codec_server(arguments) -> web.Application:
 	# Build app per-Namespace
 	app = web.Application()
 	codecs = {
-		"default": EncryptionCodec(),
+		"encryption_codec": EncryptionCodec(),
+		"compression_codec": CompressionCodec(),
 	}
 	for route,codec in codecs.items():
 		app.add_routes(
