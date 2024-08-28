@@ -14,6 +14,9 @@ TEMPORAL_TASK_QUEUE = os.environ.get("TEMPORAL_TASK_QUEUE", "provision-infra")
 # Get the TEMPORAL_CLOUD_API_KEY environment variable, which stores the API key for Temporal Cloud
 TEMPORAL_CLOUD_API_KEY = os.environ.get("TEMPORAL_CLOUD_API_KEY", "")
 
+# Get the TF_VAR_prefix environment variable, defaulting to "temporal-sa" if not set
+# NOTE: This is a specific env var for mat for Terraform.
+TF_VAR_prefix = os.environ.get("TF_VAR_prefix", "temporal-sa")
 
 async def main():
 	logging.basicConfig(level=logging.INFO)
@@ -26,7 +29,8 @@ async def main():
 
 	# Set the environment variables for Terraform
 	tcloud_env_vars = {
-		"TEMPORAL_CLOUD_API_KEY": TEMPORAL_CLOUD_API_KEY
+		"TEMPORAL_CLOUD_API_KEY": TEMPORAL_CLOUD_API_KEY,
+		"TF_VAR_prefix": TF_VAR_prefix
 	}
 
 	# Generate a unique ID for the workflow

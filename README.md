@@ -25,9 +25,7 @@ the `ENCRYPT_PAYLOADS` variable, or that you retire the credential you use in th
 
 Note that this repo will create a namespace in the target Temporal Cloud account, so you should
 always be sure to clean up the infrastructure you provision, by `cd`ing in to the Terraform
-directory that you applied in the demo and running `terraform destroy`. You can also override any
-of the default variable values in the `terraform` directories by adding your own `terraform.tfvars`
-file. There is an example file in [`terraform.tfvars.example`](./terraform/tcloud_namespace/terraform.tfvars.example).
+directory that you applied in the demo and running `terraform destroy`.
 
 ## Provision Workflow
 
@@ -146,6 +144,14 @@ env var as well.
 
 ```bash
 export ENCRYPT_PAYLOADS="true"
+```
+
+Lastly, to make sure that the namespaces and users that are generated from this demo can be
+attributed to a specific individual, please use the following environment variable to denote your
+name. _The Terraform configuration will not execute without this value._
+
+```bash
+export TF_VAR_prefix="neil"
 ```
 
 ### Running and Configuring the Temporal Dev Server (Option #1)

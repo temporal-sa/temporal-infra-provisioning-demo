@@ -20,9 +20,11 @@ TEMPORAL_TASK_QUEUE = os.environ.get("TEMPORAL_TASK_QUEUE", "provision-infra")
 TEMPORAL_CLOUD_API_KEY = os.environ.get("TEMPORAL_CLOUD_API_KEY", "")
 # Determine whether to encrypt payloads based on the environment variable, default to False
 ENCRYPT_PAYLOADS = os.getenv("ENCRYPT_PAYLOADS", 'false').lower() in ('true', '1', 't')
+# Get the TF_VAR_prefix environment variable, defaulting to "temporal-sa" if not set
+# NOTE: This is a specific env var for mat for Terraform.
+TF_VAR_prefix = os.environ.get("TF_VAR_prefix", "temporal-sa")
 
 app = Flask(__name__)
-
 
 # Define search attribute keys for workflow search
 provision_status_key = SearchAttributeKey.for_text("provisionStatus")
@@ -95,7 +97,10 @@ async def provision_infra():
 	wf_id = request.args.get("wf_id", "")
 
 	# Set Temporal Cloud environment variables based on the selected scenario
-	tcloud_env_vars = { "TEMPORAL_CLOUD_API_KEY": TEMPORAL_CLOUD_API_KEY }
+	tcloud_env_vars = {
+		"TEMPORAL_CLOUD_API_KEY": TEMPORAL_CLOUD_API_KEY,
+		"TF_VAR_prefix": TF_VAR_prefix
+	}
 
 	tcloud_tf_dir = SCENARIOS[selected_scenario]["directory"]
 

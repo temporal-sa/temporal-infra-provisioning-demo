@@ -11,6 +11,5 @@ variable "allow_insecure" {
 
 variable "prefix" {
   type = string
-  default = "temporal-sa"
 }
 

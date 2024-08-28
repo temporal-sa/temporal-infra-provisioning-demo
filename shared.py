@@ -37,7 +37,7 @@ async def get_temporal_client() -> Client:
 		with open(TEMPORAL_MTLS_TLS_KEY, "rb") as f:
 			client_key = f.read()
 
-		tls_config: TLSConfig = TLSConfig(
+		tls_config = TLSConfig(
 			client_cert=client_cert,
 			client_private_key=client_key,
 		)

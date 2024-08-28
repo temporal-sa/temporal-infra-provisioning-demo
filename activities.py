@@ -17,6 +17,13 @@ class ProvisioningActivities:
 	def __init__(self) -> None:
 		self._runner = TerraformRunner()
 
+	# Heartbeat function to be run concurrently
+	async def _heartbeat(self, duration: int=1):
+		while True:
+			activity.logger.info(f"Sleeping for {duration} second(s) then heartbeating")
+			activity.heartbeat("Sending heartbeat...")
+			await asyncio.sleep(duration)
+
 	@activity.defn
 	async def terraform_init(self, data: TerraformRunDetails) -> tuple:
 		"""Initialize the Terraform configuration."""
@@ -82,15 +89,20 @@ class ProvisioningActivities:
 		apply_stdout, apply_stderr = "", ""
 
 		try:
-			counter = 0
-			apply_stdout, apply_stderr = await self._runner.apply(data)
+			heartbeat_task = asyncio.create_task(self._heartbeat())
+			runner_apply_task = asyncio.create_task(self._runner.apply(data))
 
-			# NOTE: We want to heartbeat every second to imitate a long running terraform apply
-			while counter < 5:
-				activity.logger.info("Sleeping for 5 seconds, heartbeating every 1 second")
-				activity.heartbeat("Sleeping for 5 seconds, heartbeating every 1 second")
-				await asyncio.sleep(1)
-				counter += 1
+			# Await the apply task
+			apply_stdout, apply_stderr = await runner_apply_task
+
+			# Cancel the heartbeat task after the long task completes
+			heartbeat_task.cancel()
+
+			try:
+				# Wait for the heartbeat task to fully cancel
+				await heartbeat_task
+			except asyncio.CancelledError:
+				activity.logger.debug("Apply heartbeat cancelled.")
 
 			activity.logger.debug(f"Terraform apply succeeded: {apply_stdout}")
 		except TerraformApplyError as tfae:
@@ -110,7 +122,7 @@ class ProvisioningActivities:
 		output_stdout, output_stderr = "", ""
 
 		try:
-			output_stdout, output_stderr = self._runner.output(data)
+			output_stdout, output_stderr = await self._runner.output(data)
 			activity.logger.debug(f"Terraform output succeeded: {output_stdout}")
 		except TerraformOutputError as tfoe:
 			activity.logger.error(f"Terraform output errored: {output_stderr}")
@@ -133,7 +145,7 @@ class ProvisioningActivities:
 		activity.logger.info("Sleeping for 3 seconds to slow execution down")
 
 		try:
-			policy_passed = self._runner.policy_check(data)
+			policy_passed = await self._runner.policy_check(data)
 		except PolicyCheckError as pce:
 			activity.logger.error(f"Policy check errored: {pce}")
 			raise pce
