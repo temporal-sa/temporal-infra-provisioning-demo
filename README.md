@@ -215,6 +215,9 @@ is the URL from which the codec server will allow incoming CORS requests.
 poetry run python codec_server.py --web http://localhost:8233
 ```
 
+In the Temporal UI, configure your Codec server to use `http://localhost:8081/default` and do not
+check any other boxes.
+
 ### Interacting with the Workflows
 
 If you introduce a Terraform stanza that provisions a user with admin permissions, this workflow
