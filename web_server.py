@@ -23,9 +23,12 @@ ENCRYPT_PAYLOADS = os.getenv("ENCRYPT_PAYLOADS", 'false').lower() in ('true', '1
 
 app = Flask(__name__)
 
+
 # Define search attribute keys for workflow search
 provision_status_key = SearchAttributeKey.for_text("provisionStatus")
 tf_directory_key = SearchAttributeKey.for_text("tfDirectory")
+temporal_ui_url = TEMPORAL_HOST_URL.replace("7233", "8233") if "localhost" in TEMPORAL_HOST_URL \
+	else "https://cloud.temporal.io"
 tf_runs = []
 
 # Define the available scenarios
@@ -79,6 +82,7 @@ async def main():
 		tf_runs=tf_runs,
 		scenarios=SCENARIOS,
 		temporal_host_url=TEMPORAL_HOST_URL,
+		temporal_ui_url=temporal_ui_url,
 		temporal_namespace=TEMPORAL_NAMESPACE,
 		payloads_encrypted=ENCRYPT_PAYLOADS
 	)
@@ -135,6 +139,7 @@ async def provision_infra():
 		wf_id=wf_id,
 		selected_scenario=selected_scenario,
 		temporal_host_url=TEMPORAL_HOST_URL,
+		temporal_ui_url=temporal_ui_url,
 		temporal_namespace=TEMPORAL_NAMESPACE,
 		payloads_encrypted=ENCRYPT_PAYLOADS
 	)
@@ -192,6 +197,7 @@ async def provisioned():
 		tf_workflow_output=tf_workflow_output,
 		tf_run_status=status,
 		temporal_host_url=TEMPORAL_HOST_URL,
+		temporal_ui_url=temporal_ui_url,
 		temporal_namespace=TEMPORAL_NAMESPACE,
 		payloads_encrypted=ENCRYPT_PAYLOADS
 	)
