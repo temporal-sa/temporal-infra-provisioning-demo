@@ -130,7 +130,7 @@ class ProvisionInfraWorkflow:
 				retry_policy=tf_apply_retry_policy,
 			)
 			workflow.upsert_search_attributes({"provisionStatus": ["applied"]})
-			self._progress = 80
+			self._progress = 100
 			self._current_status = "applied"
 
 			workflow.logger.info(f"Workflow apply output {apply_output}")
@@ -150,7 +150,6 @@ class ProvisionInfraWorkflow:
 			self._current_status = "rejected"
 			workflow.logger.info("Workflow apply denied, no work to do.")
 
-		self._progress = 100
 		return show_output
 
 	# TODO: change these to taking a dataclass
