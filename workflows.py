@@ -113,7 +113,7 @@ class ProvisionInfraWorkflow:
 			self._progress = 100
 			self._current_status = "policy_hard_failed"
 			workflow.logger.info("Workflow apply hard failed policy check, no work to do.")
-		elif policy_check_output or self._apply_approved:
+		elif policy_is_failed or self._apply_approved:
 			workflow.upsert_search_attributes({"provisionStatus": ["applying"]})
 			self._progress = 70
 			self._current_status = "applying"

@@ -47,7 +47,8 @@ def build_codec_server(arguments) -> web.Application:
 		return resp
 
 	async def root_handler(req: web.Request) -> web.Response:
-		# TODO: get the port instead of hardcoding
+		# TODO: get the port instead of hardcoding, make it more clear that we are accepting CORS
+		# requests from a specific URL that is passed in through --web.
 		return web.Response(text="Codec Server running on port 8081")
 
 	# Build app per-Namespace
