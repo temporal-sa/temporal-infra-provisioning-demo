@@ -84,7 +84,7 @@ class ProvisionInfraWorkflow:
 		workflow.upsert_search_attributes({"provisionStatus": ["policy_checking"]})
 		self._progress = 50
 		self._current_status = "checking policy"
-		policy_is_failed = await workflow.execute_activity_method(
+		policy_not_failed = await workflow.execute_activity_method(
 			ProvisioningActivities.policy_check,
 			terraform_run_details,
 			start_to_close_timeout=timedelta(seconds=TERRAFORM_COMMON_TIMEOUT_SECS),
@@ -94,9 +94,9 @@ class ProvisionInfraWorkflow:
 		self._progress = 60
 		self._current_status = "policy checked"
 
-		hard_fail = terraform_run_details.hard_fail_policy and not policy_is_failed
+		hard_fail = terraform_run_details.hard_fail_policy and not policy_not_failed
 
-		if not policy_is_failed and not hard_fail:
+		if not policy_not_failed and not hard_fail:
 			workflow.upsert_search_attributes({"provisionStatus": ["awaiting_approval"]})
 			self._current_status = "awaiting approval decision"
 			workflow.logger.info("Workflow awaiting approval decision")
@@ -113,7 +113,7 @@ class ProvisionInfraWorkflow:
 			self._progress = 100
 			self._current_status = "policy_hard_failed"
 			workflow.logger.info("Workflow apply hard failed policy check, no work to do.")
-		elif policy_is_failed or self._apply_approved:
+		elif policy_not_failed or self._apply_approved:
 			workflow.upsert_search_attributes({"provisionStatus": ["applying"]})
 			self._progress = 70
 			self._current_status = "applying"
