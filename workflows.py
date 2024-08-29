@@ -19,7 +19,7 @@ class ProvisionInfraWorkflow:
 	def __init__(self) -> None:
 		self._apply_approved = None
 		self._tf_run_details = None
-		self._signal_reason = ""
+		self._reason = ""
 		self._current_status = "uninitialized"
 		self._progress = 0
 		self._tf_plan_output = ""
@@ -157,30 +157,30 @@ class ProvisionInfraWorkflow:
 	async def signal_approve_apply(self, reason: str="") -> None:
 		workflow.logger.info(f"Approval signal received for: {reason}.")
 		self._apply_approved = True
-		self._signal_reason = reason
+		self._reason = reason
 
 	@workflow.signal
 	async def signal_deny_apply(self, reason: str="") -> None:
 		workflow.logger.info(f"Deny signal received for: {reason}.")
 		self._apply_approved = False
-		self._signal_reason = reason
+		self._reason = reason
 
 	@workflow.update
 	async def update_approve_apply(self, reason: str="") -> None:
 		workflow.logger.info(f"Approval update received for: {reason}.")
 		self._apply_approved = True
-		self._signal_reason = reason
+		self._reason = reason
 
 	@workflow.update
 	async def update_deny_apply(self, reason: str="") -> None:
 		workflow.logger.info(f"Deny update received for: {reason}.")
 		self._apply_approved = False
-		self._signal_reason = reason
+		self._reason = reason
 
 	@workflow.query
-	def get_signal_reason(self) -> str:
-		workflow.logger.info("Status query received.")
-		return self._current_status
+	def get_reason(self) -> str:
+		workflow.logger.info("Reason query received.")
+		return self._reason
 
 	@workflow.query
 	def get_current_status(self) -> str:

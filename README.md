@@ -53,7 +53,7 @@ Each of these activities has a short sleep period associated with them, to simul
 ### Provision Queries
 
 - Get Status
-- Get Signal Reason
+- Get Reason
 - Get Plan
 - Get Progress
 
