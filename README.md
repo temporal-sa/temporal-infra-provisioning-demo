@@ -120,7 +120,7 @@ tcld apikey create -n "terraform-test" --desc "Testing the API Key for the TF Pr
 ```
 
 
-Be sure to then set your Temporal Cloud API key env var.
+Be sure to then set your Temporal Cloud API key environment variable.
 
 ```bash
 export TEMPORAL_CLOUD_API_KEY="<secretKey>"
@@ -128,7 +128,7 @@ export TEMPORAL_CLOUD_API_KEY="<secretKey>"
 
 By default, this demo will run against `localhost:7233` in the `default` namespace, on the
 `provision-infra` task queue, with no TLS configured. All of this can be overriden with the below
-env vars. Be sure these environment variables are present in each environment you are executing
+environment variables. Be sure these environment variables are present in each environment you are executing
 workers, starters, or the UI in.
 
 ```bash
@@ -254,7 +254,7 @@ temporal workflow query \
 
 temporal workflow query \
     --workflow-id="<workflow-id>" \
-    --type="get_signal_reason"
+    --type="get_reason"
 ```
 
 If you want to inspect the workflow more closely from the CLI, and you have `ENCRYPT_PAYLOADS=true`,
