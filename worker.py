@@ -2,6 +2,7 @@ import asyncio
 import logging
 import os
 from temporalio.worker import Worker
+from temporalio.runtime import Runtime, TelemetryConfig, PrometheusConfig
 from shared import get_temporal_client
 from activities import ProvisioningActivities
 from workflows import ProvisionInfraWorkflow
@@ -9,11 +10,14 @@ from workflows import ProvisionInfraWorkflow
 # Get the task queue name from the environment variable, defaulting to "provision-infra"
 TEMPORAL_TASK_QUEUE = os.environ.get("TEMPORAL_TASK_QUEUE", "provision-infra")
 
+prometheus_runtime = \
+	Runtime(telemetry=TelemetryConfig(metrics=PrometheusConfig(bind_address="127.0.0.1:9000")))
+
 async def main() -> None:
 	logging.basicConfig(level=logging.INFO)
 
 	# Get the Temporal client
-	client = await get_temporal_client()
+	client = await get_temporal_client(prometheus_runtime)
 
 	# Create an instance of the ProvisioningActivities class
 	activities = ProvisioningActivities()

@@ -2,9 +2,12 @@ import os
 import dataclasses
 from dataclasses import dataclass, field
 from typing import Dict
+from typing_extensions import runtime
 from temporalio.client import Client
 from temporalio.service import  TLSConfig
 from temporalio import converter
+from temporalio.runtime import Runtime
+
 from codec import CompressionCodec, EncryptionCodec
 
 # Get the Temporal host URL from environment variable, default to "localhost:7233" if not set
@@ -26,7 +29,8 @@ TEMPORAL_CLOUD_API_KEY = os.environ.get("TEMPORAL_CLOUD_API_KEY", "")
 # Determine if payloads should be encrypted based on the value of the "ENCRYPT_PAYLOADS" environment variable
 ENCRYPT_PAYLOADS = os.getenv("ENCRYPT_PAYLOADS", 'false').lower() in ('true', '1', 't')
 
-async def get_temporal_client() -> Client:
+
+async def get_temporal_client(runtime: Runtime=None) -> Client:
 	tls_config = False
 
 	# If mTLS TLS certificate and key are provided, create a TLSConfig object
@@ -53,13 +57,15 @@ async def get_temporal_client() -> Client:
 				payload_codec=EncryptionCodec(),
 				failure_converter_class=converter.DefaultFailureConverterWithEncodedAttributes
 			),
+			runtime=runtime if runtime else None
 		)
 	else:
 		# Create a regular Temporal client
 		client: Client = await Client.connect(
 			TEMPORAL_HOST_URL,
 			namespace=TEMPORAL_NAMESPACE,
-			tls=tls_config
+			tls=tls_config,
+			runtime=runtime if runtime else None
 		)
 
 	return client
