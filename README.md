@@ -13,6 +13,7 @@
 |                    |    | Data Converter | ✅ |                     |    |
 |                    |    | Codec Server   | ✅ |                     |    |
 |                    |    | Custom Attrs   | ✅ |                     |    |
+|                    |    | SDK Metrics    | ✅ |                     |    |
 
 
 ![Temporal Infrastructure Provisioning UI Screenshot](./static/ui.png)
@@ -270,6 +271,18 @@ temporal workflow show \
    --workflow-id <workflow-id> \
    --codec-endpoint 'http://localhost:8081/default'
 ```
+
+### Using SDK Metrics
+
+The worker will have SDK metrics for Prometheus enabled by default. To start up Prometheus and
+Grafana quickly for a demo, follow the below.
+
+```bash
+cd metrics/
+docker-compose up
+```
+
+When you connect to your Prometheus from Grafana, use the URL `http://prometheus:9090`.
 
 ### Cleaning Up
 
