@@ -205,7 +205,7 @@ starter, it's time to to start up the UI. This is where the most time will be sp
 poetry run python web_server.py
 ```
 
-### Running the Local Codec Server
+### Running and Using the Local Codec Server
 
 If you are running your workflows with `ENCRYPT_PAYLOADS=true`, you'll likely want to use the
 provided codec server. To start the Codec server locally, use the below command. Note the `--web`
@@ -218,6 +218,11 @@ poetry run python codec_server.py --web http://localhost:8233
 In the Temporal UI, configure your Codec server to use `http://localhost:8081/encryption_codec` and
 do not check any other boxes. If you intend to use the compression codec that is available in the
 data converter, you can use `http://localhost:8081/compression_codec`.
+
+### Using the SA Shared Codec Server
+
+In the Temporal UI, configure your Codec server to use `https://codec.tmprl-demo.cloud` and check
+the "pass the user access token" box.
 
 ### Interacting with the Workflows
 
