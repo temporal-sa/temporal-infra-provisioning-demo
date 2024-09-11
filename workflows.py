@@ -3,6 +3,10 @@ import asyncio
 from datetime import timedelta
 from temporalio import workflow
 from temporalio.common import RetryPolicy
+from temporalio.exceptions import ApplicationError
+
+
+from shared import ApplyDecisionDetails
 
 with workflow.unsafe.imports_passed_through():
 	from activities import ProvisioningActivities
@@ -42,6 +46,7 @@ class ProvisionInfraWorkflow:
 		)
 
 		workflow.upsert_search_attributes({"provisionStatus": ["initializing"]})
+
 		self._progress = 10
 		self._current_status = "initializing"
 		await workflow.execute_activity_method(
@@ -152,30 +157,22 @@ class ProvisionInfraWorkflow:
 
 		return show_output
 
-	# TODO: change these to taking a dataclass
 	@workflow.signal
-	async def signal_approve_apply(self, reason: str="") -> None:
-		workflow.logger.info(f"Approval signal received for: {reason}.")
-		self._apply_approved = True
-		self._reason = reason
-
-	@workflow.signal
-	async def signal_deny_apply(self, reason: str="") -> None:
-		workflow.logger.info(f"Deny signal received for: {reason}.")
-		self._apply_approved = False
-		self._reason = reason
+	async def signal_apply_decision(self, decision: ApplyDecisionDetails) -> None:
+		workflow.logger.info(f"Signal decision update received: {decision}")
+		self._apply_approved = decision.is_approved
 
 	@workflow.update
-	async def update_approve_apply(self, reason: str="") -> None:
-		workflow.logger.info(f"Approval update received for: {reason}.")
-		self._apply_approved = True
-		self._reason = reason
+	async def update_apply_decision(self, decision: ApplyDecisionDetails) -> None:
+		workflow.logger.info(f"Apply decision update received: {decision}")
+		self._apply_approved = decision.is_approved
+		self._reason = decision.reason
 
-	@workflow.update
-	async def update_deny_apply(self, reason: str="") -> None:
-		workflow.logger.info(f"Deny update received for: {reason}.")
-		self._apply_approved = False
-		self._reason = reason
+	@update_apply_decision.validator
+	def validate_apply_decision(self, decision: ApplyDecisionDetails) -> None:
+		if decision.reason == "":
+			workflow.logger.info("Rejecting update apply decision, no reason provided.")
+			raise ApplicationError("Update apply decision must include a reason.")
 
 	@workflow.query
 	def get_reason(self) -> str:

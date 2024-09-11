@@ -57,7 +57,7 @@ async def get_temporal_client(runtime: Runtime=None) -> Client:
 				payload_codec=EncryptionCodec(),
 				failure_converter_class=converter.DefaultFailureConverterWithEncodedAttributes
 			),
-			runtime=runtime if runtime else None
+			runtime=runtime
 		)
 	else:
 		# Create a regular Temporal client
@@ -65,7 +65,7 @@ async def get_temporal_client(runtime: Runtime=None) -> Client:
 			TEMPORAL_HOST_URL,
 			namespace=TEMPORAL_NAMESPACE,
 			tls=tls_config,
-			runtime=runtime if runtime else None
+			runtime=runtime
 		)
 
 	return client
@@ -79,6 +79,11 @@ class TerraformRunDetails:
 	apply_timeout_secs: int = 300
 	hard_fail_policy: bool = False
 	simulate_api_failure: bool = False
+
+@dataclass
+class ApplyDecisionDetails:
+	is_approved: bool
+	reason: str = ""
 
 @dataclass
 class TerraformMissingEnvVarsError(Exception):

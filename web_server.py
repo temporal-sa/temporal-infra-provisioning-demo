@@ -4,9 +4,10 @@ import re
 from dataclasses import dataclass, field
 from typing import Dict
 from flask import Flask, render_template, request, jsonify
-from shared import get_temporal_client, TerraformRunDetails
+from shared import get_temporal_client, TerraformRunDetails, ApplyDecisionDetails
 from workflows import ProvisionInfraWorkflow
 
+from temporalio.exceptions import ApplicationError
 from temporalio.common import TypedSearchAttributes, SearchAttributeKey, \
 	SearchAttributePair
 
@@ -51,7 +52,7 @@ SCENARIOS = {
 		"directory": "./terraform/tcloud_admin_user"
 	},
 	"human_in_the_loop_update": {
-		"title": "Human in the Loop (Update)",
+		"title": "Human in the Loop (Update w/ Validation)",
 		"description": "This deploys an admin user to Temporal Cloud which requires an approval update after a soft policy failure.",
 		"directory": "./terraform/tcloud_admin_user"
 	},
@@ -188,7 +189,7 @@ async def provisioned():
 	status = await tf_workflow.query("get_current_status")
 	tf_workflow_output = await tf_workflow.result()
 
-	# TODO: check for dupes before inserting
+	# TODO: check for dupes before inserting, include reason
 	tf_runs.insert(0, {
 		"id": wf_id,
 		"scenario": scenario,
@@ -210,24 +211,24 @@ async def provisioned():
 # Define the signal route
 @app.route('/signal', methods=["POST"])
 async def signal():
-	wf_id = request.args.get("wf_id", "")
-	decision = request.json.get("decision", False)
-	reason = request.json.get("reason", "")
+    wf_id = request.args.get("wf_id", "")
+    decision = request.json.get("decision", False)
 
-	try:
-		client = await get_temporal_client()
-		order_workflow = client.get_workflow_handle(wf_id)
+    try:
+        client = await get_temporal_client()
+        order_workflow = client.get_workflow_handle(wf_id)
 
-		if decision is True:
-			await order_workflow.signal("signal_approve_apply", reason)
-		else:
-			await order_workflow.signal("signal_deny_apply", reason)
+        apply_decision = ApplyDecisionDetails(
+            is_approved=decision,
+            reason=""  # Reason is not required for signals
+        )
+        await order_workflow.signal("signal_apply_decision", apply_decision)
 
-	except Exception as e:
-		print(f"Error sending signal: {str(e)}")
-		return jsonify({"error": str(e)}), 500
+    except Exception as e:
+        print(f"Error sending signal: {str(e)}")
+        return jsonify({"error": str(e)}), 500
 
-	return "Signal received successfully", 200
+    return "Signal received successfully", 200
 
 # Define the update route
 @app.route('/update', methods=["POST"])
@@ -240,16 +241,17 @@ async def update():
 		client = await get_temporal_client()
 		order_workflow = client.get_workflow_handle(wf_id)
 
-		if decision is True:
-			await order_workflow.execute_update("update_approve_apply", reason)
-		else:
-			await order_workflow.execute_update("update_deny_apply", reason)
+		apply_decision = ApplyDecisionDetails(
+			reason=reason,
+			is_approved=decision
+		)
+		result = await order_workflow.execute_update("update_apply_decision", apply_decision)
 
+		return jsonify({"result": result}), 200
 	except Exception as e:
 		print(f"Error sending update: {str(e)}")
-		return jsonify({"error": str(e)}), 500
-
-	return "Update received successfully", 200
+		# return jsonify({"error": ""}), 500
+		return jsonify({"result": "Error sending update. Make sure your reason is not empty."}), 200
 
 # Run the Flask app
 if __name__ == "__main__":

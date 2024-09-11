@@ -73,7 +73,6 @@ function signal(decision) {
 	// Get the tfRunID from the URL query parameters
 	var urlParams = new URLSearchParams(window.location.search);
 	var tfRunID = urlParams.get("wf_id");
-	var reason = document.getElementById("reason").value;
 
 	// Perform AJAX request to the server for signaling
 	fetch("/signal?wf_id=" + encodeURIComponent(tfRunID), {
@@ -82,15 +81,21 @@ function signal(decision) {
 			"Content-Type": "application/json"
 		},
 		body: JSON.stringify({
-			decision: decision,
-			reason: reason
+			decision: decision
 		})
 	})
 		.then(response => {
 			if (response.ok) {
 				console.log("Signal sent successfully");
 			} else {
+				// TODO: display error message
 				console.error("Failed to send signal");
+
+				// Get the signalResult element
+				var signalResultElement = document.getElementById('signal-result');
+
+				// Update the display with the result
+				signalResultElement.innerText = "Signal sent failed";
 			}
 		})
 		.catch(error => {
@@ -117,25 +122,15 @@ function update(decision) {
 	})
 	.then(response => {
 		if (response.ok) {
-			return response.json();
+			console.log("Update sent successfully");
 		} else {
 			console.error('Failed to send update');
-			throw new Error('Failed to send update');
-		}
-	})
-	.then(data => {
-		// Get the updateResult element
-		var updateResultElement = document.getElementById('update-result');
 
-		// Update the display with the result
-		updateResultElement.innerText = data.result;
+			// Get the updateResult element
+			var updateResultElement = document.getElementById('update-result');
 
-		// Check if the result contains rejected and set text color
-		if (data.result.includes("rejected")) {
-			updateResultElement.style.color = 'red';
-		} else {
-			// Reset text color if not "rejected"
-			updateResultElement.style.color = '';
+			// Update the display with the result
+			updateResultElement.innerText = "Update sent failed";
 		}
 	})
 	.catch(error => {

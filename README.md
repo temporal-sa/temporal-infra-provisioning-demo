@@ -242,6 +242,15 @@ temporal workflow signal \
     --reason "approving apply"
 ```
 
+TODO: add update stuff
+
+```bash
+temporal workflow signal \
+    --workflow-id="<workflow-id>" \
+    --name update_apply_decision \
+    --decision '{"is_approved": true, "reason": "Approved after review"}'
+```
+
 To query a workflow for it's current status, the plan, the signal reason or the progress, you can
 use the below commands with the relevant in place of the current workflow ID.
 
@@ -282,7 +291,8 @@ cd metrics/
 docker-compose up
 ```
 
-When you connect to your Prometheus from Grafana, use the URL `http://prometheus:9090`.
+When you connect to your Prometheus from Grafana, use the URL `http://prometheus:9090`. There is
+an example dashboard to leverage in `metrics/dashboards/sdk-general.json`.
 
 ### Cleaning Up
 

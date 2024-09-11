@@ -11,7 +11,6 @@ from shared import TerraformRunDetails, TerraformApplyError, \
 			TerraformRecoverableError
 
 
-
 class ProvisioningActivities:
 
 	def __init__(self) -> None:

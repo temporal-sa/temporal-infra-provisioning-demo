@@ -43,8 +43,6 @@ other scenarios because it is helpful to have.
 
 <div id="signal-container">
 	<h5>Approve or Deny Apply w/ Signal?</h5>
-	<label for="reason">Reason:</label>
-	<input type="text" id="reason">
 	<button class="btn btn-primary" onclick="signal(true)">Approve</button>
 	<button class="btn btn-danger" onclick="signal(false)">Deny</button>
 </div>
@@ -52,11 +50,12 @@ other scenarios because it is helpful to have.
 <div id="update-container">
 	<h5>Approve or Deny Apply w/ Update?</h5>
 	<label for="reason">Reason:</label>
-	<input type="text" id="reason">
+	<input type="text" id="reason" placeholder="Enter reasoning... "/>
 	<button class="btn btn-primary" onclick="update(true)">Approve</button>
 	<button class="btn btn-danger" onclick="update(false)">Deny</button>
 </div>
 
+<div id="signal-result"></div>
 <div id="update-result"></div>
 <p id="error-message" class="badge text-bg-danger"></p>
 

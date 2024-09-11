@@ -19,6 +19,8 @@ from temporalio.api.common.v1 import Payload, Payloads
 
 from codec import CompressionCodec, EncryptionCodec
 
+DEFAULT_PORT = 8081
+
 def build_codec_server(arguments) -> web.Application:
 	async def header_options(req: web.Request) -> web.Response:
 		resp = web.Response()
@@ -49,7 +51,7 @@ def build_codec_server(arguments) -> web.Application:
 	async def root_handler(req: web.Request) -> web.Response:
 		# TODO: get the port instead of hardcoding, make it more clear that we are accepting CORS
 		# requests from a specific URL that is passed in through --web.
-		return web.Response(text="Codec Server running on port 8081")
+		return web.Response(text=f"Codec Server running on port {DEFAULT_PORT}.")
 
 	# Build app per-Namespace
 	app = web.Application()
@@ -71,4 +73,4 @@ def build_codec_server(arguments) -> web.Application:
 
 if __name__ == "__main__":
 	arguments = docopt(__doc__)
-	web.run_app(build_codec_server(arguments), host="127.0.0.1", port=8081)
+	web.run_app(build_codec_server(arguments), host="127.0.0.1", port=DEFAULT_PORT)
