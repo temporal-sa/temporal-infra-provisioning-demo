@@ -29,11 +29,9 @@ class ProvisionInfraWorkflow:
 		self._tf_plan_output = ""
 		self._tf_outputs = {}
 
-	"""
-	# TODO
-	def _custom_upsert(self, payload):
-		workflow.upsert_search_attributes(payload)
-	"""
+	def _custom_upsert(self, run_details: TerraformRunDetails, payload: dict):
+		if run_details.include_custom_search_attrs:
+			workflow.upsert_search_attributes(payload)
 
 	@workflow.run
 	async def run(self, terraform_run_details: TerraformRunDetails) -> dict:
@@ -45,7 +43,7 @@ class ProvisionInfraWorkflow:
 			non_retryable_error_types=["TerraformInitError"],
 		)
 
-		workflow.upsert_search_attributes({"provisionStatus": ["initializing"]})
+		self._custom_upsert(terraform_run_details, {"provisionStatus": ["initializing"]})
 
 		self._progress = 10
 		self._current_status = "initializing"
@@ -55,7 +53,7 @@ class ProvisionInfraWorkflow:
 			start_to_close_timeout=timedelta(seconds=TERRAFORM_COMMON_TIMEOUT_SECS),
 			retry_policy=tf_init_retry_policy,
 		)
-		workflow.upsert_search_attributes({"provisionStatus": ["initialized"]})
+		self._custom_upsert(terraform_run_details, {"provisionStatus": ["initialized"]})
 		self._progress = 20
 		self._current_status = "initialized"
 
@@ -66,7 +64,7 @@ class ProvisionInfraWorkflow:
 			maximum_attempts=100,
 			non_retryable_error_types=["TerraformMissingEnvVarsErrors"],
 		)
-		workflow.upsert_search_attributes({"provisionStatus": ["planning"]})
+		self._custom_upsert(terraform_run_details, {"provisionStatus": ["planning"]})
 		self._progress = 30
 		self._current_status = "planning"
 		self._tf_plan_output, tf_plan_output_json = await workflow.execute_activity_method(
@@ -75,7 +73,7 @@ class ProvisionInfraWorkflow:
 			start_to_close_timeout=timedelta(seconds=TERRAFORM_COMMON_TIMEOUT_SECS),
 			retry_policy=tf_plan_retry_policy,
 		)
-		workflow.upsert_search_attributes({"provisionStatus": ["planned"]})
+		self._custom_upsert(terraform_run_details, {"provisionStatus": ["planned"]})
 		self._progress = 40
 		self._current_status = "planned"
 
@@ -86,7 +84,7 @@ class ProvisionInfraWorkflow:
 			maximum_interval=timedelta(seconds=5),
 			non_retryable_error_types=["PolicyCheckError"],
 		)
-		workflow.upsert_search_attributes({"provisionStatus": ["policy_checking"]})
+		self._custom_upsert(terraform_run_details, {"provisionStatus": ["policy_checking"]})
 		self._progress = 50
 		self._current_status = "checking policy"
 		policy_not_failed = await workflow.execute_activity_method(
@@ -95,14 +93,14 @@ class ProvisionInfraWorkflow:
 			start_to_close_timeout=timedelta(seconds=TERRAFORM_COMMON_TIMEOUT_SECS),
 			retry_policy=policy_retry_policy,
 		)
-		workflow.upsert_search_attributes({"provisionStatus": ["policy_checked"]})
+		self._custom_upsert(terraform_run_details, {"provisionStatus": ["policy_checked"]})
 		self._progress = 60
 		self._current_status = "policy checked"
 
 		hard_fail = terraform_run_details.hard_fail_policy and not policy_not_failed
 
 		if not policy_not_failed and not hard_fail:
-			workflow.upsert_search_attributes({"provisionStatus": ["awaiting_approval"]})
+			self._custom_upsert(terraform_run_details, {"provisionStatus": ["awaiting_approval"]})
 			self._current_status = "awaiting approval decision"
 			workflow.logger.info("Workflow awaiting approval decision")
 			await workflow.wait_condition(
@@ -114,12 +112,12 @@ class ProvisionInfraWorkflow:
 		show_output = {}
 
 		if hard_fail:
-			workflow.upsert_search_attributes({"provisionStatus": ["policy_hard_failed"]})
+			self._custom_upsert(terraform_run_details, {"provisionStatus": ["policy_hard_failed"]})
 			self._progress = 100
 			self._current_status = "policy_hard_failed"
 			workflow.logger.info("Workflow apply hard failed policy check, no work to do.")
 		elif policy_not_failed or self._apply_approved:
-			workflow.upsert_search_attributes({"provisionStatus": ["applying"]})
+			self._custom_upsert(terraform_run_details, {"provisionStatus": ["applying"]})
 			self._progress = 70
 			self._current_status = "applying"
 			tf_apply_retry_policy = RetryPolicy(
@@ -134,7 +132,7 @@ class ProvisionInfraWorkflow:
 				heartbeat_timeout=timedelta(seconds=10),
 				retry_policy=tf_apply_retry_policy,
 			)
-			workflow.upsert_search_attributes({"provisionStatus": ["applied"]})
+			self._custom_upsert(terraform_run_details, {"provisionStatus": ["applied"]})
 			self._progress = 100
 			self._current_status = "applied"
 
@@ -150,7 +148,7 @@ class ProvisionInfraWorkflow:
 				retry_policy=tf_apply_retry_policy,
 			)
 		else:
-			workflow.upsert_search_attributes({"provisionStatus": ["rejected"]})
+			self._custom_upsert(terraform_run_details, {"provisionStatus": ["rejected"]})
 			self._progress = 100
 			self._current_status = "rejected"
 			workflow.logger.info("Workflow apply denied, no work to do.")

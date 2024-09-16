@@ -131,3 +131,9 @@ button {
 #update-container {
 	display: none;
 }
+
+#error-message {
+	color: red;
+}
+
+document.getElementById("progress-bar").style.backgroundColor = "red";

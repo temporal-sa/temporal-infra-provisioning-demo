@@ -74,10 +74,10 @@ attributes.
 This deploys an admin user to Temporal Cloud which requires an approval signal after a soft policy
 failure.
 
-### Human in the Loop (Update)
+### Human in the Loop (Update w/ Validation)
 
 This deploys an admin user to Temporal Cloud which requires an approval update after a soft policy
-failure.
+failure. This is the same as the signal path, but the update will fail if the reason is empty.
 
 ### Recoverable Failure (Bug in Code)
 
@@ -228,28 +228,34 @@ the "pass the user access token" box.
 ### Interacting with the Workflows
 
 If you introduce a Terraform stanza that provisions a user with admin permissions, this workflow
-will pause and wait for a signal to approve or deny the execution of the plan.
+will pause and wait for a signal or update to approve or deny the execution of the plan. If going
+down the signal path, you don't need to provide a reason, but if you go down the update path, you
+need to provide a reason for approval.
 
-```bash
-temporal workflow signal \
-    --workflow-id="<8080>" \
-    --name approve_apply \
-    --reason "approving apply"
 
-temporal workflow signal \
-    --workflow-id="<workflow-id>" \
-    --name deny_apply \
-    --reason "approving apply"
-```
+#### Signaling a Workflow
 
-TODO: add update stuff
+Signals are asynchronous, and do not require a message with the decision.
 
 ```bash
 temporal workflow signal \
     --workflow-id="<workflow-id>" \
     --name update_apply_decision \
+    --decision '{"is_approved": false"}'
+```
+
+#### Updating a Workflow
+
+Updates are synchronous, and require a message with the decision to be accepted.
+
+```bash
+temporal workflow update \
+    --workflow-id="<workflow-id>" \
+    --name update_apply_decision \
     --decision '{"is_approved": true, "reason": "Approved after review"}'
 ```
+
+#### Querying a Workflow
 
 To query a workflow for it's current status, the plan, the signal reason or the progress, you can
 use the below commands with the relevant in place of the current workflow ID.
@@ -280,6 +286,10 @@ temporal workflow show \
    --workflow-id <workflow-id> \
    --codec-endpoint 'http://localhost:8081/default'
 ```
+
+temporal workflow list --env prod -q 'ExecutionStatus="Failed" OR ExecutionStatus="Terminated"'
+
+
 
 ### Using SDK Metrics
 

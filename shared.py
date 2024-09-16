@@ -77,6 +77,9 @@ class TerraformRunDetails:
 	plan: str = ""
 	env_vars: Dict[str, str] = field(default_factory=dict)
 	apply_timeout_secs: int = 300
+	include_custom_search_attrs: bool = True
+	# TODO
+	destroy_ttl: int = 120
 	hard_fail_policy: bool = False
 	simulate_api_failure: bool = False
 

@@ -53,7 +53,7 @@ SCENARIOS = {
 	},
 	"human_in_the_loop_update": {
 		"title": "Human in the Loop (Update w/ Validation)",
-		"description": "This deploys an admin user to Temporal Cloud which requires an approval update after a soft policy failure.",
+		"description": "This deploys an admin user to Temporal Cloud which requires an approval update, including validation, after a soft policy failure.",
 		"directory": "./terraform/tcloud_admin_user"
 	},
 	"recoverable_failure": {
@@ -64,7 +64,7 @@ SCENARIOS = {
 	"non_recoverable_failure": {
 		"title": "Non Recoverable Failure (Hard Policy Fail)",
 		"description": "This can deploy an admin user to Temporal Cloud which will fail due to a hard policy failure, or can delete the environment variables and fail out w/ a non-retryable error.",
-		"directory": "./terraform/tcloud_namespace"
+		"directory": "./terraform/tcloud_admin_user"
 	},
 	"api_failure": {
 		"title": "API Failure (recover on 5th attempt)",
@@ -78,6 +78,8 @@ SCENARIOS = {
 async def main():
 	# Generate a unique workflow ID
 	wf_id = f"provision-infra-{uuid.uuid4()}"
+
+	# TODO: look up the data live
 
 	return render_template(
 		"index.html",
@@ -110,6 +112,11 @@ async def provision_infra():
 		id=wf_id,
 		directory=tcloud_tf_dir,
 		env_vars=tcloud_env_vars,
+		# NOTE: Only hard fail the policy in the non-recoverable failure scenario
+		hard_fail_policy=(selected_scenario == "non_recoverable_failure"),
+		# NOTE: Only disable the custom search attributes on the happy path
+		# so that we can demonstrate that visibility on the other scenarios.
+		include_custom_search_attrs=(selected_scenario != "happy_path"),
 		# NOTE: You can create a non-recoverable failure in the Plan stage instead of the the
 		# Eval Policy stage if you uncomment the below.
 		# env_vars=(tcloud_env_vars if selected_scenario != "non_recoverable_failure" else {} ),
@@ -189,14 +196,15 @@ async def provisioned():
 	status = await tf_workflow.query("get_current_status")
 	tf_workflow_output = await tf_workflow.result()
 
-	# TODO: check for dupes before inserting, include reason
+	# TODO: check for dupes before inserting, include reason, have this track
+	# new workflows, etc. Not just ones that make it to the provisioned state.
 	tf_runs.insert(0, {
 		"id": wf_id,
 		"scenario": scenario,
 		"status": status,
 	})
 
-	# TODO: scrub sensitive in the server
+	# TODO: scrub sensitive data in the server
 	return render_template(
 		"provisioned.html",
 		wf_id=wf_id,

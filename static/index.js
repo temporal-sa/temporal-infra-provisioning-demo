@@ -88,11 +88,10 @@ function signal(decision) {
 			if (response.ok) {
 				console.log("Signal sent successfully");
 			} else {
-				// TODO: display error message
 				console.error("Failed to send signal");
 
 				// Get the signalResult element
-				var signalResultElement = document.getElementById('signal-result');
+				var signalResultElement = document.getElementById('error-message');
 
 				// Update the display with the result
 				signalResultElement.innerText = "Signal sent failed";
@@ -121,19 +120,17 @@ function update(decision) {
 		})
 	})
 	.then(response => {
-		if (response.ok) {
-			console.log("Update sent successfully");
-		} else {
-			console.error('Failed to send update');
+		// TODO: this is stinky code
+		console.error('Failed to send update');
 
-			// Get the updateResult element
-			var updateResultElement = document.getElementById('update-result');
+		// Get the updateResult element
+		var updateResultElement = document.getElementById('update-result');
 
-			// Update the display with the result
-			updateResultElement.innerText = "Update sent failed";
-		}
+		// Update the display with the result
+		updateResultElement.innerText = "Update sent failed, enter a reason and try again."
 	})
 	.catch(error => {
+		console.log("NEILO")
 		console.error('Error during update:', error.message);
 	});
 }
