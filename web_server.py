@@ -75,8 +75,8 @@ SCENARIOS = {
 
 def _safe_insert_tf_run(tf_run: dict):
 	global tf_runs
-	if tf_run["id"] not in [run["id"] for run in tf_runs]:
-		tf_runs.append(tf_run)
+	# Always insert the run as the first item in the list
+	tf_runs.insert(0, tf_run) if tf_run["id"] not in [run["id"] for run in tf_runs] else None
 
 def _scrub_sensitive_data(tf_workflow_output: dict):
 	for key, value in tf_workflow_output.items():
