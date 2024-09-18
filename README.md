@@ -287,9 +287,17 @@ temporal workflow show \
    --codec-endpoint 'http://localhost:8081/default'
 ```
 
-temporal workflow list --env prod -q 'ExecutionStatus="Failed" OR ExecutionStatus="Terminated"'
+#### Resetting a Workflow
 
+There may be a scenario in which an approval takes so long to come in, that the state of the
+infrastructure may have drifted, meaning Terraform's plan is no longer valid. In that case, you
+can reset the workflow execution to the plan stage, and get a new plan and policy check.
 
+```bash
+temporal workflow reset \
+    --workflow-id="<workflow-id>" \
+    --event-id="<event-id>"
+```
 
 ### Using SDK Metrics
 
