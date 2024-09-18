@@ -25,7 +25,7 @@
 		{% for key, value in tf_workflow_output.items() %}
 		<tr>
 			<td><code>{{ key }}</code></td>
-			<td><code>{{ value["value"] if not value["sensitive"] else "<sensitive>" }}</code></td>
+			<td><code>{{ value["value"] }}</code></td>
 		</tr>
 		{% endfor %}
 	</table>

@@ -60,6 +60,7 @@ class ProvisioningActivities:
 		if not data.env_vars:
 			activity.logger.debug("Missing environment variables, cannot proceed.")
 			raise TerraformMissingEnvVarsError("Missing environment variables, cannot proceed.")
+			# TODO: raise ApplicationError?
 
 		if data.simulate_api_failure and activity.info().attempt < 5:
 			raise TerraformAPIFailureError("Terraform cannot reach the API")

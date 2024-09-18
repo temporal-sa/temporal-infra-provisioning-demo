@@ -73,6 +73,17 @@ SCENARIOS = {
 	},
 }
 
+def _safe_insert_tf_run(tf_run: dict):
+	global tf_runs
+	if tf_run["id"] not in [run["id"] for run in tf_runs]:
+		tf_runs.append(tf_run)
+
+def _scrub_sensitive_data(tf_workflow_output: dict):
+	for key, value in tf_workflow_output.items():
+		if value["sensitive"]:
+			tf_workflow_output[key]["value"] = "<sensitive>"
+	return tf_workflow_output
+
 # Define the main route
 @app.route("/", methods=["GET", "POST"])
 async def main():
@@ -196,15 +207,15 @@ async def provisioned():
 	status = await tf_workflow.query("get_current_status")
 	tf_workflow_output = await tf_workflow.result()
 
-	# TODO: check for dupes before inserting, include reason, have this track
-	# new workflows, etc. Not just ones that make it to the provisioned state.
-	tf_runs.insert(0, {
+	# TODO: insert this during the provisioning stage, and look up the tf_run status individually?
+	_safe_insert_tf_run({
 		"id": wf_id,
 		"scenario": scenario,
 		"status": status,
 	})
 
-	# TODO: scrub sensitive data in the server
+	tf_workflow_output = _scrub_sensitive_data(tf_workflow_output)
+
 	return render_template(
 		"provisioned.html",
 		wf_id=wf_id,
