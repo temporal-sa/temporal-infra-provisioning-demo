@@ -35,6 +35,7 @@ class ProvisionInfraWorkflow:
 
 	@workflow.run
 	async def run(self, terraform_run_details: TerraformRunDetails) -> dict:
+		self._custom_upsert(terraform_run_details, {"provisionStatus": ["uninitialized"]})
 		self._tf_run_details = terraform_run_details
 
 		# A simple retry policy to be used across some common, fast, TF

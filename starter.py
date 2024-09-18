@@ -47,7 +47,7 @@ async def main():
 	provision_status_key = SearchAttributeKey.for_text("provisionStatus")
 	tf_directory_key = SearchAttributeKey.for_text("tfDirectory")
 	search_attributes = TypedSearchAttributes([
-		SearchAttributePair(provision_status_key, "uninitialized"),
+		SearchAttributePair(provision_status_key, ""),
 		SearchAttributePair(tf_directory_key, tcloud_tf_dir)
 	])
 

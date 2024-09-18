@@ -153,7 +153,7 @@ async def provision_infra():
 			id=wf_id,
 			task_queue=TEMPORAL_TASK_QUEUE,
 			search_attributes=TypedSearchAttributes([
-				SearchAttributePair(provision_status_key, "uninitialized"),
+				SearchAttributePair(provision_status_key, ""),
 				SearchAttributePair(tf_directory_key, tcloud_tf_dir)
 			]),
 		)
