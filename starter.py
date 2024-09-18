@@ -40,7 +40,8 @@ async def main():
 	tf_run_details = TerraformRunDetails(
 		id=wf_id,
 		directory=tcloud_tf_dir,
-		env_vars=tcloud_env_vars
+		env_vars=tcloud_env_vars,
+		ephemeral=True
 	)
 
 	# Define the search attributes for the workflow

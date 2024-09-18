@@ -120,7 +120,6 @@ function update(decision) {
 		})
 	})
 	.then(response => {
-		// TODO: this is stinky code
 		console.error('Failed to send update');
 
 		// Get the updateResult element

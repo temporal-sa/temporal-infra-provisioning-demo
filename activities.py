@@ -7,8 +7,8 @@ from temporalio.exceptions import ActivityError
 from runner import TerraformRunner
 from shared import TerraformRunDetails, TerraformApplyError, \
 	TerraformInitError, TerraformPlanError, TerraformOutputError, \
-		PolicyCheckError, TerraformMissingEnvVarsError, TerraformAPIFailureError, \
-			TerraformRecoverableError
+	PolicyCheckError, TerraformMissingEnvVarsError, TerraformAPIFailureError, \
+	TerraformDestroyError, TerraformRecoverableError
 
 
 class ProvisioningActivities:
@@ -132,6 +132,39 @@ class ProvisioningActivities:
 			raise ae
 
 		return json.loads(output_stdout)
+
+	@activity.defn
+	async def terraform_destroy(self, data: TerraformRunDetails) -> str:
+		"""Destroy the Terraform configuration."""
+
+		activity.logger.info("Terraform destroy")
+		destroy_stdout, destroy_stderr = "", ""
+
+		try:
+			heartbeat_task = asyncio.create_task(self._heartbeat())
+			runner_destroy_task = asyncio.create_task(self._runner.destroy(data))
+
+			# Await the destroy task
+			destroy_stdout, destroy_stderr = await runner_destroy_task
+
+			# Cancel the heartbeat task after the long task completes
+			heartbeat_task.cancel()
+
+			try:
+				# Wait for the heartbeat task to fully cancel
+				await heartbeat_task
+			except asyncio.CancelledError:
+				activity.logger.debug("Destroy heartbeat cancelled.")
+
+			activity.logger.debug(f"Terraform destroy succeeded: {destroy_stdout}")
+		except TerraformApplyError as tfae:
+			activity.logger.error(f"Terraform destroy errored: {destroy_stderr}")
+			raise tfae
+		except ActivityError as ae:
+			activity.logger.error(f"Terraform destroy errored: {destroy_stderr}")
+			raise ae
+
+		return destroy_stdout
 
 	@activity.defn
 	async def policy_check(self, data: TerraformRunDetails) -> bool:

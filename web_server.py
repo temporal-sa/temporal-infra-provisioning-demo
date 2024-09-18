@@ -30,6 +30,7 @@ app = Flask(__name__)
 # Define search attribute keys for workflow search
 provision_status_key = SearchAttributeKey.for_text("provisionStatus")
 tf_directory_key = SearchAttributeKey.for_text("tfDirectory")
+scenario_key = SearchAttributeKey.for_text("scenario")
 temporal_ui_url = TEMPORAL_HOST_URL.replace("7233", "8233") if "localhost" in TEMPORAL_HOST_URL \
 	else "https://cloud.temporal.io"
 tf_runs = []
@@ -69,6 +70,11 @@ SCENARIOS = {
 	"api_failure": {
 		"title": "API Failure (recover on 5th attempt)",
 		"description": "This will get to the plan stage and then simulate an API failure, recovering after 5 attempts.",
+		"directory": "./terraform/tcloud_namespace"
+	},
+	"ephemeral": {
+		"title": "Ephmeral (Teardown After 15s, with Durable Timers)",
+		"description": "This will follow the Happy Path, but will tear down the infrastructure after 15 seconds, using durable timers.",
 		"directory": "./terraform/tcloud_namespace"
 	},
 }
@@ -131,7 +137,8 @@ async def provision_infra():
 		# NOTE: You can create a non-recoverable failure in the Plan stage instead of the the
 		# Eval Policy stage if you uncomment the below.
 		# env_vars=(tcloud_env_vars if selected_scenario != "non_recoverable_failure" else {} ),
-		simulate_api_failure=(selected_scenario == "api_failure")
+		simulate_api_failure=(selected_scenario == "api_failure"),
+		ephemeral=(selected_scenario == "ephemeral"),
 	)
 
 	# Get the Temporal client
@@ -154,7 +161,8 @@ async def provision_infra():
 			task_queue=TEMPORAL_TASK_QUEUE,
 			search_attributes=TypedSearchAttributes([
 				SearchAttributePair(provision_status_key, ""),
-				SearchAttributePair(tf_directory_key, tcloud_tf_dir)
+				SearchAttributePair(tf_directory_key, tcloud_tf_dir),
+				SearchAttributePair(scenario_key, selected_scenario)
 			]),
 		)
 

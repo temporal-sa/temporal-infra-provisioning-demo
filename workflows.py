@@ -111,6 +111,11 @@ class ProvisionInfraWorkflow:
 		# If the policy check passed or the apply was approved, apply the changes,
 		# unless the policy check failed and the hard fail policy is set.
 		show_output = {}
+		tf_apply_destroy_retry_policy = RetryPolicy(
+			maximum_attempts=5,
+			maximum_interval=timedelta(seconds=5),
+			non_retryable_error_types=[],
+		)
 
 		if hard_fail:
 			self._custom_upsert(terraform_run_details, {"provisionStatus": ["policy_hard_failed"]})
@@ -121,20 +126,15 @@ class ProvisionInfraWorkflow:
 			self._custom_upsert(terraform_run_details, {"provisionStatus": ["applying"]})
 			self._progress = 70
 			self._current_status = "applying"
-			tf_apply_retry_policy = RetryPolicy(
-				maximum_attempts=5,
-				maximum_interval=timedelta(seconds=5),
-				non_retryable_error_types=[],
-			)
 			apply_output = await workflow.execute_activity_method(
 				ProvisioningActivities.terraform_apply,
 				terraform_run_details,
 				start_to_close_timeout=timedelta(seconds=terraform_run_details.apply_timeout_secs),
 				heartbeat_timeout=timedelta(seconds=10),
-				retry_policy=tf_apply_retry_policy,
+				retry_policy=tf_apply_destroy_retry_policy,
 			)
 			self._custom_upsert(terraform_run_details, {"provisionStatus": ["applied"]})
-			self._progress = 100
+			self._progress = 80
 			self._current_status = "applied"
 
 			workflow.logger.info(f"Workflow apply output {apply_output}")
@@ -146,13 +146,39 @@ class ProvisionInfraWorkflow:
 				ProvisioningActivities.terraform_output,
 				terraform_run_details,
 				start_to_close_timeout=timedelta(seconds=TERRAFORM_COMMON_TIMEOUT_SECS),
-				retry_policy=tf_apply_retry_policy,
+				retry_policy=tf_apply_destroy_retry_policy,
 			)
 		else:
 			self._custom_upsert(terraform_run_details, {"provisionStatus": ["rejected"]})
-			self._progress = 100
 			self._current_status = "rejected"
 			workflow.logger.info("Workflow apply denied, no work to do.")
+
+		if terraform_run_details.ephemeral:
+			self._current_status = "waiting for destroy"
+			workflow.logger.info(f"Sleeping for {terraform_run_details.ephemeral_ttl} seconds, then destroying the infrastructure")
+			await asyncio.sleep(terraform_run_details.ephemeral_ttl)
+
+			self._progress = 90
+			self._current_status = "destroying"
+			destroy_output = await workflow.execute_activity_method(
+				ProvisioningActivities.terraform_destroy,
+				terraform_run_details,
+				start_to_close_timeout=timedelta(seconds=TERRAFORM_COMMON_TIMEOUT_SECS),
+				retry_policy=tf_apply_destroy_retry_policy,
+			)
+			self._current_status = "destroyed"
+			print("DESTROY OUTPUT", destroy_output)
+
+			workflow.logger.info("Infrastructure destroyed")
+
+			show_output = await workflow.execute_activity_method(
+				ProvisioningActivities.terraform_output,
+				terraform_run_details,
+				start_to_close_timeout=timedelta(seconds=TERRAFORM_COMMON_TIMEOUT_SECS),
+				retry_policy=tf_apply_destroy_retry_policy,
+			)
+
+		self._progress = 100
 
 		return show_output
 

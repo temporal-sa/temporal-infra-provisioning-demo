@@ -3,7 +3,7 @@
 | Prerequisites      |    | Features       |    | Patterns            |    |
 |:-------------------|----|----------------|----|---------------------|----|
 | Network Connection | ✅ | Schedule       |    | Entity              |    |
-| Python 3.12        | ✅ | Timer          |    | Fanout              |    |
+| Python 3.12        | ✅ | Timer          | ✅ | Fanout              |    |
 | Poetry 1.8.3       | ✅ | Local Activity |    | Long-Running        | ✅ |
 | Terraform 1.9.0    | ✅ | Signal         | ✅ | Continue As New     |    |
 | Open Policy Agent  |    | Query          | ✅ | Manual Intervention | ✅ |
@@ -171,6 +171,7 @@ command.
 ```bash
 temporal operator search-attribute create --namespace $TEMPORAL_NAMESPACE --name provisionStatus --type text
 temporal operator search-attribute create --namespace $TEMPORAL_NAMESPACE --name tfDirectory --type text
+temporal operator search-attribute create --namespace $TEMPORAL_NAMESPACE --name scenario --type text
 ```
 
 ### Configuring Temporal Cloud (Option #2)
@@ -179,7 +180,7 @@ If you are using Temporal Cloud, the command will look a bit different, using `t
 If you are not already logged into Temporal Cloud with `tcld` run `tcld login`.
 
 ```bash
-tcld namespace search-attributes add -n $TEMPORAL_NAMESPACE --sa "provisionStatus=Text" --sa "tfDirectory=Text"
+tcld namespace search-attributes add -n $TEMPORAL_NAMESPACE --sa "provisionStatus=Text" --sa "tfDirectory=Text" --sa "scenario=Text"
 ```
 
 ### Running the Workflow

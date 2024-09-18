@@ -5,7 +5,7 @@ from typing import Tuple
 
 from shared import TerraformRunDetails, TerraformApplyError, \
 	TerraformInitError, TerraformPlanError, TerraformOutputError, \
-	PolicyCheckError
+	TerraformDestroyError, PolicyCheckError
 
 
 class TerraformRunner:
@@ -82,6 +82,17 @@ class TerraformRunner:
 
 		if returncode != 0:
 			raise TerraformApplyError(f"Terraform apply errored: {stderr}")
+
+		return stdout, stderr
+
+	async def destroy(self, data: TerraformRunDetails) -> Tuple[str, str]:
+		"""Destroy the Terraform configuration."""
+		# Destroy the Terraform configuration with the '-json' and '-auto-approve' flags
+		returncode, stdout, stderr = \
+			await self._run_cmd_in_dir(["terraform", "destroy", "-json", "-auto-approve"], data)
+
+		if returncode != 0:
+			raise TerraformDestroyError(f"Terraform destroy errored: {stderr}")
 
 		return stdout, stderr
 
