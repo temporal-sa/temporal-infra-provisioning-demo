@@ -73,7 +73,7 @@ SCENARIOS = {
 		"directory": "./terraform/tcloud_namespace"
 	},
 	"ephemeral": {
-		"title": "Ephmeral (Teardown After 15s, with Durable Timers)",
+		"title": "Ephemeral (Teardown After 15s, with Durable Timers)",
 		"description": "This will follow the Happy Path, but will tear down the infrastructure after 15 seconds, using durable timers.",
 		"directory": "./terraform/tcloud_namespace"
 	},
