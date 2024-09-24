@@ -129,8 +129,7 @@ async def provision_infra():
 		id=wf_id,
 		directory=tcloud_tf_dir,
 		env_vars=tcloud_env_vars,
-		# NOTE: Only hard fail the policy in the non-recoverable failure scenario
-		hard_fail_policy=(selected_scenario == "non_recoverable_failure"),
+		scenario=selected_scenario,
 		# NOTE: Only disable the custom search attributes on the happy path
 		# so that we can demonstrate that visibility on the other scenarios.
 		include_custom_search_attrs=(selected_scenario != "happy_path"),
@@ -273,7 +272,6 @@ async def update():
 			is_approved=decision
 		)
 		result = await order_workflow.execute_update("update_apply_decision", apply_decision)
-
 		return jsonify({"result": result}), 200
 	except Exception as e:
 		print(f"Error sending update: {str(e)}")
@@ -282,4 +280,4 @@ async def update():
 
 # Run the Flask app
 if __name__ == "__main__":
-	app.run(debug=True, port=3000)
+	app.run(debug=True, port=5000)

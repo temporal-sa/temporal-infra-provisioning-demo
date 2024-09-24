@@ -14,7 +14,7 @@ with workflow.unsafe.imports_passed_through():
 
 # NOTE: for init, policy_check, plan and outputs, they shouldn't take longer
 # than 300 seconds.
-TERRAFORM_COMMON_TIMEOUT_SECS = 300
+TERRAFORM_COMMON_TIMEOUT_SECS = 30
 
 
 @workflow.defn
@@ -94,13 +94,18 @@ class ProvisionInfraWorkflow:
 			start_to_close_timeout=timedelta(seconds=TERRAFORM_COMMON_TIMEOUT_SECS),
 			retry_policy=policy_retry_policy,
 		)
+
+		if policy_not_failed == False:
+			raise ApplicationError("Workflow policy check failed!")
+
 		self._custom_upsert(terraform_run_details, {"provisionStatus": ["policy_checked"]})
 		self._progress = 60
 		self._current_status = "policy checked"
 
-		hard_fail = terraform_run_details.hard_fail_policy and not policy_not_failed
+		if terraform_run_details.scenario == "recoverable_failure":
+			raise Exception("Workflow Bug!")
 
-		if not policy_not_failed and not hard_fail:
+		if terraform_run_details.scenario == "human_in_the_loop_signal" or terraform_run_details.scenario == "human_in_the_loop_update":
 			self._custom_upsert(terraform_run_details, {"provisionStatus": ["awaiting_approval"]})
 			self._current_status = "awaiting approval decision"
 			workflow.logger.info("Workflow awaiting approval decision")
@@ -117,6 +122,7 @@ class ProvisionInfraWorkflow:
 			non_retryable_error_types=[],
 		)
 
+		hard_fail = terraform_run_details.scenario == "non_recoverable_failure" and not policy_not_failed
 		if hard_fail:
 			self._custom_upsert(terraform_run_details, {"provisionStatus": ["policy_hard_failed"]})
 			self._progress = 100
