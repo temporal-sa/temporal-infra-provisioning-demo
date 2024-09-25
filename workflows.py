@@ -95,7 +95,7 @@ class ProvisionInfraWorkflow:
 			retry_policy=policy_retry_policy,
 		)
 
-		if policy_not_failed == False:
+		if policy_not_failed == False and terraform_run_details.scenario not in {"human_in_the_loop_signal", "human_in_the_loop_update"}:
 			raise ApplicationError("Workflow policy check failed!")
 
 		self._custom_upsert(terraform_run_details, {"provisionStatus": ["policy_checked"]})
