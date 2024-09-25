@@ -126,14 +126,24 @@ button {
 	width: 100%;
 }
 
-#terraform-plan-container,
-#signal-container,
-#update-container {
+#terraformPlanContainer,
+#ephemeralContainer,
+#signalContainer,
+#updateContainer {
 	display: none;
 }
 
-#error-message {
+#updateResult {
+	width: 500px;
+	margin: 0px auto;
+}
+
+#ephemeralContainer {
+	margin-top: 20px;
+}
+
+#errorMessage {
 	color: red;
 }
 
-document.getElementById("progress-bar").style.backgroundColor = "red";
+document.getElementById("progressBar").style.backgroundColor = "red";

@@ -94,6 +94,10 @@ can delete the environment variables and fail out w/ a `non_retryable_error`.
 
 This will get to the plan stage and then simulate an API failure, recovering after 5 attempts.
 
+### Ephemeral (Destroy Infra After TTL)
+
+This will follow the Happy Path, but will tear down the infrastructure after a user defined number of seconds (default 15s), using durable timers.
+
 ## Running the Demo
 
 ### Installing Dependencies

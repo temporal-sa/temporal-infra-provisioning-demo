@@ -29,25 +29,25 @@ why you want advanced visbility, but we also want that visibility on all the
 other scenarios because it is helpful to have.
  -->
 {% if selected_scenario != "happy_path" %}
-	<h5>Current Status: <span id="current-status" class="badge text-bg-secondary">...</span></h5>
+	<h5>Current Status: <span id="currentStatus" class="badge text-bg-secondary">...</span></h5>
 {% endif %}
 
 <div class="status-bar">
-	<div id="progress-bar" class="status-progress" style="width: 0;"></div>
+	<div id="progressBar" class="status-progress" style="width: 0;"></div>
 </div>
 
 
-<div id="terraform-plan-container">
-	<code id="terraform-plan"></code>
+<div id="terraformPlanContainer">
+	<code id="terraformPlan"></code>
 </div>
 
-<div id="signal-container">
+<div id="signalContainer">
 	<h5>Approve or Deny Apply w/ Signal?</h5>
 	<button class="btn btn-primary" onclick="signal(true)">Approve</button>
 	<button class="btn btn-danger" onclick="signal(false)">Deny</button>
 </div>
 
-<div id="update-container">
+<div id="updateContainer">
 	<h5>Approve or Deny Apply w/ Update?</h5>
 	<label for="reason">Reason:</label>
 	<input type="text" id="reason" placeholder="Enter reasoning... "/>
@@ -55,8 +55,8 @@ other scenarios because it is helpful to have.
 	<button class="btn btn-danger" onclick="update(false)">Deny</button>
 </div>
 
-<div id="update-result" class="badge text-bg-danger"></div>
-<p id="error-message" class="badge text-bg-danger"></p>
+<div id="updateResult" class="badge text-bg-danger"></div>
+<p id="errorMessage" class="badge text-bg-danger"></p>
 
 <hr />
 

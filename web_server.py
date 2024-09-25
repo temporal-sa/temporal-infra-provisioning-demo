@@ -73,8 +73,8 @@ SCENARIOS = {
 		"directory": "./terraform/tcloud_namespace"
 	},
 	"ephemeral": {
-		"title": "Ephemeral (Teardown After 15s, with Durable Timers)",
-		"description": "This will follow the Happy Path, but will tear down the infrastructure after 15 seconds, using durable timers.",
+		"title": "Ephemeral (Teardown After N seconds, with Durable Timers)",
+		"description": "This will follow the Happy Path, but will tear down the infrastructure after a user defined number of seconds (default 15s), using durable timers.",
 		"directory": "./terraform/tcloud_namespace"
 	},
 }
@@ -115,6 +115,7 @@ async def provision_infra():
 	# Get the selected scenario and workflow ID from the request arguments
 	selected_scenario = request.args.get("scenario", "")
 	wf_id = request.args.get("wf_id", "")
+	ephemeral_ttl = int(request.args.get("ephemeral_ttl", 15))
 
 	# Set Temporal Cloud environment variables based on the selected scenario
 	tcloud_env_vars = {
@@ -139,6 +140,7 @@ async def provision_infra():
 		# env_vars=(tcloud_env_vars if selected_scenario != "non_recoverable_failure" else {} ),
 		simulate_api_failure=(selected_scenario == "api_failure"),
 		ephemeral=(selected_scenario == "ephemeral"),
+		ephemeral_ttl=ephemeral_ttl,
 	)
 
 	# Get the Temporal client
@@ -202,7 +204,6 @@ async def get_progress():
 
 		return jsonify(payload)
 	except Exception as e:
-		print(e)
 		return jsonify(payload)
 
 # Define the provisioned route
@@ -280,7 +281,7 @@ async def update():
 	except Exception as e:
 		print(f"Error sending update: {str(e)}")
 		# return jsonify({"error": ""}), 500
-		return jsonify({"result": "Error sending update. Make sure your reason is not empty."}), 200
+		return jsonify({"result": "Error sending update. Make sure your reason is not empty."}), 422
 
 # Run the Flask app
 if __name__ == "__main__":
