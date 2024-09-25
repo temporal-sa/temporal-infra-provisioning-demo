@@ -39,6 +39,7 @@ Each of these activities has a short sleep period associated with them, to simul
 - Terraform Plan
 - Evaluate Policy
 - Terraform Apply (leverages Heartbeats)
+- Terraform Destroy (leverages Heartbeats)
 - Terraform Output
 
 ### Provision Signals
@@ -325,10 +326,10 @@ have to move around the directories depending on what you need to `destroy`.
 
 ```bash
 cd terraform/tcloud_namespace/
-terraform destroy -auto-apply
+terraform destroy -auto-approve
 ```
 
 ```bash
 cd terraform/tcloud_admin_user/
-terraform destroy -auto-apply
+terraform destroy -auto-approve
 ```

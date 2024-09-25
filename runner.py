@@ -123,8 +123,9 @@ class TerraformRunner:
 				if resource_type == "temporalcloud_user":
 					actions = planned_change["change"]["actions"]
 					if "create" in actions:
-						expected_after_access = planned_change["change"]["after"]["account_access"]
-						if expected_after_access == "admin":
+						# TODO: this is pulling just the first namespace access, we should loop
+						expected_after_perms = planned_change["change"]["after"]["namespace_accesses"][0]["permission"]
+						if expected_after_perms == "admin":
 							policy_passed = False
 							continue
 		except Exception as e:
