@@ -169,6 +169,7 @@ async def provision_infra():
 	return render_template(
 		"provisioning.html",
 		wf_id=wf_id,
+		tf_runs=tf_runs,
 		selected_scenario=selected_scenario,
 		temporal_host_url=TEMPORAL_HOST_URL,
 		temporal_ui_url=temporal_ui_url,
@@ -227,6 +228,7 @@ async def provisioned():
 	return render_template(
 		"provisioned.html",
 		wf_id=wf_id,
+		tf_runs=tf_runs,
 		tf_workflow_output=tf_workflow_output,
 		tf_run_status=status,
 		temporal_host_url=TEMPORAL_HOST_URL,

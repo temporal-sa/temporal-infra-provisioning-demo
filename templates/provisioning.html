@@ -58,4 +58,24 @@ other scenarios because it is helpful to have.
 <div id="update-result" class="badge text-bg-danger"></div>
 <p id="error-message" class="badge text-bg-danger"></p>
 
+<hr />
+
+<h4>Historical Runs</h4>
+
+<table class="table table-sm table-striped">
+    <!-- TODO: pull live info? -->
+    <tr>
+        <th>Workflow ID</th>
+        <th>Scenario</th>
+        <th>Status</th>
+    </tr>
+    {% for run in tf_runs %}
+    <tr>
+        <td><a href="{{temporal_ui_url}}/namespaces/{{temporal_namespace}}/workflows/{{run['id']}}" target="_blank">{{ run["id"] }}</a></td>
+        <td>{{ run["scenario"] }}</td>
+        <td>{{ run["status"] }}</td>
+    </tr>
+    {% endfor %}
+</table>
+
 {% endblock %}
