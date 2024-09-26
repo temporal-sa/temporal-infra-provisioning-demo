@@ -1,19 +1,20 @@
 # Temporal Infrastructure Provisioning
 
-| Prerequisites      |    | Features       |    | Patterns            |    |
-|:-------------------|----|----------------|----|---------------------|----|
-| Network Connection | ✅ | Schedule       |    | Entity              |    |
-| Python 3.12        | ✅ | Timer          | ✅ | Fanout              |    |
-| Poetry 1.8.3       | ✅ | Local Activity |    | Long-Running        | ✅ |
-| Terraform 1.9.0    | ✅ | Signal         | ✅ | Continue As New     |    |
-| Open Policy Agent  |    | Query          | ✅ | Manual Intervention | ✅ |
-| GitHub Actions     |    | Heartbeat      | ✅ | Long-polling        |    |
-|                    |    | Update         | ✅ | Polyglot            |    |
-|                    |    | Retry          | ✅ |                     |    |
-|                    |    | Data Converter | ✅ |                     |    |
-|                    |    | Codec Server   | ✅ |                     |    |
-|                    |    | Custom Attrs   | ✅ |                     |    |
-|                    |    | SDK Metrics    | ✅ |                     |    |
+| Prerequisites       |    | Features       |    | Patterns            |    |
+|:--------------------|----|----------------|----|---------------------|----|
+| Network Connection  | ✅ | Schedule       |    | Entity              |    |
+| Python 3.12         | ✅ | Timer          | ✅ | Fanout              |    |
+| Poetry 1.8.3        | ✅ | Reset          | ✅ | Long-Running        | ✅ |
+| Terraform 1.9.0     | ✅ | Signal         | ✅ | Continue As New     |    |
+| Temporal Cloud Acct | ✅ | Query          | ✅ | Manual Intervention | ✅ |
+|                     |    | Heartbeat      | ✅ | Long-polling        | ✅ |
+|                     |    | Update         | ✅ | Polyglot            |    |
+|                     |    | Retry          | ✅ |                     |    |
+|                     |    | Data Converter | ✅ |                     |    |
+|                     |    | Codec Server   | ✅ |                     |    |
+|                     |    | Custom Attrs   | ✅ |                     |    |
+|                     |    | SDK Metrics    | ✅ |                     |    |
+|                     |    | Local Activity |    |                     |    |
 
 
 ![Temporal Infrastructure Provisioning UI Screenshot](./static/ui.png)
@@ -295,7 +296,7 @@ temporal workflow show \
 
 #### Resetting a Workflow
 
-There may be a scenario in which an approval takes so long to come in, that the state of the
+There may be a scenario in which an approval takes so long to come in that the state of the
 infrastructure may have drifted, meaning Terraform's plan is no longer valid. In that case, you
 can reset the workflow execution to the plan stage, and get a new plan and policy check.
 
