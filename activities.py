@@ -50,7 +50,7 @@ class ProvisioningActivities:
 	async def terraform_plan(self, data: TerraformRunDetails) -> tuple:
 		"""Plan the Terraform configuration."""
 
-		# NOTE: cause a recoverable error
+		# NOTE: uncomment to cause a recoverable error
 		# raise TerraformRecoverableError("This is a recoverable error")
 
 		activity.logger.info("Terraform plan")

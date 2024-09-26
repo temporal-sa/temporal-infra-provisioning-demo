@@ -167,7 +167,6 @@ class ProvisionInfraWorkflow:
 				retry_policy=tf_apply_destroy_retry_policy,
 			)
 			self._current_status = "destroyed"
-			print("DESTROY OUTPUT", destroy_output)
 
 			workflow.logger.info("Infrastructure destroyed")
 

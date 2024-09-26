@@ -204,6 +204,7 @@ async def get_progress():
 
 		return jsonify(payload)
 	except Exception as e:
+		print(e)
 		return jsonify(payload)
 
 # Define the provisioned route
