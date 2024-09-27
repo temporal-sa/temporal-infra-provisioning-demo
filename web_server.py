@@ -69,7 +69,7 @@ SCENARIOS = {
 	},
 	"api_failure": {
 		"title": "API Failure (recover on 5th attempt)",
-		"description": "This will get to the plan stage and then simulate an API failure, recovering after 5 attempts.",
+		"description": "This will get to the apply stage and then simulate an API failure, recovering after 5 attempts.",
 		"directory": "./terraform/tcloud_namespace"
 	},
 	"ephemeral": {

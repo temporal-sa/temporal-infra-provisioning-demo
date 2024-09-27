@@ -62,12 +62,6 @@ class ProvisioningActivities:
 			raise TerraformMissingEnvVarsError("Missing environment variables, cannot proceed.")
 			# TODO: raise ApplicationError?
 
-		if data.simulate_api_failure and activity.info().attempt < 5:
-			raise TerraformAPIFailureError("Terraform cannot reach the API")
-		else:
-			await asyncio.sleep(3)
-			activity.logger.info("Sleeping for 3 seconds to slow execution down")
-
 		try:
 			plan_json_stdout, plan_json_stderr, plan_stdout, plan_stderr = await self._runner.plan(data, activity_id)
 			self._runner.set_plan(json.loads(plan_json_stdout))
@@ -87,6 +81,12 @@ class ProvisioningActivities:
 
 		activity.logger.info("Terraform apply")
 		apply_stdout, apply_stderr = "", ""
+
+		if data.simulate_api_failure and activity.info().attempt < 5:
+			raise TerraformAPIFailureError("Terraform cannot reach the API")
+		else:
+			await asyncio.sleep(3)
+			activity.logger.info("Sleeping for 3 seconds to slow execution down")
 
 		try:
 			heartbeat_task = asyncio.create_task(self._heartbeat())

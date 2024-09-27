@@ -60,9 +60,6 @@ class ProvisionInfraWorkflow:
 
 		tf_plan_retry_policy = RetryPolicy(
 			initial_interval=timedelta(seconds=3),
-			maximum_interval=timedelta(seconds=60),
-			backoff_coefficient=2.0,
-			maximum_attempts=100,
 			non_retryable_error_types=["TerraformMissingEnvVarsErrors"],
 		)
 		self._custom_upsert(terraform_run_details, {"provisionStatus": ["planning"]})
@@ -112,8 +109,9 @@ class ProvisionInfraWorkflow:
 		# unless the policy check failed and the hard fail policy is set.
 		show_output = {}
 		tf_apply_destroy_retry_policy = RetryPolicy(
-			maximum_attempts=5,
+			initial_interval=timedelta(seconds=3),
 			maximum_interval=timedelta(seconds=5),
+			maximum_attempts=100,
 			non_retryable_error_types=[],
 		)
 

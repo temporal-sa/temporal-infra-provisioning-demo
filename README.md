@@ -93,7 +93,7 @@ can delete the environment variables and fail out w/ a `non_retryable_error`.
 
 ### API Failure (Recover on 5th Attempt)
 
-This will get to the plan stage and then simulate an API failure, recovering after 5 attempts.
+This will get to the apply stage and then simulate an API failure, recovering after 5 attempts.
 
 ### Ephemeral (Destroy Infra After TTL)
 
