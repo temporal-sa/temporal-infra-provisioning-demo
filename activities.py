@@ -176,6 +176,9 @@ class ProvisioningActivities:
 
 		await asyncio.sleep(3)
 		activity.logger.info("Sleeping for 3 seconds to slow execution down")
+		
+		if data.scenario == "non_recoverable_failure":
+			return False
 
 		try:
 			policy_passed = await self._runner.policy_check(data)

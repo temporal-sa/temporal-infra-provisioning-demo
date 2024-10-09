@@ -80,7 +80,7 @@ class TerraformRunDetails:
 	include_custom_search_attrs: bool = True
 	ephemeral: bool = False
 	ephemeral_ttl: int = 15
-	hard_fail_policy: bool = False
+	scenario: str = ""
 	simulate_api_failure: bool = False
 
 @dataclass
