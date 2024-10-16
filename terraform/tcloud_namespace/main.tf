@@ -48,7 +48,7 @@ resource "tls_self_signed_cert" "terraform_test" {
 
 resource "temporalcloud_namespace" "terraform_test" {
 	name               = "${var.prefix}-terraform-demo-${random_id.random_suffix.hex}"
-	regions            = ["aws-us-west-2"]
+	regions            = [var.region]
 	# accepted_client_ca = base64encode(file("/Users/neildahlke/.temporal_certs/ca.pem"))
 	accepted_client_ca = base64encode(tls_self_signed_cert.terraform_test.cert_pem)
 	retention_days     = 14

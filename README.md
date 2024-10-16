@@ -161,6 +161,12 @@ name. _The Terraform configuration will not execute without this value._
 export TF_VAR_prefix="neil"
 ```
 
+You can also optionally set which region you want to create the namespace in.
+
+```bash
+export TF_VAR_region="aws-us-east-1"
+```
+
 ### Running and Configuring the Temporal Dev Server (Option #1)
 
 If you are using the Temporal Dev Server, start the server with the `frontend.enableUpdateWorkflowExecution` config
