@@ -158,7 +158,7 @@ class ProvisionInfraWorkflow:
 
 			self._progress = 90
 			self._current_status = "destroying"
-			destroy_output = await workflow.execute_activity_method(
+			await workflow.execute_activity_method(
 				ProvisioningActivities.terraform_destroy,
 				terraform_run_details,
 				start_to_close_timeout=timedelta(seconds=TERRAFORM_COMMON_TIMEOUT_SECS),
