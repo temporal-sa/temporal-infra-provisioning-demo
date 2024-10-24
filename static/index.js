@@ -1,11 +1,25 @@
-function provisionInfra() {
+function generateUUID() {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        var r = Math.random() * 16 | 0,
+            v = c == 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+    });
+}
+
+function runWorkflow() {
 	var selectedScenario = document.getElementById("scenario").value;
-	var tfRunID = document.getElementById("tfRunID").value;
 	var ephemeralTTL = document.getElementById("ephemeralTTL").valueAsNumber
+	var tfRunID = "";
+
+	if (selectedScenario === "destroy") {
+		tfRunID = `deprovision-infra-${generateUUID()}`;
+	} else {
+		tfRunID = `provision-infra-${generateUUID()}`;
+	}
 
 	// Redirect to provisioninn page with the selected scenario as a query parameter
 	window.location.href =
-		"/provision_infra?scenario=" + encodeURIComponent(selectedScenario) +
+		"/run_workflow?scenario=" + encodeURIComponent(selectedScenario) +
 		"&wf_id=" + encodeURIComponent(tfRunID) +
 		"&ephemeral_ttl=" + encodeURIComponent(ephemeralTTL);
 }
@@ -34,7 +48,7 @@ function updateProgress() {
 				currentStatusElement.innerText = data.status;
 			}
 
-			if (data.plan != "") {
+			if (scenario !== "destroy" && data.plan != "") {
 				// Display the Terraform plan
 				document.getElementById("terraformPlan").innerText = stripAnsi(data.plan);
 				document.getElementById("terraformPlanContainer").style.display = "block";

@@ -1,20 +1,17 @@
 import asyncio
+import json
 
 from datetime import timedelta
 from temporalio import workflow
 from temporalio.common import RetryPolicy
 from temporalio.exceptions import ApplicationError
-
-
-from shared import ApplyDecisionDetails
+# NOTE: for init, policy_check, plan and outputs, they shouldn't take longer
+# than 300 seconds.
+from shared import ApplyDecisionDetails, TERRAFORM_COMMON_TIMEOUT_SECS
 
 with workflow.unsafe.imports_passed_through():
 	from activities import ProvisioningActivities
 	from shared import TerraformRunDetails
-
-# NOTE: for init, policy_check, plan and outputs, they shouldn't take longer
-# than 300 seconds.
-TERRAFORM_COMMON_TIMEOUT_SECS = 300
 
 
 @workflow.defn
@@ -27,7 +24,6 @@ class ProvisionInfraWorkflow:
 		self._current_status = "uninitialized"
 		self._progress = 0
 		self._tf_plan_output = ""
-		self._tf_outputs = {}
 
 	def _custom_upsert(self, run_details: TerraformRunDetails, payload: dict):
 		if run_details.include_custom_search_attrs:
@@ -134,8 +130,7 @@ class ProvisionInfraWorkflow:
 			self._custom_upsert(terraform_run_details, {"provisionStatus": ["applied"]})
 			self._progress = 80
 			self._current_status = "applied"
-
-			workflow.logger.info(f"Workflow apply output {apply_output}")
+			workflow.logger.info(f"Workflow apply output {json.dumps(apply_output)}")
 
 			workflow.logger.info("Sleeping for 3 seconds to slow execution down")
 			await asyncio.sleep(3)

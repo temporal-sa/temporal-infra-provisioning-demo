@@ -2,7 +2,7 @@ import asyncio
 import uuid
 import logging
 import os
-from create_workflow import ProvisionInfraWorkflow
+from destroy_workflow import DeprovisionInfraWorkflow
 from shared import TerraformRunDetails, get_temporal_client
 
 from temporalio.common import TypedSearchAttributes, SearchAttributeKey, \
@@ -34,15 +34,13 @@ async def main():
 	}
 
 	# Generate a unique ID for the workflow
-	wf_id = f"provision-infra-{uuid.uuid4()}"
+	wf_id = f"deprovision-infra-{uuid.uuid4()}"
 
 	# Create the TerraformRunDetails object
 	tf_run_details = TerraformRunDetails(
 		id=wf_id,
 		directory=tcloud_tf_dir,
 		env_vars=tcloud_env_vars,
-		# TODO
-		# ephemeral=True
 	)
 
 	# Define the search attributes for the workflow
@@ -55,7 +53,7 @@ async def main():
 
 	# Start the workflow
 	handle = await client.start_workflow(
-		ProvisionInfraWorkflow.run,
+		DeprovisionInfraWorkflow.run,
 		tf_run_details,
 		id=wf_id,
 		task_queue=TEMPORAL_TASK_QUEUE,

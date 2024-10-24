@@ -203,11 +203,18 @@ Then run the worker (be sure you have the environment variables set).
 poetry run python worker.py
 ```
 
-Once you start the worker, submit a workflow using the starter (this also needs the environment
-variables set).
+Once you start the worker, submit a provision workflow using the starter (this also needs the
+environment variables set).
 
 ```bash
 poetry run python starter.py
+```
+
+Once you start the worker, submit a deprovision workflow using the destroyer (also needs the
+environment variables set).
+
+```bash
+poetry run python destroyer.py
 ```
 
 ### Starting the UI
@@ -329,9 +336,25 @@ an example dashboard to leverage in `metrics/dashboards/sdk-general.json`.
 
 This demo provisions real namespaces and real admin users inside of Temporal Cloud, and we do not
 want those to linger around. Although they have a naming convention that makes it very clear that
-they are spawned from this demo, be a good citizen and clean up after yourself. To do so, make
-sure that you have your `TEMPORAL_CLOUD_API_KEY` env var set, then run the following. You will
-have to move around the directories depending on what you need to `destroy`.
+they are spawned from this demo, be a good citizen and clean up after yourself.
+
+#### Using the UI
+
+Select the "Destroy" scenario in the UI and click "Run". This will teardown the namespace that is
+created.
+
+#### Using `destroyer.py`
+
+Be sure the environment variables are set.
+
+```bash
+poetry run python destroyer.py
+```
+
+#### Using `terraform` Directly
+
+To do so, make sure that you have your `TEMPORAL_CLOUD_API_KEY` env var set, then run the following.
+You will have to move around the directories depending on what you need to `destroy`.
 
 *DO NOT DELETE THEM IN THE UI - THIS WILL CAUSE YOUR TERRAFORM STATE TO DRIFT!*
 

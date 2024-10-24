@@ -157,9 +157,9 @@ class ProvisioningActivities:
 				activity.logger.debug("Destroy heartbeat cancelled.")
 
 			activity.logger.debug(f"Terraform destroy succeeded: {destroy_stdout}")
-		except TerraformApplyError as tfae:
+		except TerraformDestroyError as tfde:
 			activity.logger.error(f"Terraform destroy errored: {destroy_stderr}")
-			raise tfae
+			raise tfde
 		except ActivityError as ae:
 			activity.logger.error(f"Terraform destroy errored: {destroy_stderr}")
 			raise ae

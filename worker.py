@@ -5,7 +5,8 @@ from temporalio.worker import Worker
 from temporalio.runtime import Runtime, TelemetryConfig, PrometheusConfig
 from shared import get_temporal_client
 from activities import ProvisioningActivities
-from workflows import ProvisionInfraWorkflow
+from create_workflow import ProvisionInfraWorkflow
+from destroy_workflow import DeprovisionInfraWorkflow
 
 # Get the task queue name from the environment variable, defaulting to "provision-infra"
 TEMPORAL_TASK_QUEUE = os.environ.get("TEMPORAL_TASK_QUEUE", "provision-infra")
@@ -26,7 +27,7 @@ async def main() -> None:
 	worker: Worker = Worker(
 		client,
 		task_queue=TEMPORAL_TASK_QUEUE,
-		workflows=[ProvisionInfraWorkflow],
+		workflows=[ProvisionInfraWorkflow, DeprovisionInfraWorkflow],
 		activities=[
 			activities.terraform_init,
 			activities.terraform_plan,

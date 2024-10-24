@@ -5,7 +5,8 @@ from dataclasses import dataclass, field
 from typing import Dict
 from flask import Flask, render_template, request, jsonify
 from shared import get_temporal_client, TerraformRunDetails, ApplyDecisionDetails
-from workflows import ProvisionInfraWorkflow
+from create_workflow import ProvisionInfraWorkflow
+from destroy_workflow import DeprovisionInfraWorkflow
 
 from temporalio.exceptions import ApplicationError
 from temporalio.common import TypedSearchAttributes, SearchAttributeKey, \
@@ -73,8 +74,13 @@ SCENARIOS = {
 		"directory": "./terraform/tcloud_namespace"
 	},
 	"ephemeral": {
-		"title": "Ephemeral (Teardown After N seconds, with Durable Timers)",
+		"title": "Ephemeral (Destroy After N seconds, with Durable Timers)",
 		"description": "This will follow the Happy Path, but will tear down the infrastructure after a user defined number of seconds (default 15s), using durable timers.",
+		"directory": "./terraform/tcloud_namespace"
+	},
+	"destroy": {
+		"title": "Destroy",
+		"description": "This will tear down the infrastructure immediately.",
 		"directory": "./terraform/tcloud_namespace"
 	},
 }
@@ -109,9 +115,9 @@ async def main():
 		payloads_encrypted=ENCRYPT_PAYLOADS
 	)
 
-# Define the provision_infra route
-@app.route("/provision_infra", methods=["GET", "POST"])
-async def provision_infra():
+# Define the run_workflow route
+@app.route("/run_workflow", methods=["GET", "POST"])
+async def run_workflow():
 	# Get the selected scenario and workflow ID from the request arguments
 	selected_scenario = request.args.get("scenario", "")
 	wf_id = request.args.get("wf_id", "")
@@ -155,18 +161,31 @@ async def provision_infra():
 		no_existing_workflow = True
 
 	if no_existing_workflow:
-		# Start the workflow if it doesn't exist
-		await client.start_workflow(
-			ProvisionInfraWorkflow.run,
-			tf_run_details,
-			id=wf_id,
-			task_queue=TEMPORAL_TASK_QUEUE,
-			search_attributes=TypedSearchAttributes([
-				SearchAttributePair(provision_status_key, ""),
-				SearchAttributePair(tf_directory_key, tcloud_tf_dir),
-				SearchAttributePair(scenario_key, selected_scenario)
-			]),
-		)
+		if selected_scenario != "destroy":
+			# Start the workflow if it doesn't exist
+			await client.start_workflow(
+				ProvisionInfraWorkflow.run,
+				tf_run_details,
+				id=wf_id,
+				task_queue=TEMPORAL_TASK_QUEUE,
+				search_attributes=TypedSearchAttributes([
+					SearchAttributePair(provision_status_key, ""),
+					SearchAttributePair(tf_directory_key, tcloud_tf_dir),
+					SearchAttributePair(scenario_key, selected_scenario)
+				]),
+			)
+		else:
+			await client.start_workflow(
+				DeprovisionInfraWorkflow.run,
+				tf_run_details,
+				id=wf_id,
+				task_queue=TEMPORAL_TASK_QUEUE,
+				search_attributes=TypedSearchAttributes([
+					SearchAttributePair(provision_status_key, ""),
+					SearchAttributePair(tf_directory_key, tcloud_tf_dir),
+					SearchAttributePair(scenario_key, selected_scenario)
+				]),
+			)
 
 	return render_template(
 		"provisioning.html",
