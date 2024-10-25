@@ -233,6 +233,7 @@ provided codec server. To start the Codec server locally, use the below command.
 is the URL from which the codec server will allow incoming CORS requests.
 
 ```bash
+cd shared/
 poetry run python codec_server.py --web http://localhost:8233
 ```
 

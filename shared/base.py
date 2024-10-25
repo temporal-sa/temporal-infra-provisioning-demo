@@ -8,7 +8,7 @@ from temporalio.service import  TLSConfig
 from temporalio import converter
 from temporalio.runtime import Runtime
 
-from codec import CompressionCodec, EncryptionCodec
+from shared.codec import CompressionCodec, EncryptionCodec
 
 # Get the Temporal host URL from environment variable, default to "localhost:7233" if not set
 TEMPORAL_HOST_URL = os.environ.get("TEMPORAL_HOST_URL", "localhost:7233")
