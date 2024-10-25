@@ -4,8 +4,8 @@ import asyncio
 from typing import Tuple
 from temporalio import activity
 from temporalio.exceptions import ActivityError
-from runner import TerraformRunner
-from shared import TerraformRunDetails, TerraformApplyError, \
+from shared.tf_runner import TerraformRunner
+from shared.base import TerraformRunDetails, TerraformApplyError, \
 	TerraformInitError, TerraformPlanError, TerraformOutputError, \
 	PolicyCheckError, TerraformMissingEnvVarsError, TerraformAPIFailureError, \
 	TerraformDestroyError, TerraformRecoverableError

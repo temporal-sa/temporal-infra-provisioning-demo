@@ -3,7 +3,7 @@ import subprocess
 import asyncio
 from typing import Tuple
 
-from shared import TerraformRunDetails, TerraformApplyError, \
+from shared.base import TerraformRunDetails, TerraformApplyError, \
 	TerraformInitError, TerraformPlanError, TerraformOutputError, \
 	TerraformDestroyError, PolicyCheckError
 

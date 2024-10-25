@@ -7,11 +7,11 @@ from temporalio.common import RetryPolicy
 from temporalio.exceptions import ApplicationError
 # NOTE: for init, policy_check, plan and outputs, they shouldn't take longer
 # than 300 seconds.
-from shared import ApplyDecisionDetails, TERRAFORM_COMMON_TIMEOUT_SECS
+from shared.base import ApplyDecisionDetails, TERRAFORM_COMMON_TIMEOUT_SECS
 
 with workflow.unsafe.imports_passed_through():
-	from activities import ProvisioningActivities
-	from shared import TerraformRunDetails
+	from shared.activities import ProvisioningActivities
+	from shared.base import TerraformRunDetails
 
 
 @workflow.defn

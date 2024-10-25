@@ -4,9 +4,9 @@ import re
 from dataclasses import dataclass, field
 from typing import Dict
 from flask import Flask, render_template, request, jsonify
-from shared import get_temporal_client, TerraformRunDetails, ApplyDecisionDetails
-from create_workflow import ProvisionInfraWorkflow
-from destroy_workflow import DeprovisionInfraWorkflow
+from shared.base import get_temporal_client, TerraformRunDetails, ApplyDecisionDetails
+from workflows.apply import ProvisionInfraWorkflow
+from workflows.destroy import DeprovisionInfraWorkflow
 
 from temporalio.exceptions import ApplicationError
 from temporalio.common import TypedSearchAttributes, SearchAttributeKey, \

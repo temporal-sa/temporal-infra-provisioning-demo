@@ -2,8 +2,8 @@ import asyncio
 import uuid
 import logging
 import os
-from create_workflow import ProvisionInfraWorkflow
-from shared import TerraformRunDetails, get_temporal_client
+from workflows.apply import ProvisionInfraWorkflow
+from shared.base import TerraformRunDetails, get_temporal_client
 
 from temporalio.common import TypedSearchAttributes, SearchAttributeKey, \
 	SearchAttributePair
@@ -15,7 +15,7 @@ TEMPORAL_TASK_QUEUE = os.environ.get("TEMPORAL_TASK_QUEUE", "provision-infra")
 TEMPORAL_CLOUD_API_KEY = os.environ.get("TEMPORAL_CLOUD_API_KEY", "")
 
 # Get the TF_VAR_prefix environment variable, defaulting to "temporal-sa" if not set
-# NOTE: This is a specific env var for mat for Terraform.
+# NOTE: This is a specific env var for attribution for Terraform.
 TF_VAR_prefix = os.environ.get("TF_VAR_prefix", "temporal-sa")
 
 async def main():

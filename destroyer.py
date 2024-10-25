@@ -2,8 +2,8 @@ import asyncio
 import uuid
 import logging
 import os
-from destroy_workflow import DeprovisionInfraWorkflow
-from shared import TerraformRunDetails, get_temporal_client
+from workflows.destroy import DeprovisionInfraWorkflow
+from shared.base import TerraformRunDetails, get_temporal_client
 
 from temporalio.common import TypedSearchAttributes, SearchAttributeKey, \
 	SearchAttributePair

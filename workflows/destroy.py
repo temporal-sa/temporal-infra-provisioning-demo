@@ -1,11 +1,11 @@
 from datetime import timedelta
 from temporalio import workflow
 from temporalio.common import RetryPolicy
-from shared import TERRAFORM_COMMON_TIMEOUT_SECS
+from shared.base import TERRAFORM_COMMON_TIMEOUT_SECS
 
 with workflow.unsafe.imports_passed_through():
-	from activities import ProvisioningActivities
-	from shared import TerraformRunDetails
+	from shared.activities import ProvisioningActivities
+	from shared.base import TerraformRunDetails
 
 
 

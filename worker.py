@@ -3,10 +3,10 @@ import logging
 import os
 from temporalio.worker import Worker
 from temporalio.runtime import Runtime, TelemetryConfig, PrometheusConfig
-from shared import get_temporal_client
-from activities import ProvisioningActivities
-from create_workflow import ProvisionInfraWorkflow
-from destroy_workflow import DeprovisionInfraWorkflow
+from shared.base import get_temporal_client
+from shared.activities import ProvisioningActivities
+from workflows.apply import ProvisionInfraWorkflow
+from workflows.destroy import DeprovisionInfraWorkflow
 
 # Get the task queue name from the environment variable, defaulting to "provision-infra"
 TEMPORAL_TASK_QUEUE = os.environ.get("TEMPORAL_TASK_QUEUE", "provision-infra")
