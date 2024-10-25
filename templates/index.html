@@ -3,12 +3,12 @@
 
 <h1>Temporal Infrastructure Provisioning</h1>
 <h2>Terraform Run Scenarios</h2>
-<table class="table table-sm table-striped">
-    <tr>
+<table class="table table-sm table-striped scenario-table">
+    <thead>
         <th>Name</th>
         <th>Description</th>
         <th>Directory</th>
-    </tr>
+    </thead>
     {% for name, scenario in scenarios.items() %}
     <tr>
         <td>{{ scenario["title"] }}</td>

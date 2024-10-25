@@ -20,6 +20,21 @@ table {
 	width: 100%;
 	border-collapse: collapse;
 	margin-bottom: 20px;
+	border-radius: 10px;
+}
+
+.scenario-table {
+	height: 300px;
+	overflow-y: auto;
+	display: block;
+}
+
+thead {
+	position: sticky;
+    top: 0;
+    background-color: #2d2d2d;
+    z-index: 1;
+	color: #f2f2f2;
 }
 
 table, th, td {
