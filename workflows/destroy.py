@@ -19,14 +19,14 @@ class DeprovisionInfraWorkflow:
 		self._progress = 0
 		self._tf_plan_output = ""
 
-	def _custom_upsert(self, run_details: TerraformRunDetails, payload: dict):
-		if run_details.include_custom_search_attrs:
+	def _custom_upsert(self, data: TerraformRunDetails, payload: dict):
+		if data.include_custom_search_attrs:
 			workflow.upsert_search_attributes(payload)
 
 	@workflow.run
-	async def run(self, terraform_run_details: TerraformRunDetails) -> dict:
-		self._custom_upsert(terraform_run_details, {"provisionStatus": ["uninitialized"]})
-		self._tf_run_details = terraform_run_details
+	async def run(self, data: TerraformRunDetails) -> dict:
+		self._custom_upsert(data, {"provisionStatus": ["uninitialized"]})
+		self._tf_run_details = data
 
 		# A simple retry policy to be used across some common, fast, TF
 		tf_init_retry_policy = RetryPolicy(
@@ -34,17 +34,17 @@ class DeprovisionInfraWorkflow:
 			non_retryable_error_types=["TerraformInitError"],
 		)
 
-		self._custom_upsert(terraform_run_details, {"provisionStatus": ["initializing"]})
+		self._custom_upsert(data, {"provisionStatus": ["initializing"]})
 
 		self._progress = 10
 		self._current_status = "initializing"
 		await workflow.execute_activity_method(
 			ProvisioningActivities.terraform_init,
-			terraform_run_details,
+			data,
 			start_to_close_timeout=timedelta(seconds=TERRAFORM_COMMON_TIMEOUT_SECS),
 			retry_policy=tf_init_retry_policy,
 		)
-		self._custom_upsert(terraform_run_details, {"provisionStatus": ["initialized"]})
+		self._custom_upsert(data, {"provisionStatus": ["initialized"]})
 		self._progress = 33
 		self._current_status = "initialized"
 
@@ -58,7 +58,7 @@ class DeprovisionInfraWorkflow:
 		self._current_status = "destroying"
 		await workflow.execute_activity_method(
 			ProvisioningActivities.terraform_destroy,
-			terraform_run_details,
+			data,
 			start_to_close_timeout=timedelta(seconds=TERRAFORM_COMMON_TIMEOUT_SECS),
 			retry_policy=tf_apply_destroy_retry_policy,
 		)
@@ -68,7 +68,7 @@ class DeprovisionInfraWorkflow:
 
 		show_output = await workflow.execute_activity_method(
 			ProvisioningActivities.terraform_output,
-			terraform_run_details,
+			data,
 			start_to_close_timeout=timedelta(seconds=TERRAFORM_COMMON_TIMEOUT_SECS),
 			retry_policy=tf_apply_destroy_retry_policy,
 		)

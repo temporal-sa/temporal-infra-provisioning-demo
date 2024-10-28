@@ -261,24 +261,29 @@ async def provisioned():
 # Define the signal route
 @app.route('/signal', methods=["POST"])
 async def signal():
-    wf_id = request.args.get("wf_id", "")
-    decision = request.json.get("decision", False)
+	wf_id = request.args.get("wf_id", "")
+	signal_type = request.json.get("signalType", "")
+	payload = request.json.get("payload", False)
 
-    try:
-        client = await get_temporal_client()
-        order_workflow = client.get_workflow_handle(wf_id)
+	try:
+		client = await get_temporal_client()
+		order_workflow = client.get_workflow_handle(wf_id)
 
-        apply_decision = ApplyDecisionDetails(
-            is_approved=decision,
-            reason=""  # Reason is not required for signals
-        )
-        await order_workflow.signal("signal_apply_decision", apply_decision)
+		if signal_type == "signal_apply_decision":
+			apply_decision = ApplyDecisionDetails(
+				is_approved=payload
+			)
+			await order_workflow.signal(signal_type, apply_decision)
+		elif signal_type == "request_continue_as_new":
+			await order_workflow.signal(signal_type)
+		else:
+			raise Exception("Signal type not supported")
 
-    except Exception as e:
-        print(f"Error sending signal: {str(e)}")
-        return jsonify({"error": str(e)}), 500
+	except Exception as e:
+		print(f"Error sending signal: {str(e)}")
+		return jsonify({"error": str(e)}), 500
 
-    return "Signal received successfully", 200
+	return "Signal received successfully", 200
 
 # Define the update route
 @app.route('/update', methods=["POST"])
@@ -290,11 +295,13 @@ async def update():
 	try:
 		client = await get_temporal_client()
 		order_workflow = client.get_workflow_handle(wf_id)
+		print(order_workflow)
 
 		apply_decision = ApplyDecisionDetails(
 			reason=reason,
 			is_approved=decision
 		)
+		print(apply_decision)
 		result = await order_workflow.execute_update("update_apply_decision", apply_decision)
 
 		return jsonify({"result": result}), 200

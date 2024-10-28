@@ -61,6 +61,8 @@ function updateProgress() {
 				} else if (scenario === "human_in_the_loop_update") {
 					document.getElementById("updateContainer").style.display = "block";
 				}
+
+				document.getElementById("newPlanContainer").style.display = "block";
 			}
 
 			if (data.progress_percent === 100) {
@@ -85,7 +87,7 @@ function updateProgress() {
 		});
 }
 
-function signal(decision) {
+function signal(signalType, payload) {
 	// Get the tfRunID from the URL query parameters
 	var urlParams = new URLSearchParams(window.location.search);
 	var tfRunID = urlParams.get("wf_id");
@@ -97,12 +99,19 @@ function signal(decision) {
 			"Content-Type": "application/json"
 		},
 		body: JSON.stringify({
-			decision: decision
+			signalType: signalType,
+			payload: payload
 		})
 	})
 		.then(response => {
 			if (response.ok) {
 				console.log("Signal sent successfully");
+				if (signalType == "request_continue_as_new") {
+					document.getElementById("newPlanContainer").style.display = "none";
+					document.getElementById("signalContainer").style.display = "none";
+					document.getElementById("updateContainer").style.display = "none";
+					document.getElementById("terraformPlanContainer").style.display = "none";
+				}
 			} else {
 				console.error("Failed to send signal");
 
@@ -118,7 +127,7 @@ function signal(decision) {
 		});
 }
 
-function update(decision) {
+function update(updateType, decision) {
 	// Get the tfRunID from the URL query parameters
 	var urlParams = new URLSearchParams(window.location.search);
 	var tfRunID = urlParams.get("wf_id");

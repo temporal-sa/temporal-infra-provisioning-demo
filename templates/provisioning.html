@@ -43,16 +43,21 @@ other scenarios because it is helpful to have.
 
 <div id="signalContainer">
 	<h5>Approve or Deny Apply w/ Signal?</h5>
-	<button class="btn btn-primary" onclick="signal(true)">Approve</button>
-	<button class="btn btn-danger" onclick="signal(false)">Deny</button>
+	<button class="btn btn-primary" onclick="signal('signal_apply_decision', true)">Approve</button>
+	<button class="btn btn-danger" onclick="signal('signal_apply_decision', false)">Deny</button>
 </div>
 
 <div id="updateContainer">
 	<h5>Approve or Deny Apply w/ Update?</h5>
 	<label for="reason">Reason:</label>
 	<input type="text" id="reason" placeholder="Enter reasoning... "/>
-	<button class="btn btn-primary" onclick="update(true)">Approve</button>
-	<button class="btn btn-danger" onclick="update(false)">Deny</button>
+	<button class="btn btn-primary" onclick="update('update_apply_decision', true)">Approve</button>
+	<button class="btn btn-danger" onclick="update('update_apply_decision', false)">Deny</button>
+</div>
+
+<div id="newPlanContainer">
+	<h5>Fetch New Plan?</h5>
+	<button class="btn btn-primary" onclick="signal('request_continue_as_new')">Continue as New</button>
 </div>
 
 <div id="updateResult" class="badge text-bg-danger"></div>
