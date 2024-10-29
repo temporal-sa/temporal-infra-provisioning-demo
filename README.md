@@ -2,19 +2,19 @@
 
 | Prerequisites       |    | Features       |    | Patterns            |    |
 |:--------------------|----|----------------|----|---------------------|----|
-| Network Connection  | ✅ | Schedule       |    | Entity              |    |
-| Python 3.12         | ✅ | Timer          | ✅ | Fanout              |    |
-| Poetry 1.8.3        | ✅ | Reset          | ✅ | Long-Running        | ✅ |
-| Terraform 1.9.0     | ✅ | Signal         | ✅ | Continue As New     |    |
-| Temporal Cloud Acct | ✅ | Query          | ✅ | Manual Intervention | ✅ |
-|                     |    | Heartbeat      | ✅ | Long-polling        | ✅ |
-|                     |    | Update         | ✅ | Polyglot            |    |
-|                     |    | Retry          | ✅ |                     |    |
-|                     |    | Data Converter | ✅ |                     |    |
-|                     |    | Codec Server   | ✅ |                     |    |
-|                     |    | Custom Attrs   | ✅ |                     |    |
-|                     |    | SDK Metrics    | ✅ |                     |    |
-|                     |    | Local Activity |    |                     |    |
+| Network Connection  | ✅ | Schedule        |    | Entity              | ✅ |
+| Python 3.12         | ✅ | Timer           | ✅ | Fanout              |    |
+| Poetry 1.8.3        | ✅ | Reset           | ✅ | Long-Running        | ✅ |
+| Terraform 1.9.0     | ✅ | Signal          | ✅ | Continue As New     | ✅ |
+| Temporal Cloud Acct | ✅ | Query           | ✅ | Manual Intervention | ✅ |
+|                     |    | Heartbeat       | ✅ | Long-polling        | ✅ |
+|                     |    | Update          | ✅ | Polyglot            |    |
+|                     |    | Retry           | ✅ |                     |    |
+|                     |    | Data Converter  | ✅ |                     |    |
+|                     |    | Codec Server    | ✅ |                     |    |
+|                     |    | Custom Attrs    | ✅ |                     |    |
+|                     |    | SDK Metrics     | ✅ |                     |    |
+|                     |    | Local Activity  |    |                     |    |
 
 
 ![Temporal Infrastructure Provisioning UI Screenshot](./static/ui.png)
@@ -39,6 +39,7 @@ Each of these activities has a short sleep period associated with them, to simul
 - Terraform Init
 - Terraform Plan
 - Evaluate Policy
+  - Reset Workflow (Get a New Plan w/ Continue as New) [Optional]
 - Terraform Apply (leverages Heartbeats)
 - Terraform Destroy (leverages Heartbeats)
 - Terraform Output
@@ -47,6 +48,7 @@ Each of these activities has a short sleep period associated with them, to simul
 
 - Human Approval of Policy Failure
 - Human Denial of Policy Failure
+- Continue as New (Get a new TF Plan)
 
 ### Provision Updates
 
@@ -263,6 +265,10 @@ temporal workflow signal \
     --workflow-id="<workflow-id>" \
     --name update_apply_decision \
     --decision '{"is_approved": false"}'
+
+temporal workflow signal \
+    --workflow-id="<workflow-id>" \
+    --name request_continue_as_new
 ```
 
 #### Updating a Workflow
