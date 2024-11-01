@@ -374,3 +374,34 @@ terraform destroy -auto-approve
 cd terraform/tcloud_admin_user/
 terraform destroy -auto-approve
 ```
+
+---
+
+## Experimental
+
+### Docker
+
+To run the worker in a container, build the image with:
+
+`docker build -t temporal-infra-worker .`
+
+And then run the container with:
+
+```bash
+docker run --env-file .env temporal-infra-worker`
+
+# or
+
+docker run \
+  --network="host"  \
+  -e TEMPORAL_HOST_URL=$TEMPORAL_HOST_URL \
+  -e TEMPORAL_NAMESPACE=$TEMPORAL_NAMESPACE \
+  -e TEMPORAL_TASK_QUEUE=$TEMPORAL_TASK_QUEUE \
+  -e TEMPORAL_CLOUD_API_KEY=$TEMPORAL_CLOUD_API_KEY \
+  -e TF_VAR_prefix=$TF_VAR_prefix \
+  -e ENCRYPT_PAYLOADS=$ENCRYPT_PAYLOADS \
+  temporal-infra-worker
+```
+
+Note that with Docker Desktop, you'll need to use `host.docker.internal` instead of `localhost` to
+access the host machine from within the container.
