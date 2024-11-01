@@ -101,6 +101,10 @@ This will get to the apply stage and then simulate an API failure, recovering af
 
 This will follow the Happy Path, but will tear down the infrastructure after a user defined number of seconds (default 15s), using durable timers.
 
+### Destroy
+
+This will run a destroy workflow on the namespace that was created in the happy path.
+
 ## Running the Demo
 
 ### Installing Dependencies
