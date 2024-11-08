@@ -399,9 +399,7 @@ docker push eklhad/temporal-infra-worker:latest
 And then run the container with:
 
 ```bash
-docker run --env-file .env temporal-infra-worker`
-
-# or
+# for local devlopment
 
 docker run \
   --network="host"  \
@@ -411,6 +409,20 @@ docker run \
   -e TEMPORAL_CLOUD_API_KEY=$TEMPORAL_CLOUD_API_KEY \
   -e TF_VAR_prefix=$TF_VAR_prefix \
   -e ENCRYPT_PAYLOADS=$ENCRYPT_PAYLOADS \
+  eklhad/temporal-infra-worker:latest
+
+# for Temporal Cloud
+docker run \
+  --network="host" \
+  -e TEMPORAL_HOST_URL=$TEMPORAL_HOST_URL \
+  -e TEMPORAL_NAMESPACE=$TEMPORAL_NAMESPACE \
+  -e TEMPORAL_TASK_QUEUE=$TEMPORAL_TASK_QUEUE \
+  -e TEMPORAL_CLOUD_API_KEY=$TEMPORAL_CLOUD_API_KEY \
+  -e TF_VAR_prefix=$TF_VAR_prefix \
+  -e ENCRYPT_PAYLOADS=$ENCRYPT_PAYLOADS \
+  -e TEMPORAL_MTLS_TLS_CERT=/app/certs/client.pem \
+  -e TEMPORAL_MTLS_TLS_KEY=/app/certs/client.key \
+  -v $TEMPORAL_MTLS_DIR:/app/certs \
   eklhad/temporal-infra-worker:latest
 ```
 
