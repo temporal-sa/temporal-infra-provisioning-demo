@@ -387,7 +387,14 @@ terraform destroy -auto-approve
 
 To run the worker in a container, build the image with:
 
-`docker build -t temporal-infra-worker .`
+```bash
+docker build -t temporal-infra-worker .
+docker build -t eklhad/temporal-infra-worker:0.0.1 .
+docker tag eklhad/temporal-infra-worker:0.0.1 eklhad/temporal-infra-worker:0.0.1
+docker tag eklhad/temporal-infra-worker:0.0.1 eklhad/temporal-infra-worker:latest
+docker push eklhad/temporal-infra-worker:0.0.1
+docker push eklhad/temporal-infra-worker:latest
+```
 
 And then run the container with:
 
@@ -404,7 +411,7 @@ docker run \
   -e TEMPORAL_CLOUD_API_KEY=$TEMPORAL_CLOUD_API_KEY \
   -e TF_VAR_prefix=$TF_VAR_prefix \
   -e ENCRYPT_PAYLOADS=$ENCRYPT_PAYLOADS \
-  temporal-infra-worker
+  eklhad/temporal-infra-worker:latest
 ```
 
 Note that with Docker Desktop, you'll need to use `host.docker.internal` instead of `localhost` to
