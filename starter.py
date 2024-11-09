@@ -42,7 +42,7 @@ async def main():
 		directory=tcloud_tf_dir,
 		env_vars=tcloud_env_vars,
 		# TODO
-		# ephemeral=True
+		ephemeral=True
 	)
 
 	# Define the search attributes for the workflow
