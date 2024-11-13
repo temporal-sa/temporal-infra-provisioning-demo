@@ -1,5 +1,4 @@
 __pycache__/
-secrets.sh
 *.sqlite
 *.tfstate*
 *.binary
