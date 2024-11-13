@@ -145,9 +145,9 @@ environment variables. Be sure these environment variables are present in each e
 workers, starters, or the UI in.
 
 ```bash
-export TEMPORAL_HOST_URL="<namespace>.<accountId>.tmprl.cloud:7233"
-export TEMPORAL_MTLS_TLS_CERT="/path/to/ca.pem"
-export TEMPORAL_MTLS_TLS_KEY="/path/to/ca.key"
+export TEMPORAL_ADDRESS="<namespace>.<accountId>.tmprl.cloud:7233"
+export TEMPORAL_CERT_PATH="/path/to/ca.pem"
+export TEMPORAL_KEY_PATH="/path/to/ca.key"
 export TEMPORAL_NAMESPACE="default"
 export TEMPORAL_INFRA_PROVISION_TASK_QUEUE="infra-provisioning"
 ```
@@ -403,7 +403,7 @@ And then run the container with:
 
 docker run \
   --network="host"  \
-  -e TEMPORAL_HOST_URL=$TEMPORAL_HOST_URL \
+  -e TEMPORAL_ADDRESS=$TEMPORAL_ADDRESS \
   -e TEMPORAL_NAMESPACE=$TEMPORAL_NAMESPACE \
   -e TEMPORAL_TASK_QUEUE=$TEMPORAL_TASK_QUEUE \
   -e TEMPORAL_CLOUD_API_KEY=$TEMPORAL_CLOUD_API_KEY \
@@ -414,14 +414,14 @@ docker run \
 # for Temporal Cloud
 docker run \
   --network="host" \
-  -e TEMPORAL_HOST_URL=$TEMPORAL_HOST_URL \
+  -e TEMPORAL_ADDRESS=$TEMPORAL_ADDRESS \
   -e TEMPORAL_NAMESPACE=$TEMPORAL_NAMESPACE \
   -e TEMPORAL_TASK_QUEUE=$TEMPORAL_TASK_QUEUE \
   -e TEMPORAL_CLOUD_API_KEY=$TEMPORAL_CLOUD_API_KEY \
   -e TF_VAR_prefix=$TF_VAR_prefix \
   -e ENCRYPT_PAYLOADS=$ENCRYPT_PAYLOADS \
-  -e TEMPORAL_MTLS_TLS_CERT=/app/certs/client.pem \
-  -e TEMPORAL_MTLS_TLS_KEY=/app/certs/client.key \
+  -e TEMPORAL_CERT_PATH=/app/certs/client.pem \
+  -e TEMPORAL_KEY_PATH=/app/certs/client.key \
   -v $TEMPORAL_MTLS_DIR:/app/certs \
   eklhad/temporal-infra-worker:latest
 ```

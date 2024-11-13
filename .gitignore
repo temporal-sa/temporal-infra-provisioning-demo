@@ -10,3 +10,4 @@ secrets.sh
 *.pem
 *.key
 *.crt
+setcloudenv.sh

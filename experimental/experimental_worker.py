@@ -6,7 +6,7 @@ from shared.activities import ProvisioningActivities
 from workflows.apply import ProvisionInfraWorkflow
 from workflows.destroy import DeprovisionInfraWorkflow
 from temporalio.client import Client
-from shared.base import TEMPORAL_HOST_URL, TEMPORAL_NAMESPACE, TEMPORAL_CLOUD_API_KEY
+from shared.base import TEMPORAL_ADDRESS, TEMPORAL_NAMESPACE, TEMPORAL_CLOUD_API_KEY
 
 # Get the task queue name from the environment variable, defaulting to "provision-infra"
 TEMPORAL_TASK_QUEUE = os.environ.get("TEMPORAL_TASK_QUEUE", "provision-infra")
@@ -32,7 +32,7 @@ async def main() -> None:
 	activities = ProvisioningActivities()
 
 	client: Client = await Client.connect(
-		TEMPORAL_HOST_URL,
+		TEMPORAL_ADDRESS,
 		namespace=TEMPORAL_NAMESPACE,
 		rpc_metadata={"temporal-namespace": TEMPORAL_NAMESPACE},
 		api_key=TEMPORAL_CLOUD_API_KEY,

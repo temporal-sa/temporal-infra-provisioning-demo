@@ -11,11 +11,11 @@ from temporalio.runtime import Runtime
 from shared.codec import CompressionCodec, EncryptionCodec
 
 # Get the Temporal host URL from environment variable, default to "localhost:7233" if not set
-TEMPORAL_HOST_URL = os.environ.get("TEMPORAL_HOST_URL", "localhost:7233")
+TEMPORAL_ADDRESS = os.environ.get("TEMPORAL_ADDRESS", "localhost:7233")
 
 # Get the mTLS TLS certificate and key file paths from environment variables
-TEMPORAL_MTLS_TLS_CERT = os.environ.get("TEMPORAL_MTLS_TLS_CERT", "")
-TEMPORAL_MTLS_TLS_KEY = os.environ.get("TEMPORAL_MTLS_TLS_KEY", "")
+TEMPORAL_CERT_PATH = os.environ.get("TEMPORAL_CERT_PATH", "")
+TEMPORAL_KEY_PATH = os.environ.get("TEMPORAL_KEY_PATH", "")
 
 # Get the Temporal namespace from environment variable, default to "default" if not set
 TEMPORAL_NAMESPACE = os.environ.get("TEMPORAL_NAMESPACE", "default")
@@ -37,11 +37,11 @@ async def get_temporal_client(runtime: Runtime=None) -> Client:
 	tls_config = False
 
 	# If mTLS TLS certificate and key are provided, create a TLSConfig object
-	if TEMPORAL_MTLS_TLS_CERT != "" and TEMPORAL_MTLS_TLS_KEY != "":
-		with open(TEMPORAL_MTLS_TLS_CERT, "rb") as f:
+	if TEMPORAL_CERT_PATH != "" and TEMPORAL_KEY_PATH != "":
+		with open(TEMPORAL_CERT_PATH, "rb") as f:
 			client_cert = f.read()
 
-		with open(TEMPORAL_MTLS_TLS_KEY, "rb") as f:
+		with open(TEMPORAL_KEY_PATH, "rb") as f:
 			client_key = f.read()
 
 		tls_config = TLSConfig(
@@ -52,7 +52,7 @@ async def get_temporal_client(runtime: Runtime=None) -> Client:
 	if ENCRYPT_PAYLOADS:
 		# Create a Temporal client with encryption codec for payloads
 		client: Client = await Client.connect(
-			TEMPORAL_HOST_URL,
+			TEMPORAL_ADDRESS,
 			namespace=TEMPORAL_NAMESPACE,
 			tls=tls_config,
 			data_converter=dataclasses.replace(
@@ -65,7 +65,7 @@ async def get_temporal_client(runtime: Runtime=None) -> Client:
 	else:
 		# Create a regular Temporal client
 		client: Client = await Client.connect(
-			TEMPORAL_HOST_URL,
+			TEMPORAL_ADDRESS,
 			namespace=TEMPORAL_NAMESPACE,
 			tls=tls_config,
 			runtime=runtime

@@ -13,7 +13,7 @@ from temporalio.common import TypedSearchAttributes, SearchAttributeKey, \
 	SearchAttributePair
 
 # Get the Temporal host URL from the environment variable, default to "localhost:7233"
-TEMPORAL_HOST_URL = os.environ.get("TEMPORAL_HOST_URL", "localhost:7233")
+TEMPORAL_ADDRESS = os.environ.get("TEMPORAL_ADDRESS", "localhost:7233")
 # Get the Temporal namespace from the environment variable, default to "default"
 TEMPORAL_NAMESPACE = os.environ.get("TEMPORAL_NAMESPACE", "default")
 # Get the Temporal task queue from the environment variable, default to "provision-infra"
@@ -26,13 +26,20 @@ ENCRYPT_PAYLOADS = os.getenv("ENCRYPT_PAYLOADS", 'false').lower() in ('true', '1
 # NOTE: This is a specific env var for mat for Terraform.
 TF_VAR_prefix = os.environ.get("TF_VAR_prefix", "temporal-sa")
 
+print(f"TEMPORAL_ADDRESS: {TEMPORAL_ADDRESS}")
+print(f"TEMPORAL_NAMESPACE: {TEMPORAL_NAMESPACE}")
+print(f"TEMPORAL_TASK_QUEUE: {TEMPORAL_TASK_QUEUE}")
+print(f"TEMPORAL_CLOUD_API_KEY: {TEMPORAL_CLOUD_API_KEY}")
+print(f"ENCRYPT_PAYLOADS: {ENCRYPT_PAYLOADS}")
+print(f"TF_VAR_prefix: {TF_VAR_prefix}")
+
 app = Flask(__name__)
 
 # Define search attribute keys for workflow search
 provision_status_key = SearchAttributeKey.for_text("provisionStatus")
 tf_directory_key = SearchAttributeKey.for_text("tfDirectory")
 scenario_key = SearchAttributeKey.for_text("scenario")
-temporal_ui_url = TEMPORAL_HOST_URL.replace("7233", "8233") if "localhost" in TEMPORAL_HOST_URL \
+temporal_ui_url = TEMPORAL_ADDRESS.replace("7233", "8233") if "localhost" in TEMPORAL_ADDRESS \
 	else "https://cloud.temporal.io"
 tf_runs = []
 
@@ -109,7 +116,7 @@ async def main():
 		wf_id=wf_id,
 		tf_runs=tf_runs,
 		scenarios=SCENARIOS,
-		temporal_host_url=TEMPORAL_HOST_URL,
+		temporal_host_url=TEMPORAL_ADDRESS,
 		temporal_ui_url=temporal_ui_url,
 		temporal_namespace=TEMPORAL_NAMESPACE,
 		payloads_encrypted=ENCRYPT_PAYLOADS
@@ -192,7 +199,7 @@ async def run_workflow():
 		wf_id=wf_id,
 		tf_runs=tf_runs,
 		selected_scenario=selected_scenario,
-		temporal_host_url=TEMPORAL_HOST_URL,
+		temporal_host_url=TEMPORAL_ADDRESS,
 		temporal_ui_url=temporal_ui_url,
 		temporal_namespace=TEMPORAL_NAMESPACE,
 		payloads_encrypted=ENCRYPT_PAYLOADS
@@ -252,7 +259,7 @@ async def provisioned():
 		tf_runs=tf_runs,
 		tf_workflow_output=tf_workflow_output,
 		tf_run_status=status,
-		temporal_host_url=TEMPORAL_HOST_URL,
+		temporal_host_url=TEMPORAL_ADDRESS,
 		temporal_ui_url=temporal_ui_url,
 		temporal_namespace=TEMPORAL_NAMESPACE,
 		payloads_encrypted=ENCRYPT_PAYLOADS
