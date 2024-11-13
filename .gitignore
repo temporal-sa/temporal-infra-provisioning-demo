@@ -7,3 +7,6 @@ secrets.sh
 .DS_Store
 *.tfvars
 .vscode/
+*.pem
+*.key
+*.crt
