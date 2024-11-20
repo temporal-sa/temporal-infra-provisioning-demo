@@ -35,9 +35,11 @@ TERRAFORM_COMMON_TIMEOUT_SECS = 300
 
 async def get_temporal_client(runtime: Runtime=None) -> Client:
 	tls_config = False
+	data_converter = None
 
 	# If mTLS TLS certificate and key are provided, create a TLSConfig object
 	if TEMPORAL_CERT_PATH != "" and TEMPORAL_KEY_PATH != "":
+		print("Using mTLS")
 		with open(TEMPORAL_CERT_PATH, "rb") as f:
 			client_cert = f.read()
 
@@ -50,24 +52,33 @@ async def get_temporal_client(runtime: Runtime=None) -> Client:
 		)
 
 	if ENCRYPT_PAYLOADS:
-		# Create a Temporal client with encryption codec for payloads
-		client: Client = await Client.connect(
+		print("Using encryption codec")
+		data_converter = dataclasses.replace(
+			converter.default(),
+			payload_codec=EncryptionCodec(),
+			failure_converter_class=converter.DefaultFailureConverterWithEncodedAttributes
+		)
+
+	# TODO / NOTE: this will always have the API key for now since that's what is used to deploy the namespace
+	if TEMPORAL_CLOUD_API_KEY != "":
+		print("Using Cloud API key")
+		# Create a Temporal client using the Cloud API key
+		client = await Client.connect(
 			TEMPORAL_ADDRESS,
 			namespace=TEMPORAL_NAMESPACE,
-			tls=tls_config,
-			data_converter=dataclasses.replace(
-				converter.default(),
-				payload_codec=EncryptionCodec(),
-				failure_converter_class=converter.DefaultFailureConverterWithEncodedAttributes
-			),
-			runtime=runtime
+			rpc_metadata={"temporal-namespace": TEMPORAL_NAMESPACE},
+			api_key=TEMPORAL_CLOUD_API_KEY,
+			data_converter=data_converter,
+			tls=True,
 		)
 	else:
-		# Create a regular Temporal client
+		print("Using MTLS")
+		# Create a Temporal client using MTLS
 		client: Client = await Client.connect(
 			TEMPORAL_ADDRESS,
 			namespace=TEMPORAL_NAMESPACE,
 			tls=tls_config,
+			data_converter=data_converter,
 			runtime=runtime
 		)
 
