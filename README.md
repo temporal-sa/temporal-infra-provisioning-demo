@@ -132,7 +132,6 @@ To generate an API key, use `tcld`, you'll need to `tcld login` first to do this
 tcld apikey create -n "terraform-test" --desc "Testing the API Key for the TF Provider" -d 90d
 ```
 
-
 Be sure to then set your Temporal Cloud API key environment variable.
 
 ```bash
@@ -187,9 +186,9 @@ created. If you are using the Temporal dev server, use the `operator search-attr
 command.
 
 ```bash
-temporal operator search-attribute create --namespace $TEMPORAL_NAMESPACE --name provisionStatus --type text
-temporal operator search-attribute create --namespace $TEMPORAL_NAMESPACE --name tfDirectory --type text
-temporal operator search-attribute create --namespace $TEMPORAL_NAMESPACE --name scenario --type text
+temporal operator search-attribute create --namespace "default" --name provisionStatus --type text
+temporal operator search-attribute create --namespace "default" --name tfDirectory --type text
+temporal operator search-attribute create --namespace "default" --name scenario --type text
 ```
 
 ### Configuring Temporal Cloud (Option #2)
@@ -258,7 +257,6 @@ If you introduce a Terraform stanza that provisions a user with admin permission
 will pause and wait for a signal or update to approve or deny the execution of the plan. If going
 down the signal path, you don't need to provide a reason, but if you go down the update path, you
 need to provide a reason for approval.
-
 
 #### Signaling a Workflow
 
@@ -343,6 +341,15 @@ docker-compose up
 When you connect to your Prometheus from Grafana, use the URL `http://prometheus:9090`. There is
 an example dashboard to leverage in `metrics/dashboards/sdk-general.json`.
 
+### Running the Tests
+
+There are unit and replay tests for the provision and destroy workflows. To run the unit tests, use
+the following command.
+
+```bash
+poetry run python -m pytest
+```
+
 ### Cleaning Up
 
 This demo provisions real namespaces and real admin users inside of Temporal Cloud, and we do not
@@ -367,7 +374,7 @@ poetry run python destroyer.py
 To do so, make sure that you have your `TEMPORAL_CLOUD_API_KEY` env var set, then run the following.
 You will have to move around the directories depending on what you need to `destroy`.
 
-*DO NOT DELETE THEM IN THE UI - THIS WILL CAUSE YOUR TERRAFORM STATE TO DRIFT!*
+**DO NOT DELETE THEM IN THE UI - THIS WILL CAUSE YOUR TERRAFORM STATE TO DRIFT!**
 
 ```bash
 cd terraform/tcloud_namespace/

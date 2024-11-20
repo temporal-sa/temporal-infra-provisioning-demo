@@ -26,13 +26,6 @@ ENCRYPT_PAYLOADS = os.getenv("ENCRYPT_PAYLOADS", 'false').lower() in ('true', '1
 # NOTE: This is a specific env var for mat for Terraform.
 TF_VAR_prefix = os.environ.get("TF_VAR_prefix", "temporal-sa")
 
-print(f"TEMPORAL_ADDRESS: {TEMPORAL_ADDRESS}")
-print(f"TEMPORAL_NAMESPACE: {TEMPORAL_NAMESPACE}")
-print(f"TEMPORAL_TASK_QUEUE: {TEMPORAL_TASK_QUEUE}")
-print(f"TEMPORAL_CLOUD_API_KEY: {TEMPORAL_CLOUD_API_KEY}")
-print(f"ENCRYPT_PAYLOADS: {ENCRYPT_PAYLOADS}")
-print(f"TF_VAR_prefix: {TF_VAR_prefix}")
-
 app = Flask(__name__)
 
 # Define search attribute keys for workflow search
