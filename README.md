@@ -2,8 +2,8 @@
 
 | Prerequisites       |    | Features       |    | Patterns            |    |
 |:--------------------|----|----------------|----|---------------------|----|
-| Network Connection  | ✅ | Schedule        |    | Entity              | ✅ |
-| Python 3.12         | ✅ | Timer           | ✅ | Fanout              |    |
+| Network Connection  | ✅ | SDK Metrics     | ✅ | Entity              | ✅ |
+| Python 3.12         | ✅ | Timer           | ✅ | Long-polling        | ✅ |
 | Poetry 1.8.3        | ✅ | Reset           | ✅ | Long-Running        | ✅ |
 | Terraform 1.9.0     | ✅ | Signal          | ✅ | Continue As New     | ✅ |
 | Temporal Cloud Acct | ✅ | Query           | ✅ | Manual Intervention | ✅ |
@@ -13,9 +13,9 @@
 |                     |    | Data Converter  | ✅ |                     |    |
 |                     |    | Codec Server    | ✅ |                     |    |
 |                     |    | Custom Attrs    | ✅ |                     |    |
-|                     |    | SDK Metrics     | ✅ |                     |    |
+|                     |    | Replay Tests    |    |                     |    |
+|                     |    | Schedule        |    |                     |    |
 |                     |    | Local Activity  |    |                     |    |
-
 
 ![Temporal Infrastructure Provisioning UI Screenshot](./static/ui.png)
 
