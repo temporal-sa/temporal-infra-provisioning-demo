@@ -16,6 +16,7 @@
 |                     |    | Replay Tests    | ✅ |                     |    |
 |                     |    | Schedule        | ✅ |                     |    |
 |                     |    | Local Activity  | ✅ |                     |    |
+|                     |    | Nexus           |    |                     |    |
 
 ![Temporal Infrastructure Provisioning UI Screenshot](./static/ui.png)
 
