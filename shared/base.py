@@ -98,6 +98,7 @@ class TerraformRunDetails:
 	include_custom_search_attrs: bool = True
 	ephemeral: bool = False
 	ephemeral_ttl: int = 15
+	soft_fail_policy: bool = False
 	hard_fail_policy: bool = False
 	simulate_api_failure: bool = False
 
@@ -151,12 +152,6 @@ class TerraformDestroyError(Exception):
 
 @dataclass
 class TerraformOutputError(Exception):
-	def __init__(self, message) -> None:
-		self.message: str = message
-		super().__init__(self.message)
-
-@dataclass
-class PolicyCheckError(Exception):
 	def __init__(self, message) -> None:
 		self.message: str = message
 		super().__init__(self.message)

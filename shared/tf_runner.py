@@ -5,7 +5,7 @@ from typing import Tuple
 
 from shared.base import TerraformRunDetails, TerraformApplyError, \
 	TerraformInitError, TerraformPlanError, TerraformOutputError, \
-	TerraformDestroyError, PolicyCheckError
+	TerraformDestroyError
 
 
 class TerraformRunner:
@@ -108,30 +108,6 @@ class TerraformRunner:
 			raise TerraformOutputError(f"Terraform output errored: {stderr}")
 
 		return stdout, stderr
-
-	async def policy_check(self, data: TerraformRunDetails) -> bool:
-		"""Evaluate the Terraform plan against a policy. In this case, we're
-		checking for admin users being added at the account level."""
-		# NOTE: This is a blocking call since it simply checks a JSON file
-
-		policy_passed = True
-
-		try:
-			planned_changes = self._tfplan["resource_changes"]
-			for planned_change in planned_changes:
-				resource_type = planned_change["type"]
-				if resource_type == "temporalcloud_user":
-					actions = planned_change["change"]["actions"]
-					if "create" in actions:
-						# TODO: this is pulling just the first namespace access, we should loop
-						expected_after_perms = planned_change["change"]["after"]["namespace_accesses"][0]["permission"]
-						if expected_after_perms == "admin":
-							policy_passed = False
-							continue
-		except Exception as e:
-			raise PolicyCheckError(f"Policy check errored: {e}")
-
-		return policy_passed
 
 	def set_plan(self, plan: dict) -> None:
 		"""Set the Terraform plan."""

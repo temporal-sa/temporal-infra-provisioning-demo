@@ -75,8 +75,7 @@ class ProvisionInfraWorkflow:
 
 		policy_retry_policy = RetryPolicy(
 			maximum_attempts=5,
-			maximum_interval=timedelta(seconds=5),
-			non_retryable_error_types=["PolicyCheckError"],
+			maximum_interval=timedelta(seconds=5)
 		)
 		self._custom_upsert(data, {"provisionStatus": ["policy_checking"]})
 		self._progress = 50

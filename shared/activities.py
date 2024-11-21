@@ -7,8 +7,8 @@ from temporalio.exceptions import ActivityError
 from shared.tf_runner import TerraformRunner
 from shared.base import TerraformRunDetails, TerraformApplyError, \
 	TerraformInitError, TerraformPlanError, TerraformOutputError, \
-	PolicyCheckError, TerraformMissingEnvVarsError, TerraformAPIFailureError, \
-	TerraformDestroyError, TerraformRecoverableError
+	TerraformMissingEnvVarsError, TerraformAPIFailureError, \
+		TerraformDestroyError, TerraformRecoverableError
 
 
 class ProvisioningActivities:
@@ -171,18 +171,8 @@ class ProvisioningActivities:
 		checking for admin users being added at the account level."""
 
 		activity.logger.info("Policy check (could be external but isn't for now)")
-		policy_passed = False
-
 		await asyncio.sleep(3)
 		activity.logger.info("Sleeping for 3 seconds to slow execution down")
 
-		try:
-			policy_passed = await self._runner.policy_check(data)
-		except PolicyCheckError as pce:
-			activity.logger.error(f"Policy check errored: {pce}")
-			raise pce
-		except ActivityError as ae:
-			activity.logger.error(f"Policy check errored: {ae}")
-			raise ae
-
-		return policy_passed
+		# Return false to fail the policy check, use not to invert the flag
+		return not data.soft_fail_policy

@@ -414,7 +414,6 @@
           "maximumInterval": "5s",
           "maximumAttempts": 5,
           "nonRetryableErrorTypes": [
-            "PolicyCheckError"
           ]
         },
         "useWorkflowBuildId": true

@@ -96,6 +96,15 @@ def _scrub_sensitive_data(tf_workflow_output: dict):
 			tf_workflow_output[key]["value"] = "<sensitive>"
 	return tf_workflow_output
 
+# Global variable to store the Temporal client
+temporal_client = None
+
+async def _get_singleton_temporal_client():
+	global temporal_client
+	if temporal_client is None:
+		temporal_client = await get_temporal_client()
+	return temporal_client
+
 # Define the main route
 @app.route("/", methods=["GET", "POST"])
 async def main():
@@ -134,8 +143,9 @@ async def run_workflow():
 		id=wf_id,
 		directory=tcloud_tf_dir,
 		env_vars=tcloud_env_vars,
-		# NOTE: Only hard fail the policy in the non-recoverable failure scenario
 		hard_fail_policy=(selected_scenario == "non_recoverable_failure"),
+		soft_fail_policy=(selected_scenario == "human_in_the_loop_signal" \
+					or selected_scenario == "human_in_the_loop_update"),
 		# NOTE: Only disable the custom search attributes on the happy path
 		# so that we can demonstrate that visibility on the other scenarios.
 		include_custom_search_attrs=(selected_scenario != "happy_path"),
@@ -148,7 +158,7 @@ async def run_workflow():
 	)
 
 	# Get the Temporal client
-	client = await get_temporal_client()
+	client = await _get_singleton_temporal_client()
 	no_existing_workflow = False
 
 	try:
@@ -207,7 +217,7 @@ async def get_progress():
 	}
 
 	try:
-		client = await get_temporal_client()
+		client = await _get_singleton_temporal_client()
 		tf_workflow = client.get_workflow_handle(wf_id)
 		payload["status"] = await tf_workflow.query("get_current_status")
 		payload["progress_percent"] = await tf_workflow.query("get_progress")
@@ -230,7 +240,7 @@ async def provisioned():
 	wf_id = request.args.get("wf_id", "")
 	scenario = request.args.get("scenario", "")
 
-	client = await get_temporal_client()
+	client = await _get_singleton_temporal_client()
 	tf_workflow = client.get_workflow_handle(wf_id)
 	status = await tf_workflow.query("get_current_status")
 	tf_workflow_output = await tf_workflow.result()
@@ -263,7 +273,7 @@ async def signal():
 	payload = request.json.get("payload", False)
 
 	try:
-		client = await get_temporal_client()
+		client = await _get_singleton_temporal_client()
 		order_workflow = client.get_workflow_handle(wf_id)
 
 		if signal_type == "signal_apply_decision":
@@ -290,7 +300,7 @@ async def update():
 	reason = request.json.get("reason", "")
 
 	try:
-		client = await get_temporal_client()
+		client = await _get_singleton_temporal_client()
 		order_workflow = client.get_workflow_handle(wf_id)
 		print(order_workflow)
 
