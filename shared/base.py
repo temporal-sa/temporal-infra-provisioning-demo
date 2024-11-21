@@ -1,7 +1,7 @@
 import os
 import dataclasses
 from dataclasses import dataclass, field
-from typing import Dict
+from typing import Dict, Optional
 from typing_extensions import runtime
 from temporalio.client import Client
 from temporalio.service import  TLSConfig
@@ -33,7 +33,7 @@ ENCRYPT_PAYLOADS = os.getenv("ENCRYPT_PAYLOADS", 'false').lower() in ('true', '1
 TERRAFORM_COMMON_TIMEOUT_SECS = 300
 
 
-async def get_temporal_client(runtime: Runtime=None) -> Client:
+async def get_temporal_client(runtime: Optional[Runtime] = None, use_cloud_api_key: bool = False) -> Client:
 	tls_config = False
 	data_converter = None
 
@@ -59,8 +59,11 @@ async def get_temporal_client(runtime: Runtime=None) -> Client:
 			failure_converter_class=converter.DefaultFailureConverterWithEncodedAttributes
 		)
 
-	# TODO / NOTE: this will always have the API key for now since that's what is used to deploy the namespace
-	if TEMPORAL_CLOUD_API_KEY != "":
+	print("neil", TEMPORAL_CLOUD_API_KEY, use_cloud_api_key)
+	print(TEMPORAL_ADDRESS, TEMPORAL_NAMESPACE)
+	# NOTE: We are using a flag here, since the entire application needs the TEMPORAL_CLOUD_API_KEY
+	# to be set, for now.
+	if TEMPORAL_CLOUD_API_KEY != "" and use_cloud_api_key:
 		print("Using Cloud API key")
 		# Create a Temporal client using the Cloud API key
 		client = await Client.connect(

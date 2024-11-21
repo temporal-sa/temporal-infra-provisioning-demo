@@ -6,7 +6,7 @@
 | Python 3.12         | ✅ | Timer           | ✅ | Long-polling        | ✅ |
 | Poetry 1.8.3        | ✅ | Reset           | ✅ | Long-running        | ✅ |
 | Terraform 1.9.0     | ✅ | Signal          | ✅ | Continue As New     | ✅ |
-| Temporal Cloud Acct | ✅ | Query           | ✅ | Human in the Loop   | ✅ |
+| Temporal Cloud Acct | ✅ | Query           | ✅ | Human in the Loop  | ✅ |
 |                     |    | Heartbeat       | ✅ | Polyglot            |    |
 |                     |    | Update          | ✅ |                     |    |
 |                     |    | Retry           | ✅ |                     |    |
@@ -151,12 +151,27 @@ export TEMPORAL_NAMESPACE="default"
 export TEMPORAL_INFRA_PROVISION_TASK_QUEUE="infra-provisioning"
 ```
 
+#### Using an API Key for Authentication
+
+If you want, you can use an API key to authenticate to your namespace. Since this application uses
+the `TEMPORAL_CLOUD_API_KEY` environment variable, it will use that same API key to authenticate to
+your namespace. You'll need to have API key auth enabled for your namespace, and pass the
+`use_cloud_api_key` flag to the `get_temporal_client` function.
+
+```bash
+get_temporal_client(use_cloud_api_key=True)
+```
+
+#### Using Data Converters and a Codec Server
+
 If you plan to use Data Converters and a Codec server, you'll need to update the `ENCRYPT_PAYLOADS`
 env var as well.
 
 ```bash
 export ENCRYPT_PAYLOADS="true"
 ```
+
+#### Using a Prefix for Terraform
 
 Lastly, to make sure that the namespaces and users that are generated from this demo can be
 attributed to a specific individual, please use the following environment variable to denote your
