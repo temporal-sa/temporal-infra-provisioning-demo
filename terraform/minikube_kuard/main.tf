@@ -28,6 +28,7 @@ resource "kubernetes_deployment" "kuard" {
     namespace = kubernetes_namespace.kuard.metadata[0].name
     labels = {
       app = "kuard"
+      owner = var.prefix
     }
   }
 
@@ -43,7 +44,8 @@ resource "kubernetes_deployment" "kuard" {
     template {
       metadata {
         labels = {
-          app = "${var.prefix}-kuard"
+          app = "kuard"
+          owner = var.prefix
         }
       }
 
