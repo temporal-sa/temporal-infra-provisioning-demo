@@ -193,7 +193,6 @@ class ProvisionInfraWorkflow:
 
 	@update_apply_decision.validator
 	def validate_apply_decision(self, decision: ApplyDecisionDetails) -> None:
-		print("NEIL DECISION REASON", decision)
 		if decision.reason == "":
 			workflow.logger.info("Rejecting update apply decision, no reason provided.")
 			raise ApplicationError("Update apply decision must include a reason.")

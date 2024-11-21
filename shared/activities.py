@@ -60,7 +60,6 @@ class ProvisioningActivities:
 		if not data.env_vars:
 			activity.logger.debug("Missing environment variables, cannot proceed.")
 			raise TerraformMissingEnvVarsError("Missing environment variables, cannot proceed.")
-			# TODO: raise ApplicationError?
 
 		try:
 			plan_json_stdout, plan_json_stderr, plan_stdout, plan_stderr = await self._runner.plan(data, activity_id)

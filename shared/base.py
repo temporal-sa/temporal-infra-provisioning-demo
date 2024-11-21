@@ -29,11 +29,14 @@ TEMPORAL_CLOUD_API_KEY = os.environ.get("TEMPORAL_CLOUD_API_KEY", "")
 # Determine if payloads should be encrypted based on the value of the "ENCRYPT_PAYLOADS" environment variable
 ENCRYPT_PAYLOADS = os.getenv("ENCRYPT_PAYLOADS", 'false').lower() in ('true', '1', 't')
 
+# Determine if the Cloud API should be used for auth
+USE_CLOUD_API_KEY = os.getenv("USE_CLOUD_API_KEY_AUTH", 'false').lower() in ('true', '1', 't')
+
 # Set the Terraform common timeout in seconds
 TERRAFORM_COMMON_TIMEOUT_SECS = 300
 
 
-async def get_temporal_client(runtime: Optional[Runtime] = None, use_cloud_api_key: bool = False) -> Client:
+async def get_temporal_client(runtime: Optional[Runtime] = None) -> Client:
 	tls_config = False
 	data_converter = None
 
@@ -61,7 +64,7 @@ async def get_temporal_client(runtime: Optional[Runtime] = None, use_cloud_api_k
 
 	# NOTE: We are using a flag here, since the entire application needs the TEMPORAL_CLOUD_API_KEY
 	# to be set, for now.
-	if TEMPORAL_CLOUD_API_KEY != "" and use_cloud_api_key:
+	if TEMPORAL_CLOUD_API_KEY != "" and USE_CLOUD_API_KEY:
 		print("Using Cloud API key")
 		# Create a Temporal client using the Cloud API key
 		client = await Client.connect(

@@ -7,7 +7,7 @@
 | Poetry 1.8.3        | ✅ | Reset           | ✅ | Long-running        | ✅ |
 | Terraform 1.9.0     | ✅ | Signal          | ✅ | Continue As New     | ✅ |
 | Temporal Cloud Acct | ✅ | Query           | ✅ | Human in the Loop   | ✅ |
-|                     |    | Heartbeat       | ✅ | Polyglot            |    |
+| Minikube 1.3.4      | ✅ | Heartbeat       | ✅ | Polyglot            |    |
 |                     |    | Update          | ✅ |                     |    |
 |                     |    | Retry           | ✅ |                     |    |
 |                     |    | Data Converter  | ✅ |                     |    |
@@ -156,11 +156,11 @@ export TEMPORAL_INFRA_PROVISION_TASK_QUEUE="infra-provisioning"
 
 If you want, you can use an API key to authenticate to your namespace. Since this application uses
 the `TEMPORAL_CLOUD_API_KEY` environment variable, it will use that same API key to authenticate to
-your namespace. You'll need to have API key auth enabled for your namespace, and pass the
-`use_cloud_api_key` flag to the `get_temporal_client` function.
+your namespace. You'll need to have API key auth enabled for your namespace, the following
+environment variable will need to be set.
 
 ```bash
-get_temporal_client(use_cloud_api_key=True)
+export USE_CLOUD_API_KEY_AUTH="true"
 ```
 
 #### Using Data Converters and a Codec Server
@@ -417,6 +417,31 @@ terraform destroy -auto-approve
 ---
 
 ## Experimental
+
+### Minikube Demo
+
+#### Prerequisites
+
+- Minikube installed and running (`minikube start`)
+- kubectl configured to use minikube context
+
+#### Deploying Kuard Demo App
+
+The `terraform/minikube_kuard` directory contains configuration to deploy the Kubernetes Up and Running Demo (kuard) application to your local Minikube cluster.
+
+```bash
+cd terraform/minikube_kuard
+terraform init
+terraform apply
+```
+
+After applying, you can access the kuard demo application using the URL provided in the terraform output. You can also use:
+
+```bash
+minikube service kuard -n kuard-namespace
+```
+
+This will automatically open your browser to the correct URL and port.
 
 ### Docker
 

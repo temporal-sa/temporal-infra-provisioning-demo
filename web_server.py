@@ -102,8 +102,6 @@ async def main():
 	# Generate a unique workflow ID
 	wf_id = f"provision-infra-{uuid.uuid4()}"
 
-	# TODO: look up the data live
-
 	return render_template(
 		"index.html",
 		wf_id=wf_id,
@@ -237,7 +235,6 @@ async def provisioned():
 	status = await tf_workflow.query("get_current_status")
 	tf_workflow_output = await tf_workflow.result()
 
-	# TODO: insert this during the provisioning stage, and look up the tf_run status individually?
 	_safe_insert_tf_run({
 		"id": wf_id,
 		"scenario": scenario,

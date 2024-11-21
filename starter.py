@@ -32,13 +32,16 @@ async def main():
 	wf_id = f"provision-infra-{uuid.uuid4()}"
 
 	# Create the TerraformRunDetails object
+	ephemeral = True
 	tf_run_details = TerraformRunDetails(
 		id=wf_id,
 		directory=tcloud_tf_dir,
 		env_vars=tcloud_env_vars,
-		# TODO
-		ephemeral=True
+		ephemeral=ephemeral
 	)
+
+	if ephemeral:
+		print("This TF run is ephemeral, so it will be deleted after a short delay.")
 
 	# Define the search attributes for the workflow
 	provision_status_key = SearchAttributeKey.for_text("provisionStatus")
