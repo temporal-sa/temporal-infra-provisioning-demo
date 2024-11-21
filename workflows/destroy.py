@@ -38,7 +38,7 @@ class DeprovisionInfraWorkflow:
 
 		self._progress = 10
 		self._current_status = "initializing"
-		await workflow.execute_activity_method(
+		await workflow.execute_local_activity_method(
 			ProvisioningActivities.terraform_init,
 			data,
 			start_to_close_timeout=timedelta(seconds=TERRAFORM_COMMON_TIMEOUT_SECS),

@@ -13,9 +13,9 @@
 |                     |    | Data Converter  | ✅ |                     |    |
 |                     |    | Codec Server    | ✅ |                     |    |
 |                     |    | Custom Attrs    | ✅ |                     |    |
-|                     |    | Replay Tests    |    |                     |    |
+|                     |    | Replay Tests    | ✅ |                     |    |
 |                     |    | Schedule        |    |                     |    |
-|                     |    | Local Activity  |    |                     |    |
+|                     |    | Local Activity  | ✅ |                     |    |
 
 ![Temporal Infrastructure Provisioning UI Screenshot](./static/ui.png)
 
