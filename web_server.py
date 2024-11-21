@@ -4,7 +4,9 @@ import re
 from dataclasses import dataclass, field
 from typing import Dict
 from flask import Flask, render_template, request, jsonify
-from shared.base import get_temporal_client, TerraformRunDetails, ApplyDecisionDetails
+from shared.base import get_temporal_client, TerraformRunDetails, ApplyDecisionDetails, \
+	TEMPORAL_ADDRESS, TEMPORAL_NAMESPACE, TEMPORAL_TASK_QUEUE, ENCRYPT_PAYLOADS
+
 from workflows.apply import ProvisionInfraWorkflow
 from workflows.destroy import DeprovisionInfraWorkflow
 
@@ -12,16 +14,6 @@ from temporalio.exceptions import ApplicationError
 from temporalio.common import TypedSearchAttributes, SearchAttributeKey, \
 	SearchAttributePair
 
-# Get the Temporal host URL from the environment variable, default to "localhost:7233"
-TEMPORAL_ADDRESS = os.environ.get("TEMPORAL_ADDRESS", "localhost:7233")
-# Get the Temporal namespace from the environment variable, default to "default"
-TEMPORAL_NAMESPACE = os.environ.get("TEMPORAL_NAMESPACE", "default")
-# Get the Temporal task queue from the environment variable, default to "provision-infra"
-TEMPORAL_TASK_QUEUE = os.environ.get("TEMPORAL_TASK_QUEUE", "provision-infra")
-# Get the Temporal Cloud API key from the environment variable, default to an empty string
-TEMPORAL_CLOUD_API_KEY = os.environ.get("TEMPORAL_CLOUD_API_KEY", "")
-# Determine whether to encrypt payloads based on the environment variable, default to False
-ENCRYPT_PAYLOADS = os.getenv("ENCRYPT_PAYLOADS", 'false').lower() in ('true', '1', 't')
 # Get the TF_VAR_prefix environment variable, defaulting to "temporal-sa" if not set
 # NOTE: This is a specific env var for mat for Terraform.
 TF_VAR_prefix = os.environ.get("TF_VAR_prefix", "temporal-sa")
@@ -36,52 +28,44 @@ temporal_ui_url = TEMPORAL_ADDRESS.replace("7233", "8233") if "localhost" in TEM
 	else "https://cloud.temporal.io"
 tf_runs = []
 
+DIRECTORY = "./terraform/minikube_kuard"
 # Define the available scenarios
 SCENARIOS = {
 	"happy_path": {
 		"title": "Happy Path",
-		"description": "This deploys a namespace to Temporal Cloud with no issues.",
-		"directory": "./terraform/tcloud_namespace"
+		"description": "This deploys kuard into a minikube cluster with no issues."
 	},
 	"advanced_visibliity": {
 		"title": "Advanced Visibility",
-		"description": "This deploys a namespace to Temporal Cloud with no issues, while publishing custom search attributes.",
-		"directory": "./terraform/tcloud_namespace"
+		"description": "This deploys kuard into a minikube cluster with no issues, while publishing custom search attributes."
 	},
 	"human_in_the_loop_signal": {
 		"title": "Human in the Loop (Signal)",
-		"description": "This deploys an admin user to Temporal Cloud which requires an approval signal after a soft policy failure.",
-		"directory": "./terraform/tcloud_admin_user"
+		"description": "This will attempt to deploy kuard into a minikube cluster, but will fail due to a soft policy failure, requiring an approval signal."
 	},
 	"human_in_the_loop_update": {
 		"title": "Human in the Loop (Update w/ Validation)",
-		"description": "This deploys an admin user to Temporal Cloud which requires an approval update, including validation, after a soft policy failure.",
-		"directory": "./terraform/tcloud_admin_user"
+		"description": "This will attempt to deploy kuard into a minikube cluster, but will fail due to a soft policy failure, requiring an approval update, including validation."
 	},
 	"recoverable_failure": {
 		"title": "Recoverable Failure (Bug in Code)",
-		"description": "This deploys an admin user to Temporal Cloud which will fail due to uncommenting an exception in the terraform_plan activity and restarting the worker, then recommenting and restarting the worker.",
-		"directory": "./terraform/tcloud_namespace"
+		"description": "This will attempt to deploy kuard into a minikube cluster, but will fail due to uncommenting an exception in the terraform_plan activity and restarting the worker, then recommenting and restarting the worker."
 	},
 	"non_recoverable_failure": {
 		"title": "Non Recoverable Failure (Hard Policy Fail)",
-		"description": "This can deploy an admin user to Temporal Cloud which will fail due to a hard policy failure, or can delete the environment variables and fail out w/ a non-retryable error.",
-		"directory": "./terraform/tcloud_admin_user"
+		"description": "This will attempt to deploy kuard into a minikube cluster, but will fail due to a hard policy failure, or you can delete the environment variables and fail out w/ a non-retryable error."
 	},
 	"api_failure": {
 		"title": "API Failure (recover on 5th attempt)",
-		"description": "This will get to the apply stage and then simulate an API failure, recovering after 5 attempts.",
-		"directory": "./terraform/tcloud_namespace"
+		"description": "This will get to the apply stage and then simulate an API failure, recovering after 5 attempts."
 	},
 	"ephemeral": {
 		"title": "Ephemeral (Destroy After N seconds, with Durable Timers)",
-		"description": "This will follow the Happy Path, but will tear down the infrastructure after a user defined number of seconds (default 15s), using durable timers.",
-		"directory": "./terraform/tcloud_namespace"
+		"description": "This will follow the Happy Path, but will tear down the infrastructure after a user defined number of seconds (default 15s), using durable timers."
 	},
 	"destroy": {
 		"title": "Destroy",
-		"description": "This will tear down the infrastructure immediately.",
-		"directory": "./terraform/tcloud_namespace"
+		"description": "This will tear down the infrastructure immediately."
 	},
 }
 
@@ -132,16 +116,13 @@ async def run_workflow():
 
 	# Set Temporal Cloud environment variables based on the selected scenario
 	tcloud_env_vars = {
-		"TEMPORAL_CLOUD_API_KEY": TEMPORAL_CLOUD_API_KEY,
 		"TF_VAR_prefix": TF_VAR_prefix
 	}
-
-	tcloud_tf_dir = SCENARIOS[selected_scenario]["directory"]
 
 	# Create Terraform run details
 	tf_run_details = TerraformRunDetails(
 		id=wf_id,
-		directory=tcloud_tf_dir,
+		directory=DIRECTORY,
 		env_vars=tcloud_env_vars,
 		hard_fail_policy=(selected_scenario == "non_recoverable_failure"),
 		soft_fail_policy=(selected_scenario == "human_in_the_loop_signal" \
@@ -178,7 +159,7 @@ async def run_workflow():
 				task_queue=TEMPORAL_TASK_QUEUE,
 				search_attributes=TypedSearchAttributes([
 					SearchAttributePair(provision_status_key, ""),
-					SearchAttributePair(tf_directory_key, tcloud_tf_dir),
+					SearchAttributePair(tf_directory_key, DIRECTORY),
 					SearchAttributePair(scenario_key, selected_scenario)
 				]),
 			)
@@ -190,7 +171,7 @@ async def run_workflow():
 				task_queue=TEMPORAL_TASK_QUEUE,
 				search_attributes=TypedSearchAttributes([
 					SearchAttributePair(provision_status_key, ""),
-					SearchAttributePair(tf_directory_key, tcloud_tf_dir),
+					SearchAttributePair(tf_directory_key, DIRECTORY),
 					SearchAttributePair(scenario_key, selected_scenario)
 				]),
 			)

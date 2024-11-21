@@ -12,6 +12,10 @@ provider "kubernetes" {
   config_context = "minikube"
 }
 
+variable "prefix" {
+  description = "The prefix for the namespace"
+}
+
 resource "kubernetes_namespace" "kuard" {
   metadata {
     name = "kuard-namespace"
@@ -39,7 +43,7 @@ resource "kubernetes_deployment" "kuard" {
     template {
       metadata {
         labels = {
-          app = "kuard"
+          app = "${var.prefix}-kuard"
         }
       }
 

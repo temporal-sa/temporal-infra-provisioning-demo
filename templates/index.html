@@ -7,13 +7,11 @@
     <thead>
         <th>Name</th>
         <th>Description</th>
-        <th>Directory</th>
     </thead>
     {% for name, scenario in scenarios.items() %}
     <tr>
         <td>{{ scenario["title"] }}</td>
         <td>{{ scenario["description"] }}</td>
-        <td><pre>{{ scenario["directory"] }}</pre></td>
     </tr>
     {% endfor %}
 </table>

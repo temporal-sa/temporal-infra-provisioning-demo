@@ -21,14 +21,13 @@
 ![Temporal Infrastructure Provisioning UI Screenshot](./static/ui.png)
 
 This demo has the building blocks for you to execute any terraform code to completion, but is
-focused on provisioning namespaces and users in Temporal Cloud. Because of that, you will need to
-generate a Temporal Cloud API key for usage with the Terraform plan. This is also a sensitive value
-and will be published to whatever Temporal server you connect to, so it is recommended to leverage
-the `ENCRYPT_PAYLOADS` variable, or that you retire the credential you use in the demo immediately.
+focused on provisioning [kuard](https://github.com/kubernetes/kuard) into a
+[minikube cluster](https://minikube.sigs.k8s.io/docs/). Because of that, you'll need to make sure
+you have minikube installed and running, as well as kubectl configured to use the minikube context.
 
-Note that this repo will create a namespace in the target Temporal Cloud account, so you should
-always be sure to clean up the infrastructure you provision, by `cd`ing in to the Terraform
-directory that you applied in the demo and running `terraform destroy`.
+```bash
+minikube start
+```
 
 ## Provision Workflow
 
@@ -47,14 +46,12 @@ Each of these activities has a short sleep period associated with them, to simul
 
 ### Provision Signals
 
-- Human Approval of Policy Failure
-- Human Denial of Policy Failure
+- Human Approval/Denial of Policy Failure
 - Continue as New (Get a new TF Plan)
 
 ### Provision Updates
 
-- Human Approval of Policy Failure
-- Human Denial of Policy Failure
+- Human Approval/Denial of Policy Failure
 
 ### Provision Queries
 
@@ -67,32 +64,33 @@ Each of these activities has a short sleep period associated with them, to simul
 
 ### Happy Path
 
-This deploys a namespace to Temporal Cloud with no issues.
+This deploys kuard into a minikube cluster with no issues.
 
 ### Advanced Visibility
 
-This deploys a namespace to Temporal Cloud with no issues, while publishing custom search
+This deploys kuard into a minikube cluster with no issues, while publishing custom search
 attributes.
 
 ### Human in the Loop (Signal)
 
-This deploys an admin user to Temporal Cloud which requires an approval signal after a soft policy
-failure.
+This will attempt to deploy kuard into a minikube cluster, but will fail due to a soft policy
+failure, requiring an approval signal.
 
 ### Human in the Loop (Update w/ Validation)
 
-This deploys an admin user to Temporal Cloud which requires an approval update after a soft policy
-failure. This is the same as the signal path, but the update will fail if the reason is empty.
+This will attempt to deploy kuard into a minikube cluster, but will fail due to a soft policy
+failure, requiring an approval update, including validation.
 
 ### Recoverable Failure (Bug in Code)
 
-This deploys an admin user to Temporal Cloud which will fail due to uncommenting an exception in
-the terraform_plan activity and restarting the worker, then recommenting and restarting the worker.
+This will attempt to deploy kuard into a minikube cluster, but will fail due to uncommenting an
+exception in the terraform_plan activity and restarting the worker, then recommenting and restarting
+the worker.
 
 ### Non-Recoverable Failure (Hard Policy Failure)
 
-This can deploy an admin user to Temporal Cloud which will fail due to a hard policy failure, or
-can delete the environment variables and fail out w/ a `non_retryable_error`.
+This will attempt to deploy kuard into a minikube cluster, but will fail due to a hard policy
+failure, or you can delete the environment variables and fail out w/ a `non_retryable_error`.
 
 ### API Failure (Recover on 5th Attempt)
 
@@ -100,7 +98,8 @@ This will get to the apply stage and then simulate an API failure, recovering af
 
 ### Ephemeral (Destroy Infra After TTL)
 
-This will follow the Happy Path, but will tear down the infrastructure after a user defined number of seconds (default 15s), using durable timers.
+This will follow the Happy Path, but will tear down the infrastructure after a user defined number
+of seconds (default 15s), using durable timers.
 
 ### Destroy
 
@@ -127,18 +126,6 @@ poetry install
 
 ### Configuring the Environment
 
-To generate an API key, use `tcld`, you'll need to `tcld login` first to do this.
-
-```bash
-tcld apikey create -n "terraform-test" --desc "Testing the API Key for the TF Provider" -d 90d
-```
-
-Be sure to then set your Temporal Cloud API key environment variable.
-
-```bash
-export TEMPORAL_CLOUD_API_KEY="<secretKey>"
-```
-
 By default, this demo will run against `localhost:7233` in the `default` namespace, on the
 `provision-infra` task queue, with no TLS configured. All of this can be overriden with the below
 environment variables. Be sure these environment variables are present in each environment you are executing
@@ -146,21 +133,27 @@ workers, starters, or the UI in.
 
 ```bash
 export TEMPORAL_ADDRESS="<namespace>.<accountId>.tmprl.cloud:7233"
-export TEMPORAL_CERT_PATH="/path/to/ca.pem"
-export TEMPORAL_KEY_PATH="/path/to/ca.key"
 export TEMPORAL_NAMESPACE="default"
 export TEMPORAL_INFRA_PROVISION_TASK_QUEUE="infra-provisioning"
 ```
 
-#### Using an API Key for Authentication
+#### Using mTLS for Authentication
 
-If you want, you can use an API key to authenticate to your namespace. Since this application uses
-the `TEMPORAL_CLOUD_API_KEY` environment variable, it will use that same API key to authenticate to
-your namespace. You'll need to have API key auth enabled for your namespace, the following
-environment variable will need to be set.
+If you want to use mTLS for authentication, you'll need to set the `TEMPORAL_CERT_PATH` and
+`TEMPORAL_KEY_PATH` environment variables to the paths of your TLS certificate and key.
 
 ```bash
-export USE_CLOUD_API_KEY_AUTH="true"
+export TEMPORAL_CERT_PATH="/path/to/ca.pem"
+export TEMPORAL_KEY_PATH="/path/to/ca.key"
+```
+
+#### Using an API Key for Authentication
+
+If you want, you can use an API key to authenticate to your namespace, you will need to set you
+`TEMPORAL_CLOUD_API_KEY` environment variable, and have API key auth enabled for your namespace.
+
+```bash
+export TEMPORAL_CLOUD_API_KEY="<secretKey>"
 ```
 
 #### Using Data Converters and a Codec Server
@@ -379,9 +372,8 @@ poetry run python -m pytest
 
 ### Cleaning Up
 
-This demo provisions real namespaces and real admin users inside of Temporal Cloud, and we do not
-want those to linger around. Although they have a naming convention that makes it very clear that
-they are spawned from this demo, be a good citizen and clean up after yourself.
+This demo provisions into your minikube cluster, so to keep things tidy and make sure you don't have
+any lingering resources, you should clean up after yourself.
 
 #### Using the UI
 
@@ -405,12 +397,7 @@ You will have to move around the directories depending on what you need to `dest
 **DO NOT DELETE THEM IN THE UI - THIS WILL CAUSE YOUR TERRAFORM STATE TO DRIFT!**
 
 ```bash
-cd terraform/tcloud_namespace/
-terraform destroy -auto-approve
-```
-
-```bash
-cd terraform/tcloud_admin_user/
+cd terraform/minikube_kuard/
 terraform destroy -auto-approve
 ```
 

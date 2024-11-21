@@ -39,7 +39,7 @@ async def test_successful_deprovisioning():
 
 	async with await WorkflowEnvironment.start_time_skipping() as env:
 		mock_input = TerraformRunDetails(
-			directory="terraform/tcloud_namespace",
+			directory="terraform/minikube_kuard",
 			include_custom_search_attrs=False, # NOTE: tests not working with custom search attrs
 			hard_fail_policy=False,
 			apply_timeout_secs=300,

@@ -64,7 +64,7 @@ async def get_temporal_client(runtime: Optional[Runtime] = None) -> Client:
 
 	# NOTE: We are using a flag here, since the entire application needs the TEMPORAL_CLOUD_API_KEY
 	# to be set, for now.
-	if TEMPORAL_CLOUD_API_KEY != "" and USE_CLOUD_API_KEY:
+	if TEMPORAL_CLOUD_API_KEY != "":
 		print("Using Cloud API key")
 		# Create a Temporal client using the Cloud API key
 		client = await Client.connect(

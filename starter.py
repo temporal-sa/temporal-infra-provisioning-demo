@@ -3,8 +3,7 @@ import uuid
 import logging
 import os
 from workflows.apply import ProvisionInfraWorkflow
-from shared.base import TerraformRunDetails, get_temporal_client, TEMPORAL_CLOUD_API_KEY, \
-	TEMPORAL_TASK_QUEUE
+from shared.base import TerraformRunDetails, get_temporal_client, TEMPORAL_TASK_QUEUE
 
 from temporalio.common import TypedSearchAttributes, SearchAttributeKey, \
 	SearchAttributePair
@@ -20,11 +19,10 @@ async def main():
 	client = await get_temporal_client()
 
 	# Set the directory for the Terraform configuration files
-	tcloud_tf_dir = "./terraform/tcloud_namespace"
+	minikube_kuard_dir = "./terraform/minikube_kuard"
 
 	# Set the environment variables for Terraform
 	tcloud_env_vars = {
-		"TEMPORAL_CLOUD_API_KEY": TEMPORAL_CLOUD_API_KEY,
 		"TF_VAR_prefix": TF_VAR_prefix
 	}
 
@@ -35,7 +33,7 @@ async def main():
 	ephemeral = True
 	tf_run_details = TerraformRunDetails(
 		id=wf_id,
-		directory=tcloud_tf_dir,
+		directory=minikube_kuard_dir,
 		env_vars=tcloud_env_vars,
 		ephemeral=ephemeral
 	)
@@ -48,7 +46,7 @@ async def main():
 	tf_directory_key = SearchAttributeKey.for_text("tfDirectory")
 	search_attributes = TypedSearchAttributes([
 		SearchAttributePair(provision_status_key, ""),
-		SearchAttributePair(tf_directory_key, tcloud_tf_dir)
+		SearchAttributePair(tf_directory_key, minikube_kuard_dir)
 	])
 
 	# Start the workflow
