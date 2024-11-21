@@ -4,11 +4,11 @@
 |:--------------------|----|----------------|----|---------------------|----|
 | Network Connection  | ✅ | SDK Metrics     | ✅ | Entity              | ✅ |
 | Python 3.12         | ✅ | Timer           | ✅ | Long-polling        | ✅ |
-| Poetry 1.8.3        | ✅ | Reset           | ✅ | Long-Running        | ✅ |
+| Poetry 1.8.3        | ✅ | Reset           | ✅ | Long-running        | ✅ |
 | Terraform 1.9.0     | ✅ | Signal          | ✅ | Continue As New     | ✅ |
-| Temporal Cloud Acct | ✅ | Query           | ✅ | Manual Intervention | ✅ |
-|                     |    | Heartbeat       | ✅ | Long-polling        | ✅ |
-|                     |    | Update          | ✅ | Polyglot            |    |
+| Temporal Cloud Acct | ✅ | Query           | ✅ | Human in the Loop   | ✅ |
+|                     |    | Heartbeat       | ✅ | Polyglot            |    |
+|                     |    | Update          | ✅ |                     |    |
 |                     |    | Retry           | ✅ |                     |    |
 |                     |    | Data Converter  | ✅ |                     |    |
 |                     |    | Codec Server    | ✅ |                     |    |
