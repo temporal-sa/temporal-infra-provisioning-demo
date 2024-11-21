@@ -7,8 +7,6 @@ with workflow.unsafe.imports_passed_through():
 	from shared.activities import ProvisioningActivities
 	from shared.base import TerraformRunDetails
 
-
-
 @workflow.defn
 class DeprovisionInfraWorkflow:
 

@@ -3,16 +3,11 @@ import uuid
 import logging
 import os
 from workflows.apply import ProvisionInfraWorkflow
-from shared.base import TerraformRunDetails, get_temporal_client
+from shared.base import TerraformRunDetails, get_temporal_client, TEMPORAL_CLOUD_API_KEY, \
+	TEMPORAL_TASK_QUEUE
 
 from temporalio.common import TypedSearchAttributes, SearchAttributeKey, \
 	SearchAttributePair
-
-# Get the TEMPORAL_TASK_QUEUE environment variable, defaulting to "provision-infra" if not set
-TEMPORAL_TASK_QUEUE = os.environ.get("TEMPORAL_TASK_QUEUE", "provision-infra")
-
-# Get the TEMPORAL_CLOUD_API_KEY environment variable, which stores the API key for Temporal Cloud
-TEMPORAL_CLOUD_API_KEY = os.environ.get("TEMPORAL_CLOUD_API_KEY", "")
 
 # Get the TF_VAR_prefix environment variable, defaulting to "temporal-sa" if not set
 # NOTE: This is a specific env var for attribution for Terraform.

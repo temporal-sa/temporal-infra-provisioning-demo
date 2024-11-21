@@ -6,7 +6,7 @@
 | Python 3.12         | ✅ | Timer           | ✅ | Long-polling        | ✅ |
 | Poetry 1.8.3        | ✅ | Reset           | ✅ | Long-running        | ✅ |
 | Terraform 1.9.0     | ✅ | Signal          | ✅ | Continue As New     | ✅ |
-| Temporal Cloud Acct | ✅ | Query           | ✅ | Human in the Loop  | ✅ |
+| Temporal Cloud Acct | ✅ | Query           | ✅ | Human in the Loop   | ✅ |
 |                     |    | Heartbeat       | ✅ | Polyglot            |    |
 |                     |    | Update          | ✅ |                     |    |
 |                     |    | Retry           | ✅ |                     |    |
@@ -14,7 +14,7 @@
 |                     |    | Codec Server    | ✅ |                     |    |
 |                     |    | Custom Attrs    | ✅ |                     |    |
 |                     |    | Replay Tests    | ✅ |                     |    |
-|                     |    | Schedule        |    |                     |    |
+|                     |    | Schedule        | ✅ |                     |    |
 |                     |    | Local Activity  | ✅ |                     |    |
 
 ![Temporal Infrastructure Provisioning UI Screenshot](./static/ui.png)
@@ -355,6 +355,17 @@ docker-compose up
 
 When you connect to your Prometheus from Grafana, use the URL `http://prometheus:9090`. There is
 an example dashboard to leverage in `metrics/dashboards/sdk-general.json`.
+
+### Scheduling Destroy Workflows
+
+There may be a scenario in which you want to schedule the destruction of the infrastructure. To
+do so, run the `scheduler.py` file, which will destroy all of the infrastructure created by this demo
+after a user defined interval (default is 5 minutes). It will run 3 times by default, so after
+15 minutes you will need to manually clean up.
+
+```bash
+poetry run python scheduler.py
+```
 
 ### Running the Tests
 
