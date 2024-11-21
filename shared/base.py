@@ -59,8 +59,6 @@ async def get_temporal_client(runtime: Optional[Runtime] = None, use_cloud_api_k
 			failure_converter_class=converter.DefaultFailureConverterWithEncodedAttributes
 		)
 
-	print("neil", TEMPORAL_CLOUD_API_KEY, use_cloud_api_key)
-	print(TEMPORAL_ADDRESS, TEMPORAL_NAMESPACE)
 	# NOTE: We are using a flag here, since the entire application needs the TEMPORAL_CLOUD_API_KEY
 	# to be set, for now.
 	if TEMPORAL_CLOUD_API_KEY != "" and use_cloud_api_key:
