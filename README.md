@@ -215,11 +215,11 @@ environment variables set).
 poetry run python starter.py
 ```
 
-Once you start the worker, submit a deprovision workflow using the destroyer (also needs the
+Once you start the worker, submit a deprovision workflow using the cleanup (also needs the
 environment variables set).
 
 ```bash
-poetry run python destroyer.py
+poetry run python cleanup.py
 ```
 
 ### Starting the UI
@@ -359,14 +359,15 @@ they are spawned from this demo, be a good citizen and clean up after yourself.
 #### Using the UI
 
 Select the "Destroy" scenario in the UI and click "Run". This will teardown the namespace that is
-created.
+created, but not the user.
 
-#### Using `destroyer.py`
+#### Using `cleanup.py`
 
+The cleanup will start two destroy workflows, one for the namespace and one for the user.
 Be sure the environment variables are set.
 
 ```bash
-poetry run python destroyer.py
+poetry run python cleanup.py
 ```
 
 #### Using `terraform` Directly

@@ -24,8 +24,9 @@ async def main():
 	# Get the Temporal client
 	client = await get_temporal_client()
 
-	# Set the directory for the Terraform configuration files
-	tcloud_tf_dir = "./terraform/tcloud_namespace"
+	# Set the directories for the Terraform configuration files
+	tcloud_namespace_dir = "./terraform/tcloud_namespace"
+	tcloud_user_dir = "./terraform/tcloud_admin_user"
 
 	# Set the environment variables for Terraform
 	tcloud_env_vars = {
@@ -33,38 +34,54 @@ async def main():
 		"TF_VAR_prefix": TF_VAR_prefix
 	}
 
-	# Generate a unique ID for the workflow
-	wf_id = f"deprovision-infra-{uuid.uuid4()}"
+	# Generate unique IDs for the workflow
+	namespace_wf_id = f"deprovision-infra-{uuid.uuid4()}"
+	user_wf_id = f"deprovision-infra-{uuid.uuid4()}"
 
 	# Create the TerraformRunDetails object
-	tf_run_details = TerraformRunDetails(
-		id=wf_id,
-		directory=tcloud_tf_dir,
+	tf_namespace_run_details = TerraformRunDetails(
+		id=namespace_wf_id,
+		directory=tcloud_namespace_dir,
+		env_vars=tcloud_env_vars,
+	)
+
+	# Create the TerraformRunDetails object
+	tf_user_run_details = TerraformRunDetails(
+		id=user_wf_id,
+		directory=tcloud_user_dir,
 		env_vars=tcloud_env_vars,
 	)
 
 	# Define the search attributes for the workflow
 	provision_status_key = SearchAttributeKey.for_text("provisionStatus")
 	tf_directory_key = SearchAttributeKey.for_text("tfDirectory")
-	search_attributes = TypedSearchAttributes([
-		SearchAttributePair(provision_status_key, ""),
-		SearchAttributePair(tf_directory_key, tcloud_tf_dir)
-	])
 
-	# Start the workflow
-	handle = await client.start_workflow(
-		DeprovisionInfraWorkflow.run,
-		tf_run_details,
-		id=wf_id,
-		task_queue=TEMPORAL_TASK_QUEUE,
-		search_attributes=search_attributes,
+	# Start both workflows concurrently and await their completion
+	await asyncio.gather(
+		client.start_workflow(
+			DeprovisionInfraWorkflow.run,
+			tf_namespace_run_details,
+			id=namespace_wf_id,
+			task_queue=TEMPORAL_TASK_QUEUE,
+			search_attributes=TypedSearchAttributes([
+				SearchAttributePair(provision_status_key, ""),
+				SearchAttributePair(tf_directory_key, tcloud_namespace_dir)
+			])
+		),
+		client.start_workflow(
+			DeprovisionInfraWorkflow.run,
+			tf_user_run_details,
+			id=user_wf_id,
+			task_queue=TEMPORAL_TASK_QUEUE,
+			search_attributes=TypedSearchAttributes([
+				SearchAttributePair(provision_status_key, ""),
+				SearchAttributePair(tf_directory_key, tcloud_user_dir)
+			])
+		)
 	)
 
-	# Wait for the workflow to complete and get the result
-	result = await handle.result()
-
 	# Print the result
-	print(f"Result: {result}")
+	print(f"Started deprovisioning workflows for namespace and user.")
 
 
 if __name__ == "__main__":
