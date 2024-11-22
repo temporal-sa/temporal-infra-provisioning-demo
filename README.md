@@ -32,7 +32,8 @@ minikube start
 There are two additional Terraform configurations in this repo, one for provisioning a namespace
 in Temporal Cloud, and one for provisioning an admin user in Temporal Cloud.. The starter script
 will default to provisioning into minikube, but you can easily swap to Temporal Cloud by
-uncommenting the relevant lines. The UI is fully minikube based.
+uncommenting the relevant lines. You will need to set the `TEMPORAL_CLOUD_API_KEY` environment
+variable to match the API key for your Temporal Cloud account. The UI is fully minikube based.
 
 ## Provision Workflow
 
