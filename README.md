@@ -29,6 +29,11 @@ you have minikube installed and running, as well as kubectl configured to use th
 minikube start
 ```
 
+There are two additional Terraform configurations in this repo, one for provisioning a namespace
+in Temporal Cloud, and one for provisioning an admin user in Temporal Cloud.. The starter script
+will default to provisioning into minikube, but you can easily swap to Temporal Cloud by
+uncommenting the relevant lines. The UI is fully minikube based.
+
 ## Provision Workflow
 
 ### Provision Activities
