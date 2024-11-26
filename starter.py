@@ -37,6 +37,7 @@ async def main():
 	ephemeral = True
 	tf_run_details = TerraformRunDetails(
 		id=wf_id,
+		# NOTE: change this to tcloud_namespace_dir if that is what you are deploying
 		directory=minikube_kuard_dir,
 		env_vars=tcloud_env_vars,
 		ephemeral=ephemeral

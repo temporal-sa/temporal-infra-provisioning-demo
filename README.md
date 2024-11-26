@@ -21,9 +21,10 @@
 ![Temporal Infrastructure Provisioning UI Screenshot](./static/ui.png)
 
 This demo has the building blocks for you to execute any terraform code to completion, but is
-focused on provisioning [kuard](https://github.com/kubernetes/kuard) into a
-[minikube cluster](https://minikube.sigs.k8s.io/docs/). Because of that, you'll need to make sure
-you have minikube installed and running, as well as kubectl configured to use the minikube context.
+focused on provisioning [kuard](https://github.com/kubernetes/kuard) (Kubernetes Up and Running
+Demo App) into a [minikube cluster](https://minikube.sigs.k8s.io/docs/). Because of that,
+you'll need to make sure you have minikube installed and running, as well as kubectl configured
+to use the minikube context.
 
 ```bash
 minikube start
@@ -70,33 +71,34 @@ Each of these activities has a short sleep period associated with them, to simul
 
 ### Happy Path
 
-This deploys kuard into a minikube cluster with no issues.
+This deploys a Kubernetes Demo App into a minikube cluster with no issues.
 
 ### Advanced Visibility
 
-This deploys kuard into a minikube cluster with no issues, while publishing custom search
-attributes.
+This deploys a Kubernetes Demo App into a minikube cluster with no issues, while publishing custom
+search attributes.
 
 ### Human in the Loop (Signal)
 
-This will attempt to deploy kuard into a minikube cluster, but will fail due to a soft policy
-failure, requiring an approval signal.
+This will attempt to deploy a Kubernetes Demo App into a minikube cluster, but will fail due to a
+soft policy failure, requiring an approval signal.
 
 ### Human in the Loop (Update w/ Validation)
 
-This will attempt to deploy kuard into a minikube cluster, but will fail due to a soft policy
-failure, requiring an approval update, including validation.
+This will attempt to deploy a Kubernetes Demo App into a minikube cluster, but will fail due to a
+soft policy failure, requiring an approval update, including validation.
 
 ### Recoverable Failure (Bug in Code)
 
-This will attempt to deploy kuard into a minikube cluster, but will fail due to uncommenting an
-exception in the terraform_plan activity and restarting the worker, then recommenting and restarting
-the worker.
+This will attempt to deploy a Kubernetes Demo App into a minikube cluster, but will fail due to
+uncommenting an exception in the terraform_plan activity and restarting the worker, then
+re-commenting and restarting the worker.
 
 ### Non-Recoverable Failure (Hard Policy Failure)
 
-This will attempt to deploy kuard into a minikube cluster, but will fail due to a hard policy
-failure, or you can delete the environment variables and fail out w/ a `non_retryable_error`.
+This will attempt to deploy a Kubernetes Demo App into a minikube cluster, but will fail due to a
+hard policy failure, or you can delete the environment variables and fail out w/ a
+`non_retryable_error`.
 
 ### API Failure (Recover on 5th Attempt)
 
@@ -418,9 +420,9 @@ terraform destroy -auto-approve
 - Minikube installed and running (`minikube start`)
 - kubectl configured to use minikube context
 
-#### Deploying Kuard Demo App
+#### Deploying Kubernetes Demo App (`kuard`)
 
-The `terraform/minikube_kuard` directory contains configuration to deploy the Kubernetes Up and Running Demo (kuard) application to your local Minikube cluster.
+The `terraform/minikube_kuard` directory contains configuration to deploy the Kubernetes Up and Running Demo (`kuard`) application to your local Minikube cluster.
 
 ```bash
 cd terraform/minikube_kuard
@@ -428,7 +430,7 @@ terraform init
 terraform apply
 ```
 
-After applying, you can access the kuard demo application using the URL provided in the terraform output. You can also use:
+After applying, you can access the Kubernetes Demo App using the URL provided in the terraform output. You can also use:
 
 ```bash
 minikube service kuard -n kuard-namespace

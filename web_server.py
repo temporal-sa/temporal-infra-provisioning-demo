@@ -33,27 +33,27 @@ DIRECTORY = "./terraform/minikube_kuard"
 SCENARIOS = {
 	"happy_path": {
 		"title": "Happy Path",
-		"description": "This deploys kuard into a minikube cluster with no issues."
+		"description": "This deploys a Kubernetes Demo App into a minikube cluster with no issues."
 	},
 	"advanced_visibliity": {
 		"title": "Advanced Visibility",
-		"description": "This deploys kuard into a minikube cluster with no issues, while publishing custom search attributes."
+		"description": "This deploys a Kubernetes Demo App into a minikube cluster with no issues, while publishing custom search attributes."
 	},
 	"human_in_the_loop_signal": {
 		"title": "Human in the Loop (Signal)",
-		"description": "This will attempt to deploy kuard into a minikube cluster, but will fail due to a soft policy failure, requiring an approval signal."
+		"description": "This will attempt to deploy a Kubernetes Demo App into a minikube cluster, but will fail due to a soft policy failure, requiring an approval signal."
 	},
 	"human_in_the_loop_update": {
 		"title": "Human in the Loop (Update w/ Validation)",
-		"description": "This will attempt to deploy kuard into a minikube cluster, but will fail due to a soft policy failure, requiring an approval update, including validation."
+		"description": "This will attempt to deploy a Kubernetes Demo App into a minikube cluster, but will fail due to a soft policy failure, requiring an approval update, including validation."
 	},
 	"recoverable_failure": {
 		"title": "Recoverable Failure (Bug in Code)",
-		"description": "This will attempt to deploy kuard into a minikube cluster, but will fail due to uncommenting an exception in the terraform_plan activity and restarting the worker, then recommenting and restarting the worker."
+		"description": "This will attempt to deploy a Kubernetes Demo App into a minikube cluster, but will fail due to uncommenting an exception in the terraform_plan activity and restarting the worker, then re-commenting and restarting the worker."
 	},
 	"non_recoverable_failure": {
 		"title": "Non Recoverable Failure (Hard Policy Fail)",
-		"description": "This will attempt to deploy kuard into a minikube cluster, but will fail due to a hard policy failure, or you can delete the environment variables and fail out w/ a non-retryable error."
+		"description": "This will attempt to deploy a Kubernetes Demo App into a minikube cluster, but will fail due to a hard policy failure, or you can delete the environment variables and fail out w/ a `non_retryable_error`."
 	},
 	"api_failure": {
 		"title": "API Failure (recover on 5th attempt)",

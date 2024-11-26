@@ -29,9 +29,6 @@ TEMPORAL_CLOUD_API_KEY = os.environ.get("TEMPORAL_CLOUD_API_KEY", "")
 # Determine if payloads should be encrypted based on the value of the "ENCRYPT_PAYLOADS" environment variable
 ENCRYPT_PAYLOADS = os.getenv("ENCRYPT_PAYLOADS", 'false').lower() in ('true', '1', 't')
 
-# Determine if the Cloud API should be used for auth
-USE_CLOUD_API_KEY = os.getenv("USE_CLOUD_API_KEY_AUTH", 'false').lower() in ('true', '1', 't')
-
 # Set the Terraform common timeout in seconds
 TERRAFORM_COMMON_TIMEOUT_SECS = 300
 
@@ -42,7 +39,6 @@ async def get_temporal_client(runtime: Optional[Runtime] = None) -> Client:
 
 	# If mTLS TLS certificate and key are provided, create a TLSConfig object
 	if TEMPORAL_CERT_PATH != "" and TEMPORAL_KEY_PATH != "":
-		print("Using mTLS")
 		with open(TEMPORAL_CERT_PATH, "rb") as f:
 			client_cert = f.read()
 
