@@ -29,6 +29,7 @@ temporal_ui_url = TEMPORAL_ADDRESS.replace("7233", "8233") if "localhost" in TEM
 tf_runs = []
 
 DIRECTORY = "./terraform/minikube_kuard"
+
 # Define the available scenarios
 SCENARIOS = {
 	"happy_path": {
@@ -255,15 +256,15 @@ async def signal():
 
 	try:
 		client = await _get_singleton_temporal_client()
-		order_workflow = client.get_workflow_handle(wf_id)
+		wf_handle = client.get_workflow_handle(wf_id)
 
 		if signal_type == "signal_apply_decision":
 			apply_decision = ApplyDecisionDetails(
 				is_approved=payload
 			)
-			await order_workflow.signal(signal_type, apply_decision)
+			await wf_handle.signal(signal_type, apply_decision)
 		elif signal_type == "request_continue_as_new":
-			await order_workflow.signal(signal_type)
+			await wf_handle.signal(signal_type)
 		else:
 			raise Exception("Signal type not supported")
 
@@ -282,15 +283,13 @@ async def update():
 
 	try:
 		client = await _get_singleton_temporal_client()
-		order_workflow = client.get_workflow_handle(wf_id)
-		print(order_workflow)
+		wf_handle = client.get_workflow_handle(wf_id)
 
 		apply_decision = ApplyDecisionDetails(
 			reason=reason,
 			is_approved=decision
 		)
-		print(apply_decision)
-		result = await order_workflow.execute_update("update_apply_decision", apply_decision)
+		result = await wf_handle.execute_update("update_apply_decision", apply_decision)
 
 		return jsonify({"result": result}), 200
 	except Exception as e:

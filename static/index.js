@@ -66,7 +66,7 @@ function updateProgress() {
 			}
 
 			if (data.progress_percent === 100) {
-				// Redirect to order confirmation with the tfRunID
+				// Redirect to provisioned confirmation with the tfRunID
 				window.location.href =
 					"/provisioned?wf_id=" + encodeURIComponent(tfRunID) +
 					"&scenario=" + encodeURIComponent(scenario);
