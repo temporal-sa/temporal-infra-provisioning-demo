@@ -161,5 +161,3 @@ button {
 #errorMessage {
 	color: red;
 }
-
-document.getElementById("progressBar").style.backgroundColor = "red";
