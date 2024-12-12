@@ -114,10 +114,11 @@ async def run_workflow():
 	selected_scenario = request.args.get("scenario", "")
 	wf_id = request.args.get("wf_id", "")
 	ephemeral_ttl = int(request.args.get("ephemeral_ttl", 15))
+	deployment_prefix = request.args.get("deployment_prefix", "temporal-sa")
 
 	# Set Temporal Cloud environment variables based on the selected scenario
 	tcloud_env_vars = {
-		"TF_VAR_prefix": TF_VAR_prefix
+		"TF_VAR_prefix": deployment_prefix
 	}
 
 	# Create Terraform run details

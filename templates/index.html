@@ -23,12 +23,17 @@
     {% endfor %}
 </select>
 
+<label for="deploymentPrefix">Deployment Prefix:</label>
+<input type="text" id="deploymentPrefix" class="form-control" name="deploymentPrefix" placeholder="your-prefix" />
+
 <div id="ephemeralContainer">
-    <label for="ephemeral-ttl">Ephemeral TTL (in seconds, min 15s):</label>
-    <input type="number" id="ephemeralTTL" class="form-control" name="ephemeral-ttl" min="15" value="15" />
+    <label for="ephemeralTTL">Ephemeral TTL (in seconds, min 15s):</label>
+    <input type="number" id="ephemeralTTL" class="form-control" name="ephemeralTTL" min="15" value="15" />
 </div>
 
 <button class="btn btn-primary" onclick="runWorkflow()">Run</button>
+
+<p id="errorMessage" class="badge text-bg-danger"></p>
 
 <hr />
 

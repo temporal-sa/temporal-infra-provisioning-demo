@@ -6,10 +6,28 @@ function generateUUID() {
     });
 }
 
+function clearErrorMessage() {
+	document.getElementById("errorMessage").innerText = "";
+	document.getElementById("errorMessage").style.display = "none";
+}
+
+function showErrorMessage(message) {
+	document.getElementById("errorMessage").innerText = message;
+	document.getElementById("errorMessage").style.display = "block";
+}
+
 function runWorkflow() {
 	var selectedScenario = document.getElementById("scenario").value;
-	var ephemeralTTL = document.getElementById("ephemeralTTL").valueAsNumber
+	var ephemeralTTL = document.getElementById("ephemeralTTL").valueAsNumber;
+	var deploymentPrefix = document.getElementById("deploymentPrefix").value;
 	var tfRunID = "";
+
+	if (deploymentPrefix === "") {
+		showErrorMessage("Please enter a deployment prefix");
+		return;
+	} else {
+		clearErrorMessage();
+	}
 
 	if (selectedScenario === "destroy") {
 		tfRunID = `deprovision-infra-${generateUUID()}`;
@@ -21,7 +39,8 @@ function runWorkflow() {
 	window.location.href =
 		"/run_workflow?scenario=" + encodeURIComponent(selectedScenario) +
 		"&wf_id=" + encodeURIComponent(tfRunID) +
-		"&ephemeral_ttl=" + encodeURIComponent(ephemeralTTL);
+		"&ephemeral_ttl=" + encodeURIComponent(ephemeralTTL) +
+		"&deployment_prefix=" + encodeURIComponent(deploymentPrefix);
 }
 
 function updateProgress() {
@@ -40,7 +59,7 @@ function updateProgress() {
 		})
 		.then(data => {
 			// Update the progress bar
-			document.getElementById("errorMessage").innerText = "";
+			clearErrorMessage();
 			document.getElementById("progressBar").style.width = data.progress_percent + "%";
 
 			var currentStatusElement = document.getElementById("currentStatus");
@@ -80,8 +99,7 @@ function updateProgress() {
 			console.error("Error fetching progress:", error.message);
 
 			// Display the error message in the web browser
-			document.getElementById("errorMessage").innerText = error.message;
-
+			showErrorMessage(error.message);
 			// Handle the error by showing a red status bar
 			document.getElementById("progressBar").style.backgroundColor = "red";
 		});
@@ -114,16 +132,12 @@ function signal(signalType, payload) {
 				}
 			} else {
 				console.error("Failed to send signal");
-
-				// Get the signalResult element
-				var signalResultElement = document.getElementById("errorMessage");
-
-				// Update the display with the result
-				signalResultElement.innerText = "Signal sent failed";
+				showErrorMessage("Signal sent failed");
 			}
 		})
 		.catch(error => {
 			console.error("Error during signal:", error.message);
+			showErrorMessage("Error during signal: " + error.message);
 		});
 }
 
@@ -132,9 +146,7 @@ function update(updateType, decision) {
 	var urlParams = new URLSearchParams(window.location.search);
 	var tfRunID = urlParams.get("wf_id");
 	var reason = document.getElementById("reason").value;
-	var updateResultElement = document.getElementById("updateResult");
-	updateResultElement.style.display = "none";
-
+	clearErrorMessage();
 
 	// Perform AJAX request to the server for updating
 	fetch("/update?wf_id=" + encodeURIComponent(tfRunID), {

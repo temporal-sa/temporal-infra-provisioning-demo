@@ -160,4 +160,6 @@ button {
 
 #errorMessage {
 	color: red;
+	clear: both;
+	display: none;
 }
