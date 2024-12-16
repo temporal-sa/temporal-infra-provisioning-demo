@@ -175,9 +175,11 @@ export ENCRYPT_PAYLOADS="true"
 
 #### Using a Prefix for Terraform
 
-Lastly, to make sure that the namespaces and users that are generated from this demo can be
+To make sure that the namespaces and users that are generated from this demo can be
 attributed to a specific individual, please use the following environment variable to denote your
-name. _The Terraform configuration will not execute without this value._
+name. _The Terraform configuration will not execute without this value._ This is _not_ required
+for running through the UI, because the UI will take in a prefix and use that as the Terraform
+prefix.
 
 ```bash
 export TF_VAR_prefix="neil"

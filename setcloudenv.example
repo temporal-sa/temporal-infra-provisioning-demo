@@ -8,7 +8,7 @@ export TEMPORAL_CERT_PATH=$(temporal env get --env ${TEMPORAL_ENV} --key tls-cer
 export TEMPORAL_KEY_PATH=$(temporal env get --env ${TEMPORAL_ENV} --key tls-key-path -o json | jq -r '.[].value')
 export USE_CLOUD_API_KEY_AUTH=$(temporal env get --env ${TEMPORAL_ENV} --key use-cloud-api-key-auth -o json | jq -r '.[].value')
 
-# Required
+# Required if you are running on the CLI, not required for the UI runs.
 export TF_VAR_prefix="<your_name>"
 
 # Optional
