@@ -4,9 +4,8 @@ TEMPORAL_ENV="<cli_env_name>"
 
 export TEMPORAL_ADDRESS=$(temporal env get --env ${TEMPORAL_ENV} --key address -o json | jq -r '.[].value')
 export TEMPORAL_NAMESPACE=$(temporal env get --env ${TEMPORAL_ENV} --key namespace -o json | jq -r '.[].value')
-export TEMPORAL_CERT_PATH=$(temporal env get --env ${TEMPORAL_ENV} --key tls-cert-path -o json | jq -r '.[].value')
-export TEMPORAL_KEY_PATH=$(temporal env get --env ${TEMPORAL_ENV} --key tls-key-path -o json | jq -r '.[].value')
-export USE_CLOUD_API_KEY_AUTH=$(temporal env get --env ${TEMPORAL_ENV} --key use-cloud-api-key-auth -o json | jq -r '.[].value')
+export TEMPORAL_TLS_CERT=$(temporal env get --env ${TEMPORAL_ENV} --key tls-cert-path -o json | jq -r '.[].value')
+export TEMPORAL_TLS_KEY=$(temporal env get --env ${TEMPORAL_ENV} --key tls-key-path -o json | jq -r '.[].value')
 
 # Required if you are running on the CLI, not required for the UI runs.
 export TF_VAR_prefix="<your_name>"
@@ -15,5 +14,5 @@ export TF_VAR_prefix="<your_name>"
 # export TEMPORAL_CLOUD_API_KEY="<temporal_cloud_api_key>"
 # export TEMPORAL_ADDRESS="host.docker.internal:7233" # For Docker workers
 # export TEMPORAL_TASK_QUEUE="<task_queue_name>"
-# export TEMPORAL_MTLS_DIR="<path_to_mtls_certs>"
+# export TEMPORAL_MTLS_DIR="<path_to_mtls_certs>" # For Docker workers
 # export ENCRYPT_PAYLOADS=true

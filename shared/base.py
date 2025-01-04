@@ -14,8 +14,8 @@ from shared.codec import CompressionCodec, EncryptionCodec
 TEMPORAL_ADDRESS = os.environ.get("TEMPORAL_ADDRESS", "localhost:7233")
 
 # Get the mTLS TLS certificate and key file paths from environment variables
-TEMPORAL_CERT_PATH = os.environ.get("TEMPORAL_CERT_PATH", "")
-TEMPORAL_KEY_PATH = os.environ.get("TEMPORAL_KEY_PATH", "")
+TEMPORAL_TLS_CERT = os.environ.get("TEMPORAL_TLS_CERT", "")
+TEMPORAL_TLS_KEY = os.environ.get("TEMPORAL_TLS_KEY", "")
 
 # Get the Temporal namespace from environment variable, default to "default" if not set
 TEMPORAL_NAMESPACE = os.environ.get("TEMPORAL_NAMESPACE", "default")
@@ -38,11 +38,11 @@ async def get_temporal_client(runtime: Optional[Runtime] = None) -> Client:
 	data_converter = None
 
 	# If mTLS TLS certificate and key are provided, create a TLSConfig object
-	if TEMPORAL_CERT_PATH != "" and TEMPORAL_KEY_PATH != "":
-		with open(TEMPORAL_CERT_PATH, "rb") as f:
+	if TEMPORAL_TLS_CERT != "" and TEMPORAL_TLS_KEY != "":
+		with open(TEMPORAL_TLS_CERT, "rb") as f:
 			client_cert = f.read()
 
-		with open(TEMPORAL_KEY_PATH, "rb") as f:
+		with open(TEMPORAL_TLS_KEY, "rb") as f:
 			client_key = f.read()
 
 		tls_config = TLSConfig(

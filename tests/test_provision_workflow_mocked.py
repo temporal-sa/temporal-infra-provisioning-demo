@@ -46,7 +46,7 @@ async def test_successful_provisioning():
 		)
 
 		async with Worker(
-		env.client,
+			env.client,
 			task_queue=TEMPORAL_TASK_QUEUE,
 			workflows=[ProvisionInfraWorkflow],
 			activities=[

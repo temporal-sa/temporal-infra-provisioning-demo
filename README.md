@@ -147,12 +147,12 @@ export TEMPORAL_INFRA_PROVISION_TASK_QUEUE="infra-provisioning"
 
 #### Using mTLS for Authentication
 
-If you want to use mTLS for authentication, you'll need to set the `TEMPORAL_CERT_PATH` and
-`TEMPORAL_KEY_PATH` environment variables to the paths of your TLS certificate and key.
+If you want to use mTLS for authentication, you'll need to set the `TEMPORAL_TLS_CERT` and
+`TEMPORAL_TLS_KEY` environment variables to the paths of your TLS certificate and key.
 
 ```bash
-export TEMPORAL_CERT_PATH="/path/to/ca.pem"
-export TEMPORAL_KEY_PATH="/path/to/ca.key"
+export TEMPORAL_TLS_CERT="/path/to/ca.pem"
+export TEMPORAL_TLS_KEY="/path/to/ca.key"
 ```
 
 #### Using an API Key for Authentication
@@ -477,8 +477,8 @@ docker run \
   -e TEMPORAL_CLOUD_API_KEY=$TEMPORAL_CLOUD_API_KEY \
   -e TF_VAR_prefix=$TF_VAR_prefix \
   -e ENCRYPT_PAYLOADS=$ENCRYPT_PAYLOADS \
-  -e TEMPORAL_CERT_PATH=/app/certs/client.pem \
-  -e TEMPORAL_KEY_PATH=/app/certs/client.key \
+  -e TEMPORAL_TLS_CERT=/app/certs/client.pem \
+  -e TEMPORAL_TLS_KEY=/app/certs/client.key \
   -v $TEMPORAL_MTLS_DIR:/app/certs \
   eklhad/temporal-infra-worker:latest
 ```
