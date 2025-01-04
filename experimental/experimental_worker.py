@@ -6,7 +6,7 @@ from shared.activities import ProvisioningActivities
 from workflows.apply import ProvisionInfraWorkflow
 from workflows.destroy import DeprovisionInfraWorkflow
 from temporalio.client import Client
-from shared.base import TEMPORAL_ADDRESS, TEMPORAL_NAMESPACE, TEMPORAL_CLOUD_API_KEY
+from shared.base import TEMPORAL_ADDRESS, TEMPORAL_NAMESPACE, TEMPORAL_API_KEY
 
 # Get the task queue name from the environment variable, defaulting to "provision-infra"
 TEMPORAL_TASK_QUEUE = os.environ.get("TEMPORAL_TASK_QUEUE", "provision-infra")
@@ -24,7 +24,7 @@ async def update_api_key(client: Client) -> None:
 async def fetch_updated_api_key() -> str:
 
 	print("Fetching updated API key")
-	return TEMPORAL_CLOUD_API_KEY
+	return TEMPORAL_API_KEY
 
 async def main() -> None:
 	logging.basicConfig(level=logging.INFO)
@@ -35,7 +35,7 @@ async def main() -> None:
 		TEMPORAL_ADDRESS,
 		namespace=TEMPORAL_NAMESPACE,
 		rpc_metadata={"temporal-namespace": TEMPORAL_NAMESPACE},
-		api_key=TEMPORAL_CLOUD_API_KEY,
+		api_key=TEMPORAL_API_KEY,
 		tls=True
 	)
 

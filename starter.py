@@ -3,7 +3,7 @@ import uuid
 import logging
 import os
 from workflows.apply import ProvisionInfraWorkflow
-from shared.base import TEMPORAL_CLOUD_API_KEY, TerraformRunDetails, get_temporal_client, TEMPORAL_TASK_QUEUE
+from shared.base import TEMPORAL_API_KEY, TerraformRunDetails, get_temporal_client, TEMPORAL_TASK_QUEUE
 
 from temporalio.common import TypedSearchAttributes, SearchAttributeKey, \
 	SearchAttributePair
@@ -27,7 +27,7 @@ async def main():
 	tcloud_env_vars = {
 		"TF_VAR_prefix": TF_VAR_prefix,
 		# NOTE: Uncomment this if you want to deploy to Temporal Cloud
-		# "TEMPORAL_CLOUD_API_KEY": TEMPORAL_CLOUD_API_KEY
+		# "TEMPORAL_API_KEY": TEMPORAL_API_KEY
 	}
 
 	# Generate a unique ID for the workflow

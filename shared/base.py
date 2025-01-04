@@ -24,7 +24,7 @@ TEMPORAL_NAMESPACE = os.environ.get("TEMPORAL_NAMESPACE", "default")
 TEMPORAL_TASK_QUEUE = os.environ.get("TEMPORAL_TASK_QUEUE", "provision-infra")
 
 # Get the Temporal Cloud API key from environment variable
-TEMPORAL_CLOUD_API_KEY = os.environ.get("TEMPORAL_CLOUD_API_KEY", "")
+TEMPORAL_API_KEY = os.environ.get("TEMPORAL_API_KEY", "")
 
 # Determine if payloads should be encrypted based on the value of the "ENCRYPT_PAYLOADS" environment variable
 ENCRYPT_PAYLOADS = os.getenv("ENCRYPT_PAYLOADS", 'false').lower() in ('true', '1', 't')
@@ -58,16 +58,14 @@ async def get_temporal_client(runtime: Optional[Runtime] = None) -> Client:
 			failure_converter_class=converter.DefaultFailureConverterWithEncodedAttributes
 		)
 
-	# NOTE: We are using a flag here, since the entire application needs the TEMPORAL_CLOUD_API_KEY
-	# to be set, for now.
-	if TEMPORAL_CLOUD_API_KEY != "":
-		print("Using Cloud API key")
+	if TEMPORAL_API_KEY != "":
+		print("Using Cloud API key", TEMPORAL_API_KEY)
 		# Create a Temporal client using the Cloud API key
 		client = await Client.connect(
 			TEMPORAL_ADDRESS,
 			namespace=TEMPORAL_NAMESPACE,
 			rpc_metadata={"temporal-namespace": TEMPORAL_NAMESPACE},
-			api_key=TEMPORAL_CLOUD_API_KEY,
+			api_key=TEMPORAL_API_KEY,
 			data_converter=data_converter,
 			tls=True,
 		)

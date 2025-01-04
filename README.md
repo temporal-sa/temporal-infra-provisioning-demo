@@ -33,7 +33,7 @@ minikube start
 There are two additional Terraform configurations in this repo, one for provisioning a namespace
 in Temporal Cloud, and one for provisioning an admin user in Temporal Cloud.. The starter script
 will default to provisioning into minikube, but you can easily swap to Temporal Cloud by
-uncommenting the relevant lines. You will need to set the `TEMPORAL_CLOUD_API_KEY` environment
+uncommenting the relevant lines. You will need to set the `TEMPORAL_API_KEY` environment
 variable to match the API key for your Temporal Cloud account. The UI is fully minikube based.
 
 ## Provision Workflow
@@ -158,10 +158,10 @@ export TEMPORAL_TLS_KEY="/path/to/ca.key"
 #### Using an API Key for Authentication
 
 If you want, you can use an API key to authenticate to your namespace, you will need to set you
-`TEMPORAL_CLOUD_API_KEY` environment variable, and have API key auth enabled for your namespace.
+`TEMPORAL_API_KEY` environment variable, and have API key auth enabled for your namespace.
 
 ```bash
-export TEMPORAL_CLOUD_API_KEY="<secretKey>"
+export TEMPORAL_API_KEY="<secretKey>"
 ```
 
 #### Using Data Converters and a Codec Server
@@ -401,7 +401,7 @@ poetry run python cleanup.py
 
 #### Using `terraform` Directly
 
-To do so, make sure that you have your `TEMPORAL_CLOUD_API_KEY` env var set, then run the following.
+To do so, make sure that you have your `TEMPORAL_API_KEY` env var set, then run the following.
 You will have to move around the directories depending on what you need to `destroy`.
 
 **DO NOT DELETE THEM IN THE UI - THIS WILL CAUSE YOUR TERRAFORM STATE TO DRIFT!**
@@ -463,7 +463,7 @@ docker run \
   -e TEMPORAL_ADDRESS=$TEMPORAL_ADDRESS \
   -e TEMPORAL_NAMESPACE=$TEMPORAL_NAMESPACE \
   -e TEMPORAL_TASK_QUEUE=$TEMPORAL_TASK_QUEUE \
-  -e TEMPORAL_CLOUD_API_KEY=$TEMPORAL_CLOUD_API_KEY \
+  -e TEMPORAL_API_KEY=$TEMPORAL_API_KEY \
   -e TF_VAR_prefix=$TF_VAR_prefix \
   -e ENCRYPT_PAYLOADS=$ENCRYPT_PAYLOADS \
   eklhad/temporal-infra-worker:latest
@@ -474,7 +474,7 @@ docker run \
   -e TEMPORAL_ADDRESS=$TEMPORAL_ADDRESS \
   -e TEMPORAL_NAMESPACE=$TEMPORAL_NAMESPACE \
   -e TEMPORAL_TASK_QUEUE=$TEMPORAL_TASK_QUEUE \
-  -e TEMPORAL_CLOUD_API_KEY=$TEMPORAL_CLOUD_API_KEY \
+  -e TEMPORAL_API_KEY=$TEMPORAL_API_KEY \
   -e TF_VAR_prefix=$TF_VAR_prefix \
   -e ENCRYPT_PAYLOADS=$ENCRYPT_PAYLOADS \
   -e TEMPORAL_TLS_CERT=/app/certs/client.pem \

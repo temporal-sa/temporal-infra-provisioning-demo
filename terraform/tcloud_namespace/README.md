@@ -9,14 +9,14 @@ tcld login
 tcld apikey create -n "terraform-test" --desc "Testing the API Key for the TF Provider" -d 90d
 ```
 
-Then set your `TEMPORAL_CLOUD_API_KEY` environment variable.
+Then set your `TEMPORAL_API_KEY` environment variable.
 
 ```bash
 # replace <yoursecretkey> with the "secretKey": output from tcld apikey create command
-export TEMPORAL_CLOUD_API_KEY=""
+export TEMPORAL_API_KEY=""
 ```
 
-Once you have set your `TEMPORAL_CLOUD_API_KEY` environment variable, initialize the Terraform configuration.
+Once you have set your `TEMPORAL_API_KEY` environment variable, initialize the Terraform configuration.
 
 ```bash
 terraform init

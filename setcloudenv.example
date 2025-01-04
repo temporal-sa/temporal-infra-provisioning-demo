@@ -11,7 +11,7 @@ export TEMPORAL_TLS_KEY=$(temporal env get --env ${TEMPORAL_ENV} --key tls-key-p
 export TF_VAR_prefix="<your_name>"
 
 # Optional
-# export TEMPORAL_CLOUD_API_KEY="<temporal_cloud_api_key>"
+# export TEMPORAL_API_KEY="<temporal_cloud_api_key>"
 # export TEMPORAL_ADDRESS="host.docker.internal:7233" # For Docker workers
 # export TEMPORAL_TASK_QUEUE="<task_queue_name>"
 # export TEMPORAL_MTLS_DIR="<path_to_mtls_certs>" # For Docker workers
