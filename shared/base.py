@@ -68,6 +68,7 @@ async def get_temporal_client(runtime: Optional[Runtime] = None) -> Client:
 			api_key=TEMPORAL_API_KEY,
 			data_converter=data_converter,
 			tls=True,
+			runtime=runtime
 		)
 	else:
 		print("Using MTLS")
