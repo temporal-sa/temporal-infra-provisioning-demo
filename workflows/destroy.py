@@ -53,6 +53,7 @@ class DeprovisionInfraWorkflow:
 			non_retryable_error_types=[],
 		)
 		self._progress = 66
+		self._custom_upsert(data, {"provisionStatus": ["destroying"]})
 		self._current_status = "destroying"
 		await workflow.execute_activity_method(
 			ProvisioningActivities.terraform_destroy,
@@ -60,6 +61,7 @@ class DeprovisionInfraWorkflow:
 			start_to_close_timeout=timedelta(seconds=TERRAFORM_COMMON_TIMEOUT_SECS),
 			retry_policy=tf_apply_destroy_retry_policy,
 		)
+		self._custom_upsert(data, {"provisionStatus": ["destroyed"]})
 		self._current_status = "destroyed"
 
 		workflow.logger.info("Infrastructure destroyed")
