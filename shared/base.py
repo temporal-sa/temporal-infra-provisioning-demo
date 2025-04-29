@@ -59,7 +59,7 @@ async def get_temporal_client(runtime: Optional[Runtime] = None) -> Client:
 		)
 
 	if TEMPORAL_API_KEY != "":
-		print("Using Cloud API key")
+		print(f"Using Cloud API key: XXX...{TEMPORAL_API_KEY[-5:]}")
 		# Create a Temporal client using the Cloud API key
 		client = await Client.connect(
 			TEMPORAL_ADDRESS,
