@@ -10,3 +10,4 @@ __pycache__/
 *.key
 *.crt
 setcloudenv.sh
+.idea/

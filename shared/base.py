@@ -2,7 +2,8 @@ import os
 import dataclasses
 from dataclasses import dataclass, field
 from typing import Dict, Optional
-from typing_extensions import runtime
+
+import temporalio
 from temporalio.client import Client
 from temporalio.service import  TLSConfig
 from temporalio import converter
@@ -35,7 +36,7 @@ TERRAFORM_COMMON_TIMEOUT_SECS = 300
 
 async def get_temporal_client(runtime: Optional[Runtime] = None) -> Client:
 	tls_config = False
-	data_converter = None
+	data_converter = temporalio.converter.default()
 
 	# If mTLS TLS certificate and key are provided, create a TLSConfig object
 	if TEMPORAL_TLS_CERT != "" and TEMPORAL_TLS_KEY != "":
@@ -71,7 +72,7 @@ async def get_temporal_client(runtime: Optional[Runtime] = None) -> Client:
 			runtime=runtime
 		)
 	else:
-		print("Using MTLS")
+		print(f"Connecting to {TEMPORAL_ADDRESS}. Using MTLS? {TEMPORAL_TLS_CERT != "" and TEMPORAL_TLS_KEY != ""} DataConverter is {data_converter}")
 		# Create a Temporal client using MTLS
 		client: Client = await Client.connect(
 			TEMPORAL_ADDRESS,
@@ -96,6 +97,7 @@ class TerraformRunDetails:
 	soft_fail_policy: bool = False
 	hard_fail_policy: bool = False
 	simulate_api_failure: bool = False
+	bug_in_workflow: bool = False
 
 @dataclass
 class ApplyDecisionDetails:
