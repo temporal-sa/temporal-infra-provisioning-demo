@@ -54,6 +54,10 @@ class ProvisionInfraWorkflow:
 		self._progress = 20
 		self._current_status = "initialized"
 
+		if data.bug_in_workflow:
+			raise RuntimeError("Simulated bug - fix me!")
+			# pass
+
 		tf_plan_retry_policy = RetryPolicy(
 			initial_interval=timedelta(seconds=3),
 			non_retryable_error_types=["TerraformMissingEnvVarsErrors"],

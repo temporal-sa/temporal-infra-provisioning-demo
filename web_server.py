@@ -138,6 +138,7 @@ async def run_workflow():
 		simulate_api_failure=(selected_scenario == "api_failure"),
 		ephemeral=(selected_scenario == "ephemeral"),
 		ephemeral_ttl=ephemeral_ttl,
+		bug_in_workflow=(selected_scenario == "recoverable_failure"),
 	)
 
 	# Get the Temporal client
