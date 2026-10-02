@@ -51,7 +51,8 @@ resource "kubernetes_deployment" "kuard" {
 
       spec {
         container {
-          image = "gcr.io/kuar-demo/kuard-amd64:blue"
+          #image = "gcr.io/kuar-demo/kuard-amd64:blue"
+          image = "nginx:alpine"
           name  = "kuard"
 
           port {
